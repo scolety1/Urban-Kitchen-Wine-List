@@ -195,3 +195,23 @@ body {
   align-items: center;
   gap: 8px;
 }
+
+.cell.name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.2;
+  white-space: normal; /* allow wrapping */
+}
+
+.drawer-sub {
+  opacity: 0.75;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+  white-space: normal; /* allow wrapping */
+}

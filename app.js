@@ -3,6 +3,70 @@ const appEl = document.getElementById('app');
 
 let DATA = null;
 
+const LANG_KEY = 'wine_lang'; // localStorage key
+
+function getLangFromUrlOrStorage() {
+  const url = new URL(window.location.href);
+  const qLang = (url.searchParams.get('lang') || '').toLowerCase();
+  if (qLang === 'fr') return 'fr';
+
+  const stored = (localStorage.getItem(LANG_KEY) || '').toLowerCase();
+  return stored === 'fr' ? 'fr' : 'en';
+}
+
+function setLang(lang) {
+  const url = new URL(window.location.href);
+
+  if (lang === 'fr') {
+    localStorage.setItem(LANG_KEY, 'fr');
+    url.searchParams.set('lang', 'fr'); // only show in French
+  } else {
+    localStorage.removeItem(LANG_KEY);
+    url.searchParams.delete('lang'); // keep URL clean in English
+  }
+
+  // Preserve hash routing (#red/#white/#sparkling)
+  history.replaceState({}, '', url.toString());
+  window.location.reload();
+}
+
+function ensureFrenchUrlIfStored() {
+  // If localStorage says French but URL doesn’t show it, add it (without reloading).
+  const stored = (localStorage.getItem(LANG_KEY) || '').toLowerCase();
+  if (stored !== 'fr') return;
+
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('lang') === 'fr') return;
+
+  url.searchParams.set('lang', 'fr');
+  history.replaceState({}, '', url.toString());
+}
+
+function attachSevenClickUnlock() {
+  const titleEl = document.querySelector('.title'); // <div class="title">Wine List</div>
+  if (!titleEl) return;
+
+  let count = 0;
+  let timer = null;
+
+  titleEl.style.userSelect = 'none';
+  titleEl.style.cursor = 'pointer';
+
+  titleEl.addEventListener('click', () => {
+    count += 1;
+
+    // reset window each click
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => { count = 0; }, 5000); // 5s window
+
+    if (count >= 7) {
+      count = 0;
+      const current = getLangFromUrlOrStorage();
+      setLang(current === 'fr' ? 'en' : 'fr');
+    }
+  });
+}
+
 function setStatus(msg) {
   statusEl.textContent = msg || '';
 }
@@ -94,10 +158,11 @@ function renderTable(wines, options = {}) {
         <div class="cell price">${price}</div>
       </div>
       <div class="drawer" hidden>
-        <p>${escapeHtml(w.note || '')}</p>
-        <div class="meta">
-          ${escapeHtml([w.region, w.grapes].filter(Boolean).join(' · '))}
+        <div class="drawer-title">${escapeHtml(w.name || '')}</div>
+        <div class="drawer-sub">
+          ${escapeHtml([w.vintage, w.region, w.grapes].filter(Boolean).join(' · '))}
         </div>
+        <p>${escapeHtml(w.note || '')}</p>
       </div>
     `;
 
@@ -209,6 +274,10 @@ async function init() {
     if (!json || !Array.isArray(json.tabs) || !Array.isArray(json.wines)) {
       throw new Error('wines.json is missing required "tabs" or "wines" arrays.');
     }
+    
+    ensureFrenchUrlIfStored();
+    attachSevenClickUnlock();
+
 
     DATA = json;
 
