@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wine List</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">Wine List</div>
+    <nav class="tabs" aria-label="Wine sections">
+      <a class="tab" href="#red" data-tab="red">Red</a>
+      <a class="tab" href="#white" data-tab="white">White</a>
+      <a class="tab" href="#sparkling" data-tab="sparkling">Sparkling</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <div id="app"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

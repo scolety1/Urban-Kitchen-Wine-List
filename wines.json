@@ -1,0 +1,73 @@
+{
+  "tabs": [
+    {
+      "id": "red",
+      "label": "Red",
+      "categories": [
+        { "id": "cab", "label": "Cabernet Sauvignon" },
+        { "id": "pinot", "label": "Pinot Noir" },
+        { "id": "syrah", "label": "Syrah / Shiraz" },
+        { "id": "blend_red", "label": "Red Blends" },
+        { "id": "other_red", "label": "Other Reds" }
+      ]
+    },
+    {
+      "id": "white",
+      "label": "White",
+      "categories": [
+        { "id": "chard", "label": "Chardonnay" },
+        { "id": "sauvblanc", "label": "Sauvignon Blanc" },
+        { "id": "riesling", "label": "Riesling" },
+        { "id": "blend_white", "label": "White Blends" },
+        { "id": "other_white", "label": "Other Whites" }
+      ]
+    },
+    {
+      "id": "sparkling",
+      "label": "Sparkling",
+      "categories": [
+        { "id": "champagne", "label": "Champagne" },
+        { "id": "prosecco", "label": "Prosecco" },
+        { "id": "other_sparkling", "label": "Other Sparkling" }
+      ]
+    }
+  ],
+  "wines": [
+    {
+      "tab": "red",
+      "category": "cab",
+      "bin": 12,
+      "name": "Example Producer",
+      "vintage": "2019",
+      "price": 95,
+      "note": "Full paragraph note goes here. Keep it customer-friendly, about a paragraph long.",
+      "staffPick": true,
+      "region": "Napa Valley, CA",
+      "grapes": "Cabernet Sauvignon"
+    },
+    {
+      "tab": "white",
+      "category": "chard",
+      "bin": 41,
+      "name": "Example Chardonnay",
+      "vintage": "2021",
+      "price": "mp",
+      "note": "Another full paragraph note. This one can be longer. It will show fully in the drawer.",
+      "staffPick": false,
+      "region": "Burgundy, France",
+      "grapes": "Chardonnay"
+    },
+    {
+      "tab": "sparkling",
+      "category": "prosecco",
+      "bin": 3,
+      "name": "Example Prosecco",
+      "vintage": "",
+      "price": 58,
+      "note": "Full paragraph note for sparkling. Vintage can be blank for NV.",
+      "staffPick": true,
+      "region": "Veneto, Italy",
+      "grapes": "Glera"
+    }
+  ]
+}
