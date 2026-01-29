@@ -106,5 +106,3 @@ If something looks broken:
 * Give GitHub Pages a minute to redeploy after commits
 
 ---
-
-If you want, I can also write a short “how to edit this” version specifically for the bar manager, but this should be all you need for the repo itself.
