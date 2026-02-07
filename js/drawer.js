@@ -38,10 +38,6 @@ export function openDrawer(item) {
         <div class="metric-value">${vintage || "—"}</div>
       </div>
       <div class="drawer-metric">
-        <div class="metric-label">Glass</div>
-        <div class="metric-value">${glassHtml || "—"}</div>
-      </div>
-      <div class="drawer-metric">
         <div class="metric-label">Bottle</div>
         <div class="metric-value">${bottleHtml || "—"}</div>
       </div>

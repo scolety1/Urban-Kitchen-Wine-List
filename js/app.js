@@ -66,8 +66,7 @@ async function init() {
 window.addEventListener("hashchange", () => {
   if (!ALL.length) return;
   const active = getActiveVarietalFromHash();
-  const varietals = getVarietals(ALL);
-  renderTabs(varietals, active);
+  renderTabs([], active);
   renderMenu(ALL, active);
 
   if (active && active !== "all") {

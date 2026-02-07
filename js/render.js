@@ -59,11 +59,12 @@ export function getVarietals(records) {
   return Array.from(set).sort((a, b) => cmpText(a, b));
 }
 
-export function renderTabs(varietals, activeVarietal) {
+export function renderTabs(_varietals, activeVarietal) {
   const tabsEl = document.getElementById("tabs");
   if (!tabsEl) return;
 
-  const allActive = !activeVarietal || normLower(activeVarietal) === "all";
+  const current = normLower(activeVarietal || "all");
+
   const btn = (label, id, active) => `
     <button class="tab-btn ${active ? "is-active" : ""}" type="button" data-tab="${escapeHtml(id)}" aria-selected="${active ? "true" : "false"}">
       ${escapeHtml(label)}
@@ -71,11 +72,10 @@ export function renderTabs(varietals, activeVarietal) {
   `;
 
   const parts = [];
-  parts.push(btn("All", "all", allActive));
-  for (const v of varietals) {
-    const id = slug(v);
-    parts.push(btn(v, id, normLower(activeVarietal) === normLower(id)));
-  }
+  parts.push(btn("All", "all", current === "all"));
+  parts.push(btn("Red", "red", current === "red"));
+  parts.push(btn("White", "white", current === "white"));
+  parts.push(btn("Sparkling", "sparkling", current === "sparkling"));
 
   tabsEl.innerHTML = parts.join("");
 
@@ -92,16 +92,16 @@ export function renderTabs(varietals, activeVarietal) {
   });
 }
 
+
 export function renderMenu(records, activeVarietal) {
   const menuEl = document.getElementById("menu");
   if (!menuEl) return;
 
-  const filtered = !activeVarietal || normLower(activeVarietal) === "all"
-    ? records
-    : records.filter((r) => slug(r._varietal) === normLower(activeVarietal));
+  const filtered = matchesTopTab
+    ? records.filter((r) => matchesTopTab(r, activeVarietal))
+    : records;
 
   const byVarietal = groupBy(filtered, (r) => r._varietal || "Other");
-
   const varietalKeys = Object.keys(byVarietal).sort((a, b) => cmpText(a, b));
 
   const html = [];
@@ -228,6 +228,32 @@ function slug(s) {
     .replaceAll(/[^a-z0-9]+/g, "_")
     .replaceAll(/^_+|_+$/g, "");
 }
+function topTabForRecord(r) {
+  const v = normLower(r._varietal || "");
+
+  // sparkling first (so "sparkling rosé" doesn't get treated as red/white)
+  if (v.includes("sparkling") || v.includes("champagne") || v.includes("prosecco") || v.includes("cava") || v.includes("cremant")) {
+    return "sparkling";
+  }
+
+  // white-ish keywords
+  const whiteKeys = [
+    "chardonnay", "sauvignon", "riesling", "pinot gris", "pinot grigio", "moscato",
+    "chenin", "viognier", "verdejo", "vermentino", "gruner", "grüner", "albariño", "albarino",
+    "semillon", "sémillon", "gewurztraminer", "gewürztraminer", "white"
+  ];
+  for (const k of whiteKeys) if (v.includes(k)) return "white";
+
+  // default: red
+  return "red";
+}
+
+function matchesTopTab(r, activeVarietal) {
+  const tab = normLower(activeVarietal || "all");
+  if (tab === "all") return true;
+  return topTabForRecord(r) === tab;
+}
+
 
 export function getActiveVarietalFromHash() {
   const raw = (window.location.hash || "").replace("#", "").trim();
