@@ -1,0 +1,39 @@
+body.lang-fr #language-toggle {
+  display: block;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lang-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+body.lang-fr .varietal-title,
+body.lang-fr .world-header {
+  letter-spacing: 0.10em;
+}
+
+body.lang-fr .subtext {
+  color: rgba(255, 255, 255, 0.80);
+}

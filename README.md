@@ -1,108 +1,142 @@
+# Urban Kitchen Drinks – Menu Instructions
+
+This site is the live drinks menu used in the restaurant via QR code.
+It is intentionally simple and spreadsheet-driven so updates can be made without touching any code.
+
+Please read this before making changes.
 
 ---
 
-# Wine List (QR Menu)
+## What you should edit (important)
 
-This is a super lightweight, mobile-first wine-by-the-bottle list designed to be accessed via QR code.
+All menu updates happen in the `data/` folder.
 
-The site is intentionally simple:
+- `wines.csv` controls the wine list
+- `whiskey.csv` controls the whiskey / bourbon list
 
-* One page
-* Optimized for smartphones
-* Tap a wine to expand and see details
-* No backend, no database, no authentication on the site itself
+If you are updating the menu, **these are the only files you should touch**.
 
-All wine data lives in a single JSON file so updates are fast, safe, and low-maintenance.
+You can edit them in Excel or Google Sheets and export as CSV when finished.
 
 ---
 
-## How it works
+## What you should NOT edit
 
-* The QR code points to the root URL of this site.
-* The page loads `wines.json` and renders a list of wines.
-* Tapping a wine expands it inline to show a short description and details.
-* The QR code never changes, even when the wine list is updated.
+Please do not edit:
+- any `.html` files
+- anything in the `css/` folder
+- anything in the `js/` folder
+- the `CNAME` file
 
----
+Changing those can break the menu for guests.
 
-## File structure
-
-```
-/index.html    Main (and only) page
-/wines.json    Wine data (this is what gets edited)
-/app.js        Fetches + renders wines, handles tap-to-expand
-/style.css    Mobile-first styling
-```
+If something needs to change outside the CSV, contact the person who set this up.
 
 ---
 
-## Updating the wine list
+## How menu items are shown
 
-Only `wines.json` needs to be edited.
+Each row in the CSV represents one item on the menu.
 
-### Steps
+If the item is filled out correctly, it will automatically:
+- appear under the correct varietal
+- be grouped correctly by Old World / New World
+- be ordered by region and bin number
+- show prices properly (including market price)
 
-1. Open this repository on GitHub
-2. Click `wines.json`
-3. Click the edit (pencil) icon
-4. Add, remove, or modify wines
-5. Commit the changes
-
-The site will update automatically within a minute or two.
-
-### Wine format
-
-Each wine is an object in the array:
-
-```json
-{
-  "name": "Producer",
-  "wine": "Wine Name",
-  "vintage": "2021",
-  "region": "Region, Country",
-  "grape": "Grape / Blend",
-  "price": 85,
-  "description": "Short, customer-facing description."
-}
-```
-
-Notes:
-
-* `price` should be a number (no dollar sign)
-* `vintage` can be left as an empty string if not applicable
-* Keep descriptions short (1–2 sentences max)
+You do not need to manually sort the spreadsheet for display purposes.
 
 ---
 
-## Hosting
+## Saving and uploading changes (very important)
 
-This site is hosted using GitHub Pages.
+The menu updates when the CSV files are updated **on GitHub**.
+Editing the spreadsheet on your computer does NOT update the live menu by itself.
 
-* No server
-* No database
-* No ongoing costs
+Follow these steps carefully.
 
-Any commit to the main branch automatically updates the live site.
-
----
-
-## Design decisions
-
-* Single-page only (no navigation)
-* Accordion-style expansion instead of modals (better on phones)
-* No admin login on the site for security reasons
-* Editing happens through GitHub instead of a custom CMS
-
-This keeps the surface area small and avoids unnecessary complexity.
+### Step 1: Edit the spreadsheet
+- Open `wines.csv` or `whiskey.csv` in Excel or Google Sheets
+- Make your changes
+- When finished, export or download the file as **CSV**
+  - Make sure the file name stays exactly the same
 
 ---
 
-## Notes
+### Step 2: Open the GitHub repository
+- Go to the GitHub page for this project
+- Make sure you are logged into the correct account
+- Click into the `data/` folder
 
-If something looks broken:
-
-* Check that `wines.json` is valid JSON (commas, quotes, brackets)
-* Make sure prices are numbers
-* Give GitHub Pages a minute to redeploy after commits
+You should see `wines.csv` and/or `whiskey.csv`.
 
 ---
+
+### Step 3: Upload the updated CSV
+- Click on the CSV file you are replacing
+- Click **“Add file”** or **“Upload files”** (depending on view)
+- Upload your new CSV file
+- Confirm that it replaces the old one
+
+Do not upload extra copies or renamed files.
+
+---
+
+### Step 4: Commit the change
+After uploading, GitHub will ask you to **commit** the change.
+
+- Add a short message like:
+  - “Update wine list”
+  - “Wine menu update 9/14”
+- Click **Commit changes**
+
+This step is required.
+Nothing goes live until the change is committed.
+
+---
+
+### Step 5: Wait for the site to update
+Once committed:
+- The site usually updates within 30–60 seconds
+- You may need to refresh your phone or browser
+- If you have the menu open already, fully reload the page
+
+---
+
+## If something looks wrong
+
+If the menu does not update, looks broken, or items disappear unexpectedly:
+
+First check:
+- The file is saved as `.csv` (not `.xlsx`)
+- The file name has not changed
+- Column names are exactly the same as before
+- No rows were accidentally deleted
+- No extra commas were added inside important fields
+
+If something still looks wrong:
+- Do not keep guessing or changing random files
+- Try reverting to the previous CSV version if you know how
+- Otherwise, stop and contact the person who manages the site
+
+It is much easier to fix one clean mistake than many small ones.
+
+---
+
+## QR codes and pages
+
+- The main QR code points to the wine list
+- The whiskey list lives on a separate page but uses the same system
+
+Both menus update automatically when their CSV file is updated correctly.
+
+---
+
+## Final note
+
+This system is designed so that:
+- managers only edit spreadsheets
+- guests always see a clean, organized menu
+- normal updates do not break anything
+
+If something feels unclear or frustrating to update, that is a system issue — not a user issue — and should be addressed properly.
