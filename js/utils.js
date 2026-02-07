@@ -69,7 +69,7 @@ export function makeShortLocation(row) {
 
 export function worldLabel(world) {
   const w = normLower(world);
-  if (w === "old") return "Old World";
-  if (w === "new") return "New World";
-  return world ? world : "";
+  if (w === "old" || w === "old world") return "Old World";
+  if (w === "new" || w === "new world") return "New World";
+  return world ? norm(world) : "";
 }

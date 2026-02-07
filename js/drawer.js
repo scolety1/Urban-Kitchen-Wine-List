@@ -1,4 +1,12 @@
-import { escapeHtml, makeLocation, priceToDisplay, worldLabel, norm } from "./utils.js";
+import { escapeHtml, makeLocation, priceToDisplay, norm, normLower } from "./utils.js";
+
+function withDollar(val) {
+  const s = norm(val);
+  if (!s) return "";
+  if (normLower(s) === "mp") return "mp";
+  if (s.startsWith("$")) return s;
+  return `$${s}`;
+}
 
 export function openDrawer(item) {
   const backdrop = document.getElementById("drawer-backdrop");
@@ -8,40 +16,30 @@ export function openDrawer(item) {
   const name = escapeHtml(item.name);
   const loc = escapeHtml(makeLocation(item));
   const varietal = escapeHtml(norm(item.varietal));
-  const world = escapeHtml(worldLabel(item.world));
   const vintage = escapeHtml(norm(item.vintage));
   const bin = escapeHtml(norm(item.bin));
-  const glass = priceToDisplay(item.glass_price);
-  const bottle = priceToDisplay(item.bottle_price);
+  const bottleRaw = priceToDisplay(item.bottle_price);
+  const bottle = bottleRaw === "mp" ? "mp" : withDollar(bottleRaw);
   const desc = escapeHtml(norm(item.description));
 
-  const glassHtml = glass === "mp" ? `<span class="mp">mp</span>` : escapeHtml(glass);
   const bottleHtml = bottle === "mp" ? `<span class="mp">mp</span>` : escapeHtml(bottle);
+
+  const pills = [];
+  if (vintage) pills.push(`<span class="pill">Vintage: <b>${vintage}</b></span>`);
+  if (bin) pills.push(`<span class="pill">Bin: <b>${bin}</b></span>`);
+  if (bottle) pills.push(`<span class="pill">Bottle: <b>${bottleHtml}</b></span>`);
 
   drawer.innerHTML = `
     <div class="drawer-header">
       <div>
         <div class="drawer-title">${name}</div>
-        <div class="drawer-subtitle">${[vintage, varietal, world].filter(Boolean).join(" · ")}</div>
+        <div class="drawer-subtitle">${[vintage, varietal].filter(Boolean).join(" · ")}</div>
         ${loc ? `<div class="drawer-subtitle">${loc}</div>` : ``}
       </div>
       <button class="drawer-close" type="button" aria-label="Close">×</button>
     </div>
 
-    <div class="drawer-grid">
-      <div class="drawer-metric">
-        <div class="metric-label">Bin</div>
-        <div class="metric-value">${bin || "—"}</div>
-      </div>
-      <div class="drawer-metric">
-        <div class="metric-label">Vintage</div>
-        <div class="metric-value">${vintage || "—"}</div>
-      </div>
-      <div class="drawer-metric">
-        <div class="metric-label">Bottle</div>
-        <div class="metric-value">${bottleHtml || "—"}</div>
-      </div>
-    </div>
+    ${pills.length ? `<div class="drawer-keyline">${pills.join("")}</div>` : ``}
 
     <div class="drawer-notes">
       <div class="drawer-notes-title">Description</div>

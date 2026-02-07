@@ -10,6 +10,7 @@ const REQUIRED = [
   "region_2",
   "bin",
   "vintage",
+  "glass_price",
   "bottle_price",
   "internal_notes",
   "staff_pick",
@@ -31,7 +32,7 @@ export function normalizeRecords(records) {
     row._id = `${idx}-${norm(row.name)}-${norm(row.bin)}`;
     row._binNum = toInt(row.bin) ?? 999999;
     row._varietal = norm(row.varietal);
-    row._world = normLower(row.world);
+    row._world = normLower(worldLabel(row.world)).includes("old") ? "old" : normLower(worldLabel(row.world)).includes("new") ? "new" : normLower(row.world);
     row._country = norm(row.country);
     row._r1 = norm(row.region_1);
     row._r2 = norm(row.region_2);
@@ -92,14 +93,11 @@ export function renderTabs(_varietals, activeVarietal) {
   });
 }
 
-
 export function renderMenu(records, activeVarietal) {
   const menuEl = document.getElementById("menu");
   if (!menuEl) return;
 
-  const filtered = matchesTopTab
-    ? records.filter((r) => matchesTopTab(r, activeVarietal))
-    : records;
+  const filtered = records.filter((r) => matchesTopTab(r, activeVarietal));
 
   const byVarietal = groupBy(filtered, (r) => r._varietal || "Other");
   const varietalKeys = Object.keys(byVarietal).sort((a, b) => cmpText(a, b));
@@ -110,13 +108,13 @@ export function renderMenu(records, activeVarietal) {
     const vSlug = slug(varietal);
     const items = byVarietal[varietal];
 
-    const newWorld = items.filter((r) => r._world === "new");
     const oldWorld = items.filter((r) => r._world === "old");
-    const otherWorld = items.filter((r) => r._world !== "new" && r._world !== "old");
+    const newWorld = items.filter((r) => r._world === "new");
+    const otherWorld = items.filter((r) => r._world !== "old" && r._world !== "new");
 
     const sections = [];
-    if (newWorld.length) sections.push({ world: "new", rows: newWorld });
     if (oldWorld.length) sections.push({ world: "old", rows: oldWorld });
+    if (newWorld.length) sections.push({ world: "new", rows: newWorld });
     if (otherWorld.length) sections.push({ world: "other", rows: otherWorld });
 
     html.push(`
@@ -185,14 +183,22 @@ function renderWorldBlock(world, rows) {
   `;
 }
 
+function withDollar(val) {
+  const s = norm(val);
+  if (!s) return "";
+  if (normLower(s) === "mp") return "mp";
+  if (s.startsWith("$")) return s;
+  return `$${s}`;
+}
+
 function renderRow(r) {
   const name = escapeHtml(r._name);
   const loc = escapeHtml(makeShortLocation(r));
   const vintage = norm(r.vintage) ? escapeHtml(norm(r.vintage)) : "";
   const subtitle = [loc, vintage].filter(Boolean).join(" · ");
 
-  const bottle = priceToDisplay(r.bottle_price);
-
+  const bottleRaw = priceToDisplay(r.bottle_price);
+  const bottle = bottleRaw === "mp" ? "mp" : withDollar(bottleRaw);
   const bottleHtml = bottle === "mp" ? `<span class="mp">mp</span>` : escapeHtml(bottle || "");
 
   const star = isYes(r.staff_pick) ? `<span class="tag">Staff</span>` : "";
@@ -228,15 +234,14 @@ function slug(s) {
     .replaceAll(/[^a-z0-9]+/g, "_")
     .replaceAll(/^_+|_+$/g, "");
 }
+
 function topTabForRecord(r) {
   const v = normLower(r._varietal || "");
 
-  // sparkling first (so "sparkling rosé" doesn't get treated as red/white)
   if (v.includes("sparkling") || v.includes("champagne") || v.includes("prosecco") || v.includes("cava") || v.includes("cremant")) {
     return "sparkling";
   }
 
-  // white-ish keywords
   const whiteKeys = [
     "chardonnay", "sauvignon", "riesling", "pinot gris", "pinot grigio", "moscato",
     "chenin", "viognier", "verdejo", "vermentino", "gruner", "grüner", "albariño", "albarino",
@@ -244,7 +249,6 @@ function topTabForRecord(r) {
   ];
   for (const k of whiteKeys) if (v.includes(k)) return "white";
 
-  // default: red
   return "red";
 }
 
@@ -253,7 +257,6 @@ function matchesTopTab(r, activeVarietal) {
   if (tab === "all") return true;
   return topTabForRecord(r) === tab;
 }
-
 
 export function getActiveVarietalFromHash() {
   const raw = (window.location.hash || "").replace("#", "").trim();

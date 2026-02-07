@@ -79,33 +79,11 @@
   background: rgba(255, 255, 255, 0.10);
 }
 
-.drawer-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 10px 0 6px 0;
-}
-
-.drawer-metric {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-}
-
-.metric-label {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 900;
-}
-
-.metric-value {
-  margin-top: 6px;
-  font-size: 14px;
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
+.drawer-keyline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 6px;
 }
 
 .drawer-notes {
