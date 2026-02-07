@@ -10,7 +10,6 @@ const REQUIRED = [
   "region_2",
   "bin",
   "vintage",
-  "glass_price",
   "bottle_price",
   "internal_notes",
   "staff_pick",
@@ -129,7 +128,6 @@ export function renderMenu(records, activeVarietal) {
           <div class="table-head">
             <div>Bin</div>
             <div>Wine</div>
-            <div style="text-align:right;">Glass</div>
             <div style="text-align:right;">Bottle</div>
           </div>
         </div>
@@ -193,10 +191,8 @@ function renderRow(r) {
   const vintage = norm(r.vintage) ? escapeHtml(norm(r.vintage)) : "";
   const subtitle = [loc, vintage].filter(Boolean).join(" · ");
 
-  const glass = priceToDisplay(r.glass_price);
   const bottle = priceToDisplay(r.bottle_price);
 
-  const glassHtml = glass === "mp" ? `<span class="mp">mp</span>` : escapeHtml(glass || "");
   const bottleHtml = bottle === "mp" ? `<span class="mp">mp</span>` : escapeHtml(bottle || "");
 
   const star = isYes(r.staff_pick) ? `<span class="tag">Staff</span>` : "";
@@ -211,7 +207,6 @@ function renderRow(r) {
         </div>
         <div class="subtext">${subtitle || ""}</div>
       </div>
-      <div class="cell price">${glassHtml || ""}</div>
       <div class="cell price">${bottleHtml || ""}</div>
     </div>
   `;
