@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Urban Kitchen — Wine List (Print)</title>
+    <link rel="stylesheet" href="./css/print.css" />
+  </head>
+  <body>
+    <div class="toolbar no-print">
+      <button id="btn-print" type="button">Print / Save PDF</button>
+      <div id="status" aria-live="polite"></div>
+    </div>
+
+    <main id="pages"></main>
+
+    <script type="module">
+      import { parseCSV } from "./js/csv.js";
+
+      const CSV_PATH = "./data/wines.csv";
+
+      const $pages = document.getElementById("pages");
+      const $status = document.getElementById("status");
+      const $btnPrint = document.getElementById("btn-print");
+
+      const GREEN = getComputedStyle(document.documentElement).getPropertyValue("--green") || "#2f6a55";
+
+      function setStatus(msg) {
+        if ($status) $status.textContent = msg || "";
+      }
+
+      function norm(v) {
+        return String(v ?? "").trim();
+      }
+
+      function isYes(v) {
+        const s = norm(v).toLowerCase();
+        return s === "y" || s === "yes" || s === "true" || s === "1";
+      }
+
+      function toInt(v) {
+        const n = parseInt(String(v ?? "").replace(/[^\d-]/g, ""), 10);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function priceToStr(v) {
+        const s = norm(v);
+        if (!s) return "";
+        const n = Number(String(s).replace(/[^\d.]/g, ""));
+        if (Number.isFinite(n) && n > 0) return String(Math.round(n));
+        return s;
+      }
+
+      function titleCase(s) {
+        const t = norm(s);
+        if (!t) return "";
+        return t
+          .toLowerCase()
+          .split(/\s+/)
+          .map(w => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+          .join(" ");
+      }
+
+      function makeLocation(r) {
+        const country = norm(r.country);
+        const r1 = norm(r.region_1);
+        const r2 = norm(r.region_2);
+        return [country, r1, r2].filter(Boolean).join(", ");
+      }
+
+      function inferColor(r) {
+        const v = (norm(r.varietal) + " " + norm(r.name)).toLowerCase();
+
+        const sparklingKeys = [
+          "spark", "champ", "prosecco", "cava", "cremant", "franciacorta", "pet-nat", "pet nat",
+          "brut", "blanc de blancs", "blanc de noirs", "methode", "méthode"
+        ];
+        if (sparklingKeys.some(k => v.includes(k))) return "sparkling";
+
+        const whiteKeys = [
+          "chardonnay", "sauvignon", "riesling", "pinot gris", "pinot grigio", "chenin",
+          "viognier", "semillon", "sémillon", "gruner", "grüner", "albariño", "albarino",
+          "vermentino", "moscato", "gewurz", "gewürz", "fiano", "verdicchio", "marsanne",
+          "roussanne", "garganega", "soave", "white"
+        ];
+        if (whiteKeys.some(k => v.includes(k))) return "white";
+
+        const roseKeys = ["rosé", "rose " , " rosé", " rosé ", "rosato"];
+        if (roseKeys.some(k => v.includes(k))) return "white";
+
+        return "red";
+      }
+
+      function groupBy(arr, keyFn) {
+        const m = new Map();
+        for (const x of arr) {
+          const k = keyFn(x);
+          if (!m.has(k)) m.set(k, []);
+          m.get(k).push(x);
+        }
+        return m;
+      }
+
+      function el(tag, cls, text) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+      }
+
+      function buildCover() {
+        const page = el("section", "page cover");
+        const inner = el("div", "cover-inner");
+
+        inner.appendChild(el("div", "cover-kicker", "URBAN KITCHEN"));
+        inner.appendChild(el("div", "cover-title", "WINE LIST"));
+        inner.appendChild(el("div", "cover-sub", "A running list of bottles we’re excited about right now."));
+
+        const updated = new Date();
+        const yyyy = updated.getFullYear();
+        const mm = String(updated.getMonth() + 1).padStart(2, "0");
+        const dd = String(updated.getDate()).padStart(2, "0");
+
+        const meta = el("div", "cover-meta");
+        meta.appendChild(el("div", "cover-line", `Updated: ${yyyy}-${mm}-${dd}`));
+        meta.appendChild(el("div", "cover-line", "Please ask your server if you’d like help choosing."));
+        inner.appendChild(meta);
+
+        const sprig = el("div", "sprig");
+        sprig.innerHTML = `
+          <svg viewBox="0 0 220 520" aria-hidden="true">
+            <path d="M108 18c-3 52-6 118-6 190 0 108 7 206 22 304" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M92 92c-26 8-48 28-58 54 30 0 56-14 74-34" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M146 132c34 6 58 30 66 64-34-2-60-18-78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M84 198c-30 10-52 34-60 64 34-2 60-18 78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M150 250c34 8 60 34 66 70-34-2-62-18-82-44" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M86 308c-28 10-50 34-56 66 30-2 56-18 72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M146 360c30 10 52 34 58 66-30-2-56-18-72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M70 450c26-12 52-14 78-6 28 10 50 8 72-2" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        `;
+        inner.appendChild(sprig);
+
+        page.appendChild(inner);
+        return page;
+      }
+
+      function buildSection(title, items, opts = {}) {
+        const page = el("section", "page");
+        const header = el("div", "section-header");
+        header.appendChild(el("div", "section-title", title));
+        header.appendChild(el("div", "rule"));
+        page.appendChild(header);
+
+        const byVarietal = groupBy(items, r => (norm(r.varietal) || "OTHER").toUpperCase());
+        const varietals = Array.from(byVarietal.keys()).sort((a, b) => a.localeCompare(b));
+
+        for (const varietal of varietals) {
+          const list = byVarietal.get(varietal).slice().sort((a, b) => {
+            const ab = toInt(a.bin) ?? 999999;
+            const bb = toInt(b.bin) ?? 999999;
+            if (ab !== bb) return ab - bb;
+            return norm(a.name).localeCompare(norm(b.name));
+          });
+
+          const sub = el("div", "subsection");
+          const subHeader = el("div", "subheader");
+          subHeader.appendChild(el("div", "sub-title", varietal));
+          subHeader.appendChild(el("div", "rule light"));
+          sub.appendChild(subHeader);
+
+          const ul = el("div", "wine-list");
+
+          for (const r of list) {
+            const bin = norm(r.bin);
+            const name = norm(r.name);
+            const vintage = norm(r.vintage);
+            const price = priceToStr(r.bottle_price);
+            const loc = makeLocation(r);
+
+            const row = el("div", "wine");
+            const top = el("div", "wine-top");
+
+            const left = el("div", "wine-left");
+            const b = el("span", "wine-bin", bin ? `${bin} | ` : "");
+            const n = el("span", "wine-name", name);
+            const v = el("span", "wine-vintage", vintage ? ` | ${vintage}` : "");
+
+            left.appendChild(b);
+            left.appendChild(n);
+            left.appendChild(v);
+
+            const right = el("div", "wine-price", price);
+
+            top.appendChild(left);
+            top.appendChild(right);
+
+            const bottom = el("div", "wine-sub", loc);
+
+            row.appendChild(top);
+            row.appendChild(bottom);
+
+            ul.appendChild(row);
+          }
+
+          sub.appendChild(ul);
+          page.appendChild(sub);
+        }
+
+        if (opts.sprig) {
+          const sprig = el("div", "page-sprig");
+          sprig.innerHTML = `
+            <svg viewBox="0 0 220 520" aria-hidden="true">
+              <path d="M108 18c-3 52-6 118-6 190 0 108 7 206 22 304" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+              <path d="M92 92c-26 8-48 28-58 54 30 0 56-14 74-34" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+              <path d="M146 132c34 6 58 30 66 64-34-2-60-18-78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+              <path d="M84 198c-30 10-52 34-60 64 34-2 60-18 78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+              <path d="M150 250c34 8 60 34 66 70-34-2-62-18-82-44" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+              <path d="M86 308c-28 10-50 34-56 66 30-2 56-18 72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+              <path d="M146 360c30 10 52 34 58 66-30-2-56-18-72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          `;
+          page.appendChild(sprig);
+        }
+
+        return page;
+      }
+
+      async function load() {
+        setStatus("Loading…");
+
+        const res = await fetch(CSV_PATH, { cache: "no-store" });
+        if (!res.ok) throw new Error(`Could not load CSV (${res.status})`);
+        const text = await res.text();
+
+        const records = parseCSV(text) || [];
+
+        const visible = records
+          .map(r => ({
+            ...r,
+            show: norm(r.show),
+            varietal: norm(r.varietal),
+            name: norm(r.name),
+            bin: norm(r.bin),
+            vintage: norm(r.vintage),
+            bottle_price: norm(r.bottle_price),
+            country: norm(r.country),
+            region_1: norm(r.region_1),
+            region_2: norm(r.region_2),
+          }))
+          .filter(r => isYes(r.show));
+
+        const sparkling = [];
+        const white = [];
+        const red = [];
+
+        for (const r of visible) {
+          const c = inferColor(r);
+          if (c === "sparkling") sparkling.push(r);
+          else if (c === "white") white.push(r);
+          else red.push(r);
+        }
+
+        $pages.innerHTML = "";
+        $pages.appendChild(buildCover());
+
+        if (sparkling.length) $pages.appendChild(buildSection("SPARKLING WINES & CHAMPAGNE", sparkling, { sprig: true }));
+        if (white.length) $pages.appendChild(buildSection("WHITE WINES", white, { sprig: false }));
+        if (red.length) $pages.appendChild(buildSection("RED WINES", red, { sprig: true }));
+
+        setStatus("");
+      }
+
+      $btnPrint?.addEventListener("click", () => window.print());
+
+      load().catch(err => {
+        console.error(err);
+        setStatus(err?.message || "Error loading print view.");
+      });
+    </script>
+  </body>
+</html>
