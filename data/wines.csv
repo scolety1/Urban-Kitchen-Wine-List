@@ -1,9 +1,11 @@
-name,varietal,world,country,region_1,region_2,bin,vintage,glass_price,bottle_price,internal_notes,staff_pick,stock,show,description
-Evening Land "Seven Springs",Pinot Noir,new,United States,Oregon,Willamette Valley,41,2021,18,72,,yes,8,yes,"Silky and bright with cranberry, baking spice, and a clean mineral finish."
-Savage Grace Pinot Noir,Pinot Noir,new,United States,Washington,Walla Walla,45,2022,,58,, ,4,yes,"Lively red fruit and savory herbs with a fresh, lifted finish."
-Domaine Dujac Clos de la Roche,Pinot Noir,old,France,Burgundy,Côte de Nuits,34,2019,,285,"Decant 30 min",yes,2,yes,"Elegant and structured with red cherry, dried rose, forest floor, and a long mineral finish."
-Frog's Leap Cabernet Sauvignon,Cabernet Sauvignon,new,United States,California,Napa Valley,12,2021,21,84,,yes,6,yes,"Blackberry, cassis, and cedar with polished tannins and classic Napa balance."
-Château Lanessan,Cabernet Sauvignon,old,France,Bordeaux,Haut-Médoc,18,2018,,mp,, ,3,yes,"Graphite, blackcurrant, and tobacco with a medium-bodied, food-friendly finish."
-Terre Nere Etna Rosso,Other Reds,old,Italy,Sicily,Etna,62,2020,17,68,, ,5,yes,"Volcanic minerality with sour cherry, smoke, and bright acidity."
-House Rosé,Sparkling,new,United States,California,,70,,12,48,, ,10,yes,"Dry, crisp, and refreshing with strawberry and citrus."
-Hidden Test Wine (should not show),Merlot,new,United States,Washington,Columbia Valley,99,2020,14,52,, ,1,no,"If you can see this on the menu, the show filter is not working."
+name,category,varietal,world,country,region_1,region_2,bin,vintage,glass_price,bottle_price,internal_notes,staff_pick,stock,show,description
+Domaine Laforge,Red,Pinot Noir,Old World,France,Burgundy,Côte de Beaune,11,2021,17,68,"Elegant, good BTG seller",Y,8,Y,"Bright cherry, light tannins, subtle earth"
+Castello di Montevero,Red,Sangiovese,Old World,Italy,Tuscany,Chianti Classico,22,2020,15,60,By the glass option,N,5,Y,Medium-bodied with red fruit and spice
+Bodega Altamira,Red,Malbec,New World,Argentina,Mendoza,Uco Valley,31,2022,14,56,Great value,Y,12,Y,"Rich plum, dark berries, smooth finish"
+Oak Ridge Cellars,Red,Cabernet Sauvignon,New World,USA,California,Napa Valley,61,2020,19,76,Reserve list,Y,4,Y,"Full-bodied, dark fruit, oak and cocoa"
+Clos de Valmont,Red,Grenache Blend,Old World,France,Rhône Valley,Southern Rhône,74,2020,14,54,Needs push,N,9,Y,"Juicy red fruit, herbs, soft tannins"
+Maison Verdelais,White,Sauvignon Blanc,Old World,France,Loire Valley,Sancerre,48,2023,16,64,High demand,Y,10,Y,"Zesty citrus, mineral-driven, clean finish"
+Weingut Steinbach,White,Riesling,Old World,Germany,Mosel,—,45,2022,13,52,Slightly sweet,N,6,Y,Crisp acidity with green apple and stone fruit
+Terra Nostra,White,Chardonnay,New World,USA,Oregon,Willamette Valley,66,2021,15,60,No malolactic,N,6,Y,"Crisp apple, subtle oak, balanced texture"
+Mar Azul Estate,White,Albariño,Old World,Spain,Rías Baixas,—,53,2023,14,56,Seasonal favorite,N,7,Y,"Fresh peach, saline minerality, bright acid"
+Lumière Brut,Sparkling,Champagne,Old World,France,Champagne,—,90,NV,18,72,Toast point,Y,5,Y,"Fine bubbles, citrus, brioche finish"
