@@ -233,7 +233,20 @@
         if (!res.ok) throw new Error(`Could not load CSV (${res.status})`);
         const text = await res.text();
 
-        const records = parseCSV(text) || [];
+        const parsed = parseCSV(text);
+
+        const records =
+            Array.isArray(parsed) ? parsed :
+            Array.isArray(parsed?.records) ? parsed.records :
+            Array.isArray(parsed?.rows) ? parsed.rows :
+            Array.isArray(parsed?.data) ? parsed.data :
+            Array.isArray(parsed?.items) ? parsed.items :
+        [];
+
+        if (!records.length) {
+            console.log("parseCSV output:", parsed);
+        }
+
 
         const visible = records
           .map(r => ({
