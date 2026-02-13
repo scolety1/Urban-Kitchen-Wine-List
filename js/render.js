@@ -52,7 +52,7 @@ export function normalizeRecords(records) {
     for (const key of REQUIRED) row[key] = r[key] ?? r[key.toUpperCase?.()] ?? r[key.toLowerCase?.()] ?? "";
     row._id = `${idx}-${norm(row.name)}-${norm(row.bin)}`;
     row._binNum = toInt(row.bin) ?? 999999;
-    row._varietal = norm(row.varietal);
+    row._varietal = canonicalVarietal(row.varietal);
     row._world = normLower(worldLabel(row.world)).includes("old") ? "old" : normLower(worldLabel(row.world)).includes("new") ? "new" : normLower(row.world);
     row._country = norm(row.country);
     row._r1 = norm(row.region_1);
@@ -186,6 +186,38 @@ function titleCase(s) {
     .join(" ");
 }
 
+function canonicalVarietal(raw) {
+  const v = normLower(raw);
+
+  if (!v) return "";
+
+  // basic cleanup
+  const cleaned = v
+    .replaceAll("&", " and ")
+    .replaceAll("/", " ")
+    .replaceAll("-", " ")
+    .replaceAll(/\s+/g, " ")
+    .trim();
+
+  // synonyms (expand anytime)
+  const rules = [
+    { keys: ["syrah", "shiraz"], label: "Syrah/Shiraz" },
+    { keys: ["grenache", "garnacha"], label: "Grenache/Garnacha" },
+  ];
+
+  for (const r of rules) {
+    for (const k of r.keys) {
+      if (cleaned.includes(k)) return r.label;
+    }
+  }
+
+  return titleCase(cleaned);
+}
+
+function isOtherBucket(label) {
+  return normLower(label).startsWith("other ");
+}
+
 export function renderMenu(records, state) {
   const menuEl = document.getElementById("menu");
   if (!menuEl) return;
@@ -207,8 +239,44 @@ export function renderMenu(records, state) {
   const staff = view.filter((r) => isYes(r.staff_pick));
   const rest = view.filter((r) => !isYes(r.staff_pick));
 
-  const byVarietal = groupBy(rest, (r) => r._varietal || "Other");
-  const varietalKeys = Object.keys(byVarietal).sort((a, b) => cmpText(a, b));
+  let byVarietal = groupBy(rest, (r) => r._varietal || "Other");
+
+  const otherLabel =
+    tab === "red" ? "Other Red" :
+    tab === "white" ? "Other White" :
+    tab === "sparkling" ? "Other Sparkling" :
+    "Other";
+
+  const merged = {};
+  let otherRows = [];
+
+  for (const [k, rows] of Object.entries(byVarietal)) {
+    if (k !== "Other" && rows.length <= 2) {
+      otherRows = otherRows.concat(rows);
+    } else {
+      merged[k] = rows;
+    }
+  }
+
+  if (otherRows.length) {
+    merged[otherLabel] = (merged[otherLabel] || []).concat(otherRows);
+  }
+
+  // ensure any existing plain "Other" also rolls into the typed label when in a type tab
+  if (merged["Other"] && otherLabel !== "Other") {
+    merged[otherLabel] = (merged[otherLabel] || []).concat(merged["Other"]);
+    delete merged["Other"];
+  }
+
+  byVarietal = merged;
+
+  const varietalKeys = Object.keys(byVarietal).sort((a, b) => {
+    // keep typed "Other X" at the bottom
+    const ao = isOtherBucket(a) ? 1 : 0;
+    const bo = isOtherBucket(b) ? 1 : 0;
+    if (ao !== bo) return ao - bo;
+    return cmpText(a, b);
+  });
 
   const html = [];
 
@@ -389,12 +457,29 @@ function slug(s) {
 function topTabForRecord(r) {
   const v = normLower(r._varietal || "");
 
-  if (v.includes("sparkling") || v.includes("champagne") || v.includes("prosecco") || v.includes("cava") || v.includes("cremant")) {
-    return "sparkling";
-  }
+  // Sparkling first
+  if (
+    v.includes("sparkling") ||
+    v.includes("champagne") ||
+    v.includes("prosecco") ||
+    v.includes("cava") ||
+    v.includes("cremant") ||
+    v.includes("crémant")
+  ) return "sparkling";
 
+  // Red-first keys (prevents "sauvignon" inside cab sauv from misclassifying)
+  const redKeys = [
+    "cabernet sauvignon", "cabernet", "cab", "merlot", "pinot noir",
+    "syrah", "shiraz", "grenache", "garnacha", "tempranillo",
+    "malbec", "sangiovese", "nebbiolo", "barbera", "zinfandel",
+    "primitivo", "petite sirah", "mourvedre", "monastrell",
+    "cinsault", "carignan", "mencia", "agiorgitiko", "gamay"
+  ];
+  for (const k of redKeys) if (v.includes(k)) return "red";
+
+  // White keys
   const whiteKeys = [
-    "chardonnay", "sauvignon", "riesling", "pinot gris", "pinot grigio", "moscato",
+    "chardonnay", "sauvignon blanc", "riesling", "pinot gris", "pinot grigio", "moscato",
     "chenin", "viognier", "verdejo", "vermentino", "gruner", "grüner", "albariño", "albarino",
     "semillon", "sémillon", "gewurztraminer", "gewürztraminer", "white"
   ];
