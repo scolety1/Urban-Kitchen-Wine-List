@@ -1,8 +1,20 @@
-import { escapeHtml, cmpText, makeShortLocation, isYes, isNo, toInt, worldLabel, norm, normLower, priceToDisplay } from "./utils.js";
+import {
+  escapeHtml,
+  cmpText,
+  makeShortLocation,
+  isYes,
+  isNo,
+  toInt,
+  worldLabel,
+  norm,
+  normLower,
+  priceToDisplay,
+} from "./utils.js";
 import { openDrawer } from "./drawer.js";
 
 const REQUIRED = [
   "name",
+  "type",
   "varietal",
   "world",
   "country",
@@ -12,7 +24,7 @@ const REQUIRED = [
   "vintage",
   "glass_price",
   "bottle_price",
-  "internal_notes",
+  "collection",
   "staff_pick",
   "stock",
   "show",
@@ -30,15 +42,19 @@ export function getStateFromUrl() {
 function setUrlState(next) {
   const params = new URLSearchParams(window.location.search);
 
-  if (next.tab) params.set("tab", next.tab); else params.delete("tab");
-  if (next.varietal) params.set("varietal", next.varietal); else params.delete("varietal");
-  if (next.special) params.set("special", next.special); else params.delete("special");
+  if (next.tab) params.set("tab", next.tab);
+  else params.delete("tab");
+
+  if (next.varietal) params.set("varietal", next.varietal);
+  else params.delete("varietal");
+
+  if (next.special) params.set("special", next.special);
+  else params.delete("special");
 
   const qs = params.toString();
   const url = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash || ""}`;
   history.pushState(null, "", url);
 }
-
 
 export function validateHeaders(headers) {
   const present = new Set(headers.map((h) => normLower(h)));
@@ -49,15 +65,34 @@ export function validateHeaders(headers) {
 export function normalizeRecords(records) {
   return records.map((r, idx) => {
     const row = {};
-    for (const key of REQUIRED) row[key] = r[key] ?? r[key.toUpperCase?.()] ?? r[key.toLowerCase?.()] ?? "";
+    for (const key of REQUIRED) {
+      row[key] = r[key] ?? r[key.toUpperCase?.()] ?? r[key.toLowerCase?.()] ?? "";
+    }
+
     row._id = `${idx}-${norm(row.name)}-${norm(row.bin)}`;
     row._binNum = toInt(row.bin) ?? 999999;
+
     row._varietal = canonicalVarietal(row.varietal);
-    row._world = normLower(worldLabel(row.world)).includes("old") ? "old" : normLower(worldLabel(row.world)).includes("new") ? "new" : normLower(row.world);
+
+    let t = normLower(row.type);
+    if (t === "rosé") t = "rose";
+    if (t === "rosé wine") t = "rose";
+    if (!["red", "white", "sparkling", "rose"].includes(t)) t = "red";
+    row._type = t;
+
+    row._collection = normLower(row.collection || "");
+
+    row._world = normLower(worldLabel(row.world)).includes("old")
+      ? "old"
+      : normLower(worldLabel(row.world)).includes("new")
+      ? "new"
+      : normLower(row.world);
+
     row._country = norm(row.country);
     row._r1 = norm(row.region_1);
     row._r2 = norm(row.region_2);
     row._name = norm(row.name);
+
     return row;
   });
 }
@@ -88,7 +123,9 @@ export function renderTabs(_varietals, activeTab) {
   const current = normLower(activeTab || "all");
 
   const btn = (label, id, active) => `
-    <button class="tab-btn ${active ? "is-active" : ""}" type="button" data-tab="${escapeHtml(id)}" aria-selected="${active ? "true" : "false"}">
+    <button class="tab-btn ${active ? "is-active" : ""}" type="button" data-tab="${escapeHtml(
+    id
+  )}" aria-selected="${active ? "true" : "false"}">
       ${escapeHtml(label)}
     </button>
   `;
@@ -97,6 +134,7 @@ export function renderTabs(_varietals, activeTab) {
     btn("All", "all", current === "all"),
     btn("Red", "red", current === "red"),
     btn("White", "white", current === "white"),
+    btn("Rosé", "rose", current === "rose"),
     btn("Sparkling", "sparkling", current === "sparkling"),
     btn("Specials", "specials", current === "specials"),
   ].join("");
@@ -104,7 +142,7 @@ export function renderTabs(_varietals, activeTab) {
   tabsEl.querySelectorAll("[data-tab]").forEach((el) => {
     el.addEventListener("click", () => {
       const tab = el.getAttribute("data-tab") || "all";
-      setUrlState({ tab, varietal: "", special: tab === "specials" ? "featured" : "" });
+      setUrlState({ tab, varietal: "", special: "" });
       window.dispatchEvent(new Event("hashchange"));
     });
   });
@@ -114,9 +152,8 @@ export function renderSubtabs(records, state) {
   const el = document.getElementById("subtabs");
   if (!el) return;
 
-  const tab = normLower(state.tab || "all");
+  const tab = normLower(state?.tab || "all");
 
-  // hide by default
   el.classList.add("hidden");
   el.innerHTML = "";
 
@@ -128,17 +165,25 @@ export function renderSubtabs(records, state) {
     </button>
   `;
 
-  // Varietal subtabs for red/white/sparkling
-  if (tab === "red" || tab === "white" || tab === "sparkling") {
+  if (tab === "red" || tab === "white" || tab === "sparkling" || tab === "rose") {
     const filteredForType = records.filter((r) => topTabForRecord(r) === tab);
-    const varietals = Array.from(new Set(filteredForType.map((r) => normLower(r._varietal)).filter(Boolean)))
-      .sort((a, b) => cmpText(a, b));
+
+    const varietals = Array.from(
+      new Set(
+        filteredForType
+          .map((r) => normLower(r._varietal))
+          .filter(Boolean)
+      )
+    ).sort((a, b) => cmpText(a, b));
 
     el.classList.remove("hidden");
 
-    const activeVar = normLower(state.varietal || "");
+    const activeVar = normLower(state?.varietal || "");
     const parts = [makeBtn("All", "", !activeVar, "varietal")];
-    for (const v of varietals) parts.push(makeBtn(titleCase(v.replaceAll("_", " ")), v, activeVar === v, "varietal"));
+
+    for (const v of varietals) {
+      parts.push(makeBtn(titleCase(v.replaceAll("_", " ")), v, activeVar === v, "varietal"));
+    }
 
     el.innerHTML = parts.join("");
 
@@ -153,16 +198,21 @@ export function renderSubtabs(records, state) {
     return;
   }
 
-  // Specials subtabs
   if (tab === "specials") {
+    const tags = getSpecialTags(records);
+    if (!tags.length) return;
+
+    let activeSpecial = normLower(state?.special || "");
+    if (!activeSpecial) {
+      activeSpecial = tags[0];
+      setUrlState({ tab: "specials", varietal: "", special: activeSpecial });
+    }
+
     el.classList.remove("hidden");
 
-    const activeSpecial = normLower(state.special || "");
-    const parts = [
-      makeBtn("Featured", "featured", activeSpecial === "featured", "special"),
-      makeBtn("High Roller", "high_roller", activeSpecial === "high_roller", "special"),
-      makeBtn("Valentine’s", "valentines", activeSpecial === "valentines", "special"),
-    ];
+    const parts = tags.map((t) =>
+      makeBtn(titleCase(t.replaceAll("_", " ")), t, activeSpecial === t, "special")
+    );
 
     el.innerHTML = parts.join("");
 
@@ -178,6 +228,7 @@ export function renderSubtabs(records, state) {
   }
 }
 
+
 function titleCase(s) {
   return String(s || "")
     .split(" ")
@@ -188,10 +239,8 @@ function titleCase(s) {
 
 function canonicalVarietal(raw) {
   const v = normLower(raw);
-
   if (!v) return "";
 
-  // basic cleanup
   const cleaned = v
     .replaceAll("&", " and ")
     .replaceAll("/", " ")
@@ -199,7 +248,6 @@ function canonicalVarietal(raw) {
     .replaceAll(/\s+/g, " ")
     .trim();
 
-  // synonyms (expand anytime)
   const rules = [
     { keys: ["syrah", "shiraz"], label: "Syrah/Shiraz" },
     { keys: ["grenache", "garnacha"], label: "Grenache/Garnacha" },
@@ -225,19 +273,83 @@ export function renderMenu(records, state) {
   const tab = normLower(state?.tab || "all");
   let view = records.slice();
 
-  if (tab === "red" || tab === "white" || tab === "sparkling") {
+  if (tab === "red" || tab === "white" || tab === "sparkling" || tab === "rose") {
     view = view.filter((r) => topTabForRecord(r) === tab);
   } else if (tab === "specials") {
-    view = view.filter((r) => matchesSpecial(r, state?.special));
+    let specialKey = normLower(state?.special || "");
+    if (!specialKey) {
+      const tags = getSpecialTags(records);
+      specialKey = tags[0] || "";
+      if (specialKey) setUrlState({ tab: "specials", varietal: "", special: specialKey });
+    }
+    view = specialKey ? view.filter((r) => matchesSpecial(r, specialKey)) : [];
+    state = { ...(state || {}), tab: "specials", special: specialKey };
   }
 
   const vSub = normLower(state?.varietal || "");
-  if (vSub && (tab === "red" || tab === "white" || tab === "sparkling")) {
+  if (vSub && (tab === "red" || tab === "white" || tab === "sparkling" || tab === "rose")) {
     view = view.filter((r) => normLower(r._varietal) === vSub);
   }
 
   const staff = view.filter((r) => isYes(r.staff_pick));
   const rest = view.filter((r) => !isYes(r.staff_pick));
+
+  const html = [];
+
+  if (staff.length) html.push(renderPinnedStaff(staff));
+
+  if (tab === "specials") {
+    const title = titleCase(String(state?.special || "Specials").replaceAll("_", " "));
+    const oldWorld = rest.filter((r) => r._world === "old");
+    const newWorld = rest.filter((r) => r._world === "new");
+    const otherWorld = rest.filter((r) => r._world !== "old" && r._world !== "new");
+
+    const sections = [];
+    if (oldWorld.length) sections.push({ world: "old", rows: oldWorld });
+    if (newWorld.length) sections.push({ world: "new", rows: newWorld });
+    if (otherWorld.length) sections.push({ world: "other", rows: otherWorld });
+
+    html.push(`
+      <section class="section" id="${escapeHtml(slug(title))}">
+        <div class="sticky-stack">
+          <div class="varietal-header">
+            <div class="varietal-title">${escapeHtml(title)}</div>
+          </div>
+          <div class="table-head">
+            <div>Bin</div>
+            <div>Wine</div>
+            <div style="text-align:right;">Bottle</div>
+          </div>
+        </div>
+
+        <div class="section-body">
+          ${sections.map((s) => renderWorldBlock(s.world, s.rows)).join("")}
+        </div>
+      </section>
+    `);
+
+    if (!html.length) {
+      menuEl.innerHTML = `
+        <div class="card" style="padding: 14px;">
+          <div style="font-weight: 800; margin-bottom: 6px;">No items to show</div>
+          <div style="color: var(--muted); font-weight: 600;">Try a different tab.</div>
+        </div>
+      `;
+      return;
+    }
+
+    menuEl.innerHTML = html.join("");
+
+    menuEl.querySelectorAll(".table-row[data-id]").forEach((rowEl) => {
+      rowEl.addEventListener("click", () => {
+        const id = rowEl.getAttribute("data-id");
+        const item = view.find((r) => r._id === id);
+        if (item) openDrawer(item);
+      });
+    });
+
+    return;
+  }
 
   let byVarietal = groupBy(rest, (r) => r._varietal || "Other");
 
@@ -245,24 +357,19 @@ export function renderMenu(records, state) {
     tab === "red" ? "Other Red" :
     tab === "white" ? "Other White" :
     tab === "sparkling" ? "Other Sparkling" :
+    tab === "rose" ? "Other Rosé" :
     "Other";
 
   const merged = {};
   let otherRows = [];
 
   for (const [k, rows] of Object.entries(byVarietal)) {
-    if (k !== "Other" && rows.length <= 2) {
-      otherRows = otherRows.concat(rows);
-    } else {
-      merged[k] = rows;
-    }
+    if (k !== "Other" && rows.length <= 2) otherRows = otherRows.concat(rows);
+    else merged[k] = rows;
   }
 
-  if (otherRows.length) {
-    merged[otherLabel] = (merged[otherLabel] || []).concat(otherRows);
-  }
+  if (otherRows.length) merged[otherLabel] = (merged[otherLabel] || []).concat(otherRows);
 
-  // ensure any existing plain "Other" also rolls into the typed label when in a type tab
   if (merged["Other"] && otherLabel !== "Other") {
     merged[otherLabel] = (merged[otherLabel] || []).concat(merged["Other"]);
     delete merged["Other"];
@@ -271,18 +378,11 @@ export function renderMenu(records, state) {
   byVarietal = merged;
 
   const varietalKeys = Object.keys(byVarietal).sort((a, b) => {
-    // keep typed "Other X" at the bottom
     const ao = isOtherBucket(a) ? 1 : 0;
     const bo = isOtherBucket(b) ? 1 : 0;
     if (ao !== bo) return ao - bo;
     return cmpText(a, b);
   });
-
-  const html = [];
-
-  if (staff.length) {
-    html.push(renderPinnedStaff(staff));
-  }
 
   for (const varietal of varietalKeys) {
     const vSlug = slug(varietal);
@@ -362,20 +462,27 @@ function renderPinnedStaff(rows) {
   `;
 }
 
+function parseTags(s) {
+  return normLower(s)
+    .split("|")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function getSpecialTags(records) {
+  const set = new Set();
+  for (const r of records) {
+    for (const tag of parseTags(r._collection || r.collection || "")) set.add(tag);
+  }
+  return Array.from(set).sort((a, b) => cmpText(a, b));
+}
+
 function matchesSpecial(r, specialKey) {
   const key = normLower(specialKey || "");
   if (!key) return false;
-
-  const notes = normLower(r.internal_notes || "");
-  if (!notes) return false;
-
-  if (key === "high_roller") return notes.includes("high_roller") || notes.includes("high roller") || notes.includes("highroller");
-  if (key === "valentines") return notes.includes("valentine") || notes.includes("valentines");
-  if (key === "featured") return notes.includes("featured");
-
-  return false;
+  const tags = parseTags(r._collection || r.collection || "");
+  return tags.includes(key);
 }
-
 
 function renderWorldBlock(world, rows) {
   const label = world === "other" ? "Other" : worldLabel(world);
@@ -455,35 +562,10 @@ function slug(s) {
 }
 
 function topTabForRecord(r) {
-  const v = normLower(r._varietal || "");
-
-  // Sparkling first
-  if (
-    v.includes("sparkling") ||
-    v.includes("champagne") ||
-    v.includes("prosecco") ||
-    v.includes("cava") ||
-    v.includes("cremant") ||
-    v.includes("crémant")
-  ) return "sparkling";
-
-  // Red-first keys (prevents "sauvignon" inside cab sauv from misclassifying)
-  const redKeys = [
-    "cabernet sauvignon", "cabernet", "cab", "merlot", "pinot noir",
-    "syrah", "shiraz", "grenache", "garnacha", "tempranillo",
-    "malbec", "sangiovese", "nebbiolo", "barbera", "zinfandel",
-    "primitivo", "petite sirah", "mourvedre", "monastrell",
-    "cinsault", "carignan", "mencia", "agiorgitiko", "gamay"
-  ];
-  for (const k of redKeys) if (v.includes(k)) return "red";
-
-  // White keys
-  const whiteKeys = [
-    "chardonnay", "sauvignon blanc", "riesling", "pinot gris", "pinot grigio", "moscato",
-    "chenin", "viognier", "verdejo", "vermentino", "gruner", "grüner", "albariño", "albarino",
-    "semillon", "sémillon", "gewurztraminer", "gewürztraminer", "white"
-  ];
-  for (const k of whiteKeys) if (v.includes(k)) return "white";
-
+  const t = normLower(r._type || r.type || "");
+  if (t === "rosé") return "rose";
+  if (t === "rose") return "rose";
+  if (t === "white") return "white";
+  if (t === "sparkling") return "sparkling";
   return "red";
 }
