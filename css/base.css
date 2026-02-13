@@ -16,6 +16,7 @@
 
   --topbar-h: 56px;
   --sticky-gap: 8px;
+  --tabs-row-h: 56px;
 
   --z-topbar: 40;
   --z-sticky: 30;
@@ -51,26 +52,74 @@ a {
 }
 
 #top-bar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: var(--z-topbar);
   background: rgba(11, 11, 12, 0.88);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
 
+#content {
+  padding: calc(var(--topbar-h) + var(--sticky-gap)) var(--pad) 80px var(--pad);
+}
+
+
 #tabs {
-  min-height: var(--topbar-h);
+  min-height: var(--tabs-row-h);
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px var(--pad);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 #tabs::-webkit-scrollbar {
   height: 0;
+}
+
+#subtabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px var(--pad) 10px var(--pad);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  border-bottom: 1px solid var(--border);
+}
+
+#subtabs::-webkit-scrollbar {
+  height: 0;
+}
+
+.subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-weight: 650;
+  font-size: 13px;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  cursor: pointer;
+  user-select: none;
+}
+
+.subtab-btn[aria-selected="true"],
+.subtab-btn.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .tab-btn {
@@ -100,10 +149,6 @@ a {
 #language-toggle {
   display: none;
   padding: 0 var(--pad) 12px var(--pad);
-}
-
-#content {
-  padding: 14px var(--pad) 80px var(--pad);
 }
 
 #menu {
@@ -164,7 +209,7 @@ a {
 
 .world-header {
   position: sticky;
-  top: calc(var(--topbar-h) + 48px);
+  top: var(--topbar-h);
   z-index: calc(var(--z-sticky) - 1);
   background: rgba(22, 22, 26, 0.94);
   backdrop-filter: blur(10px);
@@ -199,6 +244,7 @@ a {
   :root {
     --pad: 18px;
     --topbar-h: 64px;
+    --tabs-row-h: 64px;
   }
 
   #content {

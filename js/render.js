@@ -19,6 +19,27 @@ const REQUIRED = [
   "description",
 ];
 
+export function getStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = normLower(params.get("tab") || "all");
+  const varietal = normLower(params.get("varietal") || "");
+  const special = normLower(params.get("special") || "");
+  return { tab, varietal, special };
+}
+
+function setUrlState(next) {
+  const params = new URLSearchParams(window.location.search);
+
+  if (next.tab) params.set("tab", next.tab); else params.delete("tab");
+  if (next.varietal) params.set("varietal", next.varietal); else params.delete("varietal");
+  if (next.special) params.set("special", next.special); else params.delete("special");
+
+  const qs = params.toString();
+  const url = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash || ""}`;
+  history.pushState(null, "", url);
+}
+
+
 export function validateHeaders(headers) {
   const present = new Set(headers.map((h) => normLower(h)));
   const missing = REQUIRED.filter((k) => !present.has(k));
@@ -60,11 +81,11 @@ export function getVarietals(records) {
   return Array.from(set).sort((a, b) => cmpText(a, b));
 }
 
-export function renderTabs(_varietals, activeVarietal) {
+export function renderTabs(_varietals, activeTab) {
   const tabsEl = document.getElementById("tabs");
   if (!tabsEl) return;
 
-  const current = normLower(activeVarietal || "all");
+  const current = normLower(activeTab || "all");
 
   const btn = (label, id, active) => `
     <button class="tab-btn ${active ? "is-active" : ""}" type="button" data-tab="${escapeHtml(id)}" aria-selected="${active ? "true" : "false"}">
@@ -72,37 +93,128 @@ export function renderTabs(_varietals, activeVarietal) {
     </button>
   `;
 
-  const parts = [];
-  parts.push(btn("All", "all", current === "all"));
-  parts.push(btn("Red", "red", current === "red"));
-  parts.push(btn("White", "white", current === "white"));
-  parts.push(btn("Sparkling", "sparkling", current === "sparkling"));
-
-  tabsEl.innerHTML = parts.join("");
+  tabsEl.innerHTML = [
+    btn("All", "all", current === "all"),
+    btn("Red", "red", current === "red"),
+    btn("White", "white", current === "white"),
+    btn("Sparkling", "sparkling", current === "sparkling"),
+    btn("Specials", "specials", current === "specials"),
+  ].join("");
 
   tabsEl.querySelectorAll("[data-tab]").forEach((el) => {
     el.addEventListener("click", () => {
       const tab = el.getAttribute("data-tab") || "all";
-      if (tab === "all") {
-        history.replaceState(null, "", window.location.pathname + window.location.search);
-      } else {
-        location.hash = `#${tab}`;
-      }
+      setUrlState({ tab, varietal: "", special: tab === "specials" ? "featured" : "" });
       window.dispatchEvent(new Event("hashchange"));
     });
   });
 }
 
-export function renderMenu(records, activeVarietal) {
+export function renderSubtabs(records, state) {
+  const el = document.getElementById("subtabs");
+  if (!el) return;
+
+  const tab = normLower(state.tab || "all");
+
+  // hide by default
+  el.classList.add("hidden");
+  el.innerHTML = "";
+
+  const makeBtn = (label, key, active, kind) => `
+    <button class="subtab-btn ${active ? "is-active" : ""}" type="button"
+      data-kind="${escapeHtml(kind)}" data-key="${escapeHtml(key)}"
+      aria-selected="${active ? "true" : "false"}">
+      ${escapeHtml(label)}
+    </button>
+  `;
+
+  // Varietal subtabs for red/white/sparkling
+  if (tab === "red" || tab === "white" || tab === "sparkling") {
+    const filteredForType = records.filter((r) => topTabForRecord(r) === tab);
+    const varietals = Array.from(new Set(filteredForType.map((r) => normLower(r._varietal)).filter(Boolean)))
+      .sort((a, b) => cmpText(a, b));
+
+    el.classList.remove("hidden");
+
+    const activeVar = normLower(state.varietal || "");
+    const parts = [makeBtn("All", "", !activeVar, "varietal")];
+    for (const v of varietals) parts.push(makeBtn(titleCase(v.replaceAll("_", " ")), v, activeVar === v, "varietal"));
+
+    el.innerHTML = parts.join("");
+
+    el.querySelectorAll("[data-kind='varietal']").forEach((b) => {
+      b.addEventListener("click", () => {
+        const key = b.getAttribute("data-key") || "";
+        setUrlState({ tab, varietal: key, special: "" });
+        window.dispatchEvent(new Event("hashchange"));
+      });
+    });
+
+    return;
+  }
+
+  // Specials subtabs
+  if (tab === "specials") {
+    el.classList.remove("hidden");
+
+    const activeSpecial = normLower(state.special || "");
+    const parts = [
+      makeBtn("Featured", "featured", activeSpecial === "featured", "special"),
+      makeBtn("High Roller", "high_roller", activeSpecial === "high_roller", "special"),
+      makeBtn("Valentine’s", "valentines", activeSpecial === "valentines", "special"),
+    ];
+
+    el.innerHTML = parts.join("");
+
+    el.querySelectorAll("[data-kind='special']").forEach((b) => {
+      b.addEventListener("click", () => {
+        const key = b.getAttribute("data-key") || "";
+        setUrlState({ tab: "specials", varietal: "", special: key });
+        window.dispatchEvent(new Event("hashchange"));
+      });
+    });
+
+    return;
+  }
+}
+
+function titleCase(s) {
+  return String(s || "")
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+export function renderMenu(records, state) {
   const menuEl = document.getElementById("menu");
   if (!menuEl) return;
 
-  const filtered = records.filter((r) => matchesTopTab(r, activeVarietal));
+  const tab = normLower(state?.tab || "all");
+  let view = records.slice();
 
-  const byVarietal = groupBy(filtered, (r) => r._varietal || "Other");
+  if (tab === "red" || tab === "white" || tab === "sparkling") {
+    view = view.filter((r) => topTabForRecord(r) === tab);
+  } else if (tab === "specials") {
+    view = view.filter((r) => matchesSpecial(r, state?.special));
+  }
+
+  const vSub = normLower(state?.varietal || "");
+  if (vSub && (tab === "red" || tab === "white" || tab === "sparkling")) {
+    view = view.filter((r) => normLower(r._varietal) === vSub);
+  }
+
+  const staff = view.filter((r) => isYes(r.staff_pick));
+  const rest = view.filter((r) => !isYes(r.staff_pick));
+
+  const byVarietal = groupBy(rest, (r) => r._varietal || "Other");
   const varietalKeys = Object.keys(byVarietal).sort((a, b) => cmpText(a, b));
 
   const html = [];
+
+  if (staff.length) {
+    html.push(renderPinnedStaff(staff));
+  }
 
   for (const varietal of varietalKeys) {
     const vSlug = slug(varietal);
@@ -152,11 +264,50 @@ export function renderMenu(records, activeVarietal) {
   menuEl.querySelectorAll(".table-row[data-id]").forEach((rowEl) => {
     rowEl.addEventListener("click", () => {
       const id = rowEl.getAttribute("data-id");
-      const item = filtered.find((r) => r._id === id);
+      const item = view.find((r) => r._id === id);
       if (item) openDrawer(item);
     });
   });
 }
+
+
+function renderPinnedStaff(rows) {
+  const sorted = rows.slice().sort((a, b) => (a._binNum ?? 999999) - (b._binNum ?? 999999));
+  const rowsHtml = sorted.map((r) => renderRow(r)).join("");
+
+  return `
+    <section class="section" id="staff-picks">
+      <div class="sticky-stack">
+        <div class="varietal-header">
+          <div class="varietal-title">Staff Picks</div>
+        </div>
+        <div class="table-head">
+          <div>Bin</div>
+          <div>Wine</div>
+          <div style="text-align:right;">Bottle</div>
+        </div>
+      </div>
+      <div class="section-body">
+        ${rowsHtml}
+      </div>
+    </section>
+  `;
+}
+
+function matchesSpecial(r, specialKey) {
+  const key = normLower(specialKey || "");
+  if (!key) return false;
+
+  const notes = normLower(r.internal_notes || "");
+  if (!notes) return false;
+
+  if (key === "high_roller") return notes.includes("high_roller") || notes.includes("high roller") || notes.includes("highroller");
+  if (key === "valentines") return notes.includes("valentine") || notes.includes("valentines");
+  if (key === "featured") return notes.includes("featured");
+
+  return false;
+}
+
 
 function renderWorldBlock(world, rows) {
   const label = world === "other" ? "Other" : worldLabel(world);
@@ -250,15 +401,4 @@ function topTabForRecord(r) {
   for (const k of whiteKeys) if (v.includes(k)) return "white";
 
   return "red";
-}
-
-function matchesTopTab(r, activeVarietal) {
-  const tab = normLower(activeVarietal || "all");
-  if (tab === "all") return true;
-  return topTabForRecord(r) === tab;
-}
-
-export function getActiveVarietalFromHash() {
-  const raw = (window.location.hash || "").replace("#", "").trim();
-  return raw ? normLower(raw) : "all";
 }

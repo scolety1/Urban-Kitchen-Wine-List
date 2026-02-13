@@ -1,5 +1,13 @@
 import { parseCSV } from "./csv.js";
-import { validateHeaders, normalizeRecords, filterVisible, getVarietals, renderTabs, renderMenu, getActiveVarietalFromHash } from "./render.js";
+import {
+  validateHeaders,
+  normalizeRecords,
+  filterVisible,
+  renderTabs,
+  renderSubtabs,
+  renderMenu,
+  getStateFromUrl
+} from "./render.js";
 
 const statusId = "status";
 
@@ -26,6 +34,19 @@ async function loadCSV(path) {
   return await res.text();
 }
 
+function syncTopbarHeight() {
+  const topbar = document.getElementById("top-bar");
+  if (!topbar) return;
+
+  const h = Math.ceil(topbar.getBoundingClientRect().height);
+  const curr = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--topbar-h")) || 0;
+
+  if (Math.abs(h - curr) >= 1) {
+    document.documentElement.style.setProperty("--topbar-h", `${h}px`);
+  }
+}
+
+
 function dataPathForMenu() {
   const type = document.body?.dataset?.menu || "wine";
   return type === "whiskey" ? "data/whiskey.csv" : "data/wines.csv";
@@ -33,9 +54,32 @@ function dataPathForMenu() {
 
 let ALL = [];
 
+window.addEventListener("hashchange", () => {
+  if (!ALL.length) return;
+  renderFromUrl();
+});
+
+window.addEventListener("popstate", () => {
+  if (!ALL.length) return;
+  renderFromUrl();
+});
+
+function renderFromUrl() {
+  const state = getStateFromUrl();
+  renderTabs([], state.tab);
+  renderSubtabs(ALL, state);
+  syncTopbarHeight();
+
+  renderMenu(ALL, state);
+}
+
 async function init() {
   try {
+    syncTopbarHeight();
+    addEventListener("resize", syncTopbarHeight);
+
     setStatus("Loading menu…");
+
     const csvText = await loadCSV(dataPathForMenu());
     const { headers, records } = parseCSV(csvText);
 
@@ -50,11 +94,7 @@ async function init() {
 
     ALL = visible;
 
-    const varietals = getVarietals(ALL);
-    const active = getActiveVarietalFromHash();
-
-    renderTabs(varietals, active);
-    renderMenu(ALL, active);
+    renderFromUrl();
 
     setStatus("");
   } catch (e) {
@@ -62,19 +102,5 @@ async function init() {
     console.error(e);
   }
 }
-
-window.addEventListener("hashchange", () => {
-  if (!ALL.length) return;
-  const active = getActiveVarietalFromHash();
-  renderTabs([], active);
-  renderMenu(ALL, active);
-
-  if (active && active !== "all") {
-    const el = document.getElementById(active);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  } else {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-});
 
 init();
