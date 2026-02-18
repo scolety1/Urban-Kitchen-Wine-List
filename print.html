@@ -10,95 +10,130 @@
     <div class="toolbar no-print">
       <button id="btn-print" type="button">Print / Save PDF</button>
       <div id="status" aria-live="polite"></div>
+      <div class="mode-pill" id="mode-pill"></div>
     </div>
 
     <main id="pages"></main>
 
     <script type="module">
       import { parseCSV } from "./js/csv.js";
+      import {
+        norm,
+        normLower,
+        cmpText,
+        isYes,
+        isNo,
+        toInt,
+        worldLabel,
+        priceToDisplay,
+        makeShortLocation,
+      } from "./js/utils.js";
 
       const CSV_PATH = "./data/wines.csv";
 
       const $pages = document.getElementById("pages");
       const $status = document.getElementById("status");
       const $btnPrint = document.getElementById("btn-print");
+      const $modePill = document.getElementById("mode-pill");
 
       const GREEN = getComputedStyle(document.documentElement).getPropertyValue("--green") || "#2f6a55";
+
+      const params = new URLSearchParams(window.location.search);
+      const mode = normLower(params.get("mode") || "guest");
+      const isStaff = mode === "staff";
+
+      if ($modePill) {
+        $modePill.textContent = isStaff ? "Mode: STAFF (with descriptions)" : "Mode: GUEST (no descriptions)";
+      }
 
       function setStatus(msg) {
         if ($status) $status.textContent = msg || "";
       }
 
-      function norm(v) {
-        return String(v ?? "").trim();
-      }
-
-      function isYes(v) {
-        const s = norm(v).toLowerCase();
-        return s === "y" || s === "yes" || s === "true" || s === "1";
-      }
-
-      function toInt(v) {
-        const n = parseInt(String(v ?? "").replace(/[^\d-]/g, ""), 10);
-        return Number.isFinite(n) ? n : null;
-      }
-
-      function priceToStr(v) {
-        const s = norm(v);
-        if (!s) return "";
-        const n = Number(String(s).replace(/[^\d.]/g, ""));
-        if (Number.isFinite(n) && n > 0) return String(Math.round(n));
-        return s;
-      }
-
       function titleCase(s) {
-        const t = norm(s);
-        if (!t) return "";
-        return t
-          .toLowerCase()
-          .split(/\s+/)
-          .map(w => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+        return String(s || "")
+          .split(" ")
+          .filter(Boolean)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ");
       }
 
-      function makeLocation(r) {
-        const country = norm(r.country);
-        const r1 = norm(r.region_1);
-        const r2 = norm(r.region_2);
-        return [country, r1, r2].filter(Boolean).join(", ");
+      function canonicalVarietal(raw) {
+        const v = normLower(raw);
+        if (!v) return "";
+
+        const cleaned = v
+          .replaceAll("&", " and ")
+          .replaceAll("/", " ")
+          .replaceAll("-", " ")
+          .replaceAll(/\s+/g, " ")
+          .trim();
+
+        const rules = [
+          { keys: ["syrah", "shiraz"], label: "Syrah/Shiraz" },
+          { keys: ["grenache", "garnacha"], label: "Grenache/Garnacha" },
+        ];
+
+        for (const r of rules) {
+          for (const k of r.keys) {
+            if (cleaned.includes(k)) return r.label;
+          }
+        }
+
+        return titleCase(cleaned);
       }
 
-      function inferColor(r) {
-        const v = (norm(r.varietal) + " " + norm(r.name)).toLowerCase();
-
-        const sparklingKeys = [
-          "spark", "champ", "prosecco", "cava", "cremant", "franciacorta", "pet-nat", "pet nat",
-          "brut", "blanc de blancs", "blanc de noirs", "methode", "méthode"
-        ];
-        if (sparklingKeys.some(k => v.includes(k))) return "sparkling";
-
-        const whiteKeys = [
-          "chardonnay", "sauvignon", "riesling", "pinot gris", "pinot grigio", "chenin",
-          "viognier", "semillon", "sémillon", "gruner", "grüner", "albariño", "albarino",
-          "vermentino", "moscato", "gewurz", "gewürz", "fiano", "verdicchio", "marsanne",
-          "roussanne", "garganega", "soave", "white"
-        ];
-        if (whiteKeys.some(k => v.includes(k))) return "white";
-
-        const roseKeys = ["rosé", "rose " , " rosé", " rosé ", "rosato"];
-        if (roseKeys.some(k => v.includes(k))) return "white";
-
+      function topTabForRecord(r) {
+        const t = normLower(r._type || r.type || "");
+        if (t === "rosé") return "rose";
+        if (t === "rose") return "rose";
+        if (t === "white") return "white";
+        if (t === "sparkling") return "sparkling";
         return "red";
       }
 
-      function groupBy(arr, keyFn) {
-        const m = new Map();
-        for (const x of arr) {
-          const k = keyFn(x);
-          if (!m.has(k)) m.set(k, []);
-          m.get(k).push(x);
+      function parseTags(s) {
+        return normLower(s)
+          .split("|")
+          .map((x) => x.trim())
+          .filter(Boolean);
+      }
+
+      function getSpecialTags(records) {
+        const set = new Set();
+        for (const r of records) {
+          for (const tag of parseTags(r._collection || r.collection || "")) set.add(tag);
         }
-        return m;
+        return Array.from(set).sort((a, b) => cmpText(a, b));
+      }
+
+      function matchesSpecial(r, specialKey) {
+        const key = normLower(specialKey || "");
+        if (!key) return false;
+        const tags = parseTags(r._collection || r.collection || "");
+        return tags.includes(key);
+      }
+
+      function groupBy(arr, keyFn) {
+        const out = {};
+        for (const item of arr) {
+          const k = keyFn(item) ?? "";
+          if (!out[k]) out[k] = [];
+          out[k].push(item);
+        }
+        return out;
+      }
+
+      function isOtherBucket(label) {
+        return normLower(label).startsWith("other ");
+      }
+
+      function withDollar(val) {
+        const s = norm(val);
+        if (!s) return "";
+        if (normLower(s) === "mp") return "mp";
+        if (s.startsWith("$")) return s;
+        return `$${s}`;
       }
 
       function el(tag, cls, text) {
@@ -114,7 +149,12 @@
 
         inner.appendChild(el("div", "cover-kicker", "URBAN KITCHEN"));
         inner.appendChild(el("div", "cover-title", "WINE LIST"));
-        inner.appendChild(el("div", "cover-sub", "A running list of bottles we’re excited about right now."));
+
+        const sub = isStaff
+          ? "Staff edition — includes tasting notes for training and service."
+          : "Guest edition — please ask your server if you’d like help choosing.";
+
+        inner.appendChild(el("div", "cover-sub", sub));
 
         const updated = new Date();
         const yyyy = updated.getFullYear();
@@ -123,7 +163,7 @@
 
         const meta = el("div", "cover-meta");
         meta.appendChild(el("div", "cover-line", `Updated: ${yyyy}-${mm}-${dd}`));
-        meta.appendChild(el("div", "cover-line", "Please ask your server if you’d like help choosing."));
+        meta.appendChild(el("div", "cover-line", isStaff ? "Internal use only." : "Prices and availability subject to change."));
         inner.appendChild(meta);
 
         const sprig = el("div", "sprig");
@@ -141,89 +181,298 @@
         `;
         inner.appendChild(sprig);
 
+        const stamp = el("div", "mode-stamp");
+        stamp.textContent = isStaff ? "STAFF" : "GUEST";
+        inner.appendChild(stamp);
+
         page.appendChild(inner);
         return page;
       }
 
-      function buildSection(title, items, opts = {}) {
+      function buildPageTitle(title, subtitle) {
         const page = el("section", "page");
         const header = el("div", "section-header");
         header.appendChild(el("div", "section-title", title));
+        if (subtitle) header.appendChild(el("div", "section-subtitle", subtitle));
         header.appendChild(el("div", "rule"));
         page.appendChild(header);
+        return page;
+      }
 
-        const byVarietal = groupBy(items, r => (norm(r.varietal) || "OTHER").toUpperCase());
-        const varietals = Array.from(byVarietal.keys()).sort((a, b) => a.localeCompare(b));
+      function renderRow(r, opts = {}) {
+        const bin = norm(r.bin);
+        const name = norm(r._name || r.name);
+        const loc = makeShortLocation(r);
+        const vintage = norm(r.vintage) ? norm(r.vintage) : "";
+        const subtitle = [loc, vintage].filter(Boolean).join(" · ");
 
-        for (const varietal of varietals) {
-          const list = byVarietal.get(varietal).slice().sort((a, b) => {
-            const ab = toInt(a.bin) ?? 999999;
-            const bb = toInt(b.bin) ?? 999999;
-            if (ab !== bb) return ab - bb;
-            return norm(a.name).localeCompare(norm(b.name));
-          });
+        const bottleRaw = priceToDisplay(r.bottle_price);
+        const bottle = bottleRaw === "mp" ? "mp" : withDollar(bottleRaw);
+        const bottleText = bottle || "";
 
-          const sub = el("div", "subsection");
-          const subHeader = el("div", "subheader");
-          subHeader.appendChild(el("div", "sub-title", varietal));
-          subHeader.appendChild(el("div", "rule light"));
-          sub.appendChild(subHeader);
+        const row = el("div", "wine");
 
-          const ul = el("div", "wine-list");
+        const top = el("div", "wine-top");
+        const left = el("div", "wine-left");
 
-          for (const r of list) {
-            const bin = norm(r.bin);
-            const name = norm(r.name);
-            const vintage = norm(r.vintage);
-            const price = priceToStr(r.bottle_price);
-            const loc = makeLocation(r);
+        const b = el("span", "wine-bin", bin ? `${bin} | ` : "");
+        const n = el("span", "wine-name", name);
+        const star = isYes(r.staff_pick) ? el("span", "wine-tag", "Staff") : null;
 
-            const row = el("div", "wine");
-            const top = el("div", "wine-top");
+        left.appendChild(b);
+        left.appendChild(n);
+        if (star) left.appendChild(star);
 
-            const left = el("div", "wine-left");
-            const b = el("span", "wine-bin", bin ? `${bin} | ` : "");
-            const n = el("span", "wine-name", name);
-            const v = el("span", "wine-vintage", vintage ? ` | ${vintage}` : "");
+        const right = el("div", "wine-price", bottleText);
 
-            left.appendChild(b);
-            left.appendChild(n);
-            left.appendChild(v);
+        top.appendChild(left);
+        top.appendChild(right);
 
-            const right = el("div", "wine-price", price);
+        const bottom = el("div", "wine-sub", subtitle);
 
-            top.appendChild(left);
-            top.appendChild(right);
+        row.appendChild(top);
+        row.appendChild(bottom);
 
-            const bottom = el("div", "wine-sub", loc);
+        if (isStaff) {
+          const desc = norm(r.description);
+          if (desc) {
+            const d = el("div", "wine-desc", desc);
+            row.appendChild(d);
+          }
+        }
 
-            row.appendChild(top);
-            row.appendChild(bottom);
+        return row;
+      }
 
-            ul.appendChild(row);
+      function renderWorldBlock(world, rows) {
+        const label = world === "other" ? "Other" : worldLabel(world);
+
+        const sorted = rows.slice().sort((a, b) => {
+          const c0 = cmpText(a._country, b._country);
+          if (c0) return c0;
+          const c1 = cmpText(a._r1, b._r1);
+          if (c1) return c1;
+          const c2 = cmpText(a._r2, b._r2);
+          if (c2) return c2;
+          const c3 = (a._binNum ?? 999999) - (b._binNum ?? 999999);
+          if (c3) return c3;
+          return cmpText(a._name, b._name);
+        });
+
+        const block = el("div", "world-block");
+        block.appendChild(el("div", "world-header", label));
+
+        const list = el("div", "wine-list");
+        for (const r of sorted) list.appendChild(renderRow(r));
+        block.appendChild(list);
+
+        return block;
+      }
+
+      function buildVarietalSection(page, title, rows, tabForOtherLabel) {
+        const vHeader = el("div", "subsection");
+        const subHeader = el("div", "subheader");
+        subHeader.appendChild(el("div", "sub-title", title));
+        subHeader.appendChild(el("div", "rule light"));
+        vHeader.appendChild(subHeader);
+
+        const oldWorld = rows.filter((r) => r._world === "old");
+        const newWorld = rows.filter((r) => r._world === "new");
+        const otherWorld = rows.filter((r) => r._world !== "old" && r._world !== "new");
+
+        const body = el("div", "section-body");
+        if (oldWorld.length) body.appendChild(renderWorldBlock("old", oldWorld));
+        if (newWorld.length) body.appendChild(renderWorldBlock("new", newWorld));
+        if (otherWorld.length) body.appendChild(renderWorldBlock("other", otherWorld));
+
+        vHeader.appendChild(body);
+        page.appendChild(vHeader);
+      }
+
+      function addPageSprig(page) {
+        const sprig = el("div", "page-sprig");
+        sprig.innerHTML = `
+          <svg viewBox="0 0 220 520" aria-hidden="true">
+            <path d="M108 18c-3 52-6 118-6 190 0 108 7 206 22 304" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M92 92c-26 8-48 28-58 54 30 0 56-14 74-34" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M146 132c34 6 58 30 66 64-34-2-60-18-78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M84 198c-30 10-52 34-60 64 34-2 60-18 78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M150 250c34 8 60 34 66 70-34-2-62-18-82-44" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M86 308c-28 10-50 34-56 66 30-2 56-18 72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+            <path d="M146 360c30 10 52 34 58 66-30-2-56-18-72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        `;
+        page.appendChild(sprig);
+      }
+
+      function buildTypePages(typeLabel, typeKey, rows) {
+        if (!rows.length) return [];
+
+        const pages = [];
+        const page = buildPageTitle(typeLabel, "");
+        const staff = rows.filter((r) => isYes(r.staff_pick));
+        const rest = rows.filter((r) => !isYes(r.staff_pick));
+
+        if (staff.length) {
+          const sBlock = el("div", "subsection");
+          const sHeader = el("div", "subheader");
+          sHeader.appendChild(el("div", "sub-title", "Staff Picks"));
+          sHeader.appendChild(el("div", "rule light"));
+          sBlock.appendChild(sHeader);
+
+          const sBody = el("div", "section-body");
+          const oldWorld = staff.filter((r) => r._world === "old");
+          const newWorld = staff.filter((r) => r._world === "new");
+          const otherWorld = staff.filter((r) => r._world !== "old" && r._world !== "new");
+          if (oldWorld.length) sBody.appendChild(renderWorldBlock("old", oldWorld));
+          if (newWorld.length) sBody.appendChild(renderWorldBlock("new", newWorld));
+          if (otherWorld.length) sBody.appendChild(renderWorldBlock("other", otherWorld));
+          sBlock.appendChild(sBody);
+
+          page.appendChild(sBlock);
+        }
+
+        let byVarietal = groupBy(rest, (r) => r._varietal || "Other");
+
+        const otherLabel =
+          typeKey === "red" ? "Other Red" :
+          typeKey === "white" ? "Other White" :
+          typeKey === "sparkling" ? "Other Sparkling" :
+          typeKey === "rose" ? "Other Rosé" :
+          "Other";
+
+        const merged = {};
+        let otherRows = [];
+
+        for (const [k, rws] of Object.entries(byVarietal)) {
+          if (k !== "Other" && rws.length <= 2) otherRows = otherRows.concat(rws);
+          else merged[k] = rws;
+        }
+
+        if (otherRows.length) merged[otherLabel] = (merged[otherLabel] || []).concat(otherRows);
+
+        if (merged["Other"] && otherLabel !== "Other") {
+          merged[otherLabel] = (merged[otherLabel] || []).concat(merged["Other"]);
+          delete merged["Other"];
+        }
+
+        byVarietal = merged;
+
+        const varietalKeys = Object.keys(byVarietal).sort((a, b) => {
+          const ao = isOtherBucket(a) ? 1 : 0;
+          const bo = isOtherBucket(b) ? 1 : 0;
+          if (ao !== bo) return ao - bo;
+          return cmpText(a, b);
+        });
+
+        for (const varietal of varietalKeys) {
+          buildVarietalSection(page, varietal, byVarietal[varietal], typeKey);
+        }
+
+        addPageSprig(page);
+        pages.push(page);
+        return pages;
+      }
+
+      function normalizeRecords(records) {
+        return records.map((r, idx) => {
+          const row = { ...r };
+
+          row._id = `${idx}-${norm(row.name)}-${norm(row.bin)}`;
+          row._binNum = toInt(row.bin) ?? 999999;
+
+          row._varietal = canonicalVarietal(row.varietal);
+
+          let t = normLower(row.type);
+          if (t === "rosé") t = "rose";
+          if (t === "rosé wine") t = "rose";
+          if (!["red", "white", "sparkling", "rose"].includes(t)) t = "red";
+          row._type = t;
+
+          row._collection = normLower(row.collection || "");
+
+          row._world = normLower(worldLabel(row.world)).includes("old")
+            ? "old"
+            : normLower(worldLabel(row.world)).includes("new")
+            ? "new"
+            : normLower(row.world);
+
+          row._country = norm(row.country);
+          row._r1 = norm(row.region_1);
+          row._r2 = norm(row.region_2);
+          row._name = norm(row.name);
+
+          row.show = norm(row.show);
+          row.staff_pick = norm(row.staff_pick);
+          row.description = norm(row.description);
+
+          return row;
+        });
+      }
+
+      function filterVisible(records) {
+        return records.filter((r) => {
+          const s = normLower(r.show);
+          if (!s) return true;
+          if (isNo(s)) return false;
+          if (isYes(s)) return true;
+          return true;
+        });
+      }
+
+      function buildSpecialsPages(records) {
+        const tags = getSpecialTags(records);
+        if (!tags.length) return [];
+
+        const pages = [];
+
+        for (const tag of tags) {
+          const title = titleCase(String(tag).replaceAll("_", " "));
+          const rows = records.filter((r) => matchesSpecial(r, tag));
+          if (!rows.length) continue;
+
+          const page = buildPageTitle(`Specials — ${title}`, "");
+
+          const staff = rows.filter((r) => isYes(r.staff_pick));
+          const rest = rows.filter((r) => !isYes(r.staff_pick));
+
+          if (staff.length) {
+            const sBlock = el("div", "subsection");
+            const sHeader = el("div", "subheader");
+            sHeader.appendChild(el("div", "sub-title", "Staff Picks"));
+            sHeader.appendChild(el("div", "rule light"));
+            sBlock.appendChild(sHeader);
+
+            const sBody = el("div", "section-body");
+            const oldWorld = staff.filter((r) => r._world === "old");
+            const newWorld = staff.filter((r) => r._world === "new");
+            const otherWorld = staff.filter((r) => r._world !== "old" && r._world !== "new");
+            if (oldWorld.length) sBody.appendChild(renderWorldBlock("old", oldWorld));
+            if (newWorld.length) sBody.appendChild(renderWorldBlock("new", newWorld));
+            if (otherWorld.length) sBody.appendChild(renderWorldBlock("other", otherWorld));
+            sBlock.appendChild(sBody);
+
+            page.appendChild(sBlock);
           }
 
-          sub.appendChild(ul);
-          page.appendChild(sub);
+          const oldWorld = rest.filter((r) => r._world === "old");
+          const newWorld = rest.filter((r) => r._world === "new");
+          const otherWorld = rest.filter((r) => r._world !== "old" && r._world !== "new");
+
+          const body = el("div", "section-body");
+          if (oldWorld.length) body.appendChild(renderWorldBlock("old", oldWorld));
+          if (newWorld.length) body.appendChild(renderWorldBlock("new", newWorld));
+          if (otherWorld.length) body.appendChild(renderWorldBlock("other", otherWorld));
+
+          const block = el("div", "subsection");
+          block.appendChild(body);
+          page.appendChild(block);
+
+          addPageSprig(page);
+          pages.push(page);
         }
 
-        if (opts.sprig) {
-          const sprig = el("div", "page-sprig");
-          sprig.innerHTML = `
-            <svg viewBox="0 0 220 520" aria-hidden="true">
-              <path d="M108 18c-3 52-6 118-6 190 0 108 7 206 22 304" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-              <path d="M92 92c-26 8-48 28-58 54 30 0 56-14 74-34" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-              <path d="M146 132c34 6 58 30 66 64-34-2-60-18-78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-              <path d="M84 198c-30 10-52 34-60 64 34-2 60-18 78-40" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-              <path d="M150 250c34 8 60 34 66 70-34-2-62-18-82-44" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-              <path d="M86 308c-28 10-50 34-56 66 30-2 56-18 72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-              <path d="M146 360c30 10 52 34 58 66-30-2-56-18-72-42" fill="none" stroke="${GREEN}" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-          `;
-          page.appendChild(sprig);
-        }
-
-        return page;
+        return pages;
       }
 
       async function load() {
@@ -235,58 +484,53 @@
 
         const parsed = parseCSV(text);
 
-        const records =
-            Array.isArray(parsed) ? parsed :
-            Array.isArray(parsed?.records) ? parsed.records :
-            Array.isArray(parsed?.rows) ? parsed.rows :
-            Array.isArray(parsed?.data) ? parsed.data :
-            Array.isArray(parsed?.items) ? parsed.items :
-        [];
+        const raw =
+          Array.isArray(parsed) ? parsed :
+          Array.isArray(parsed?.records) ? parsed.records :
+          Array.isArray(parsed?.rows) ? parsed.rows :
+          Array.isArray(parsed?.data) ? parsed.data :
+          Array.isArray(parsed?.items) ? parsed.items :
+          [];
 
-        if (!records.length) {
-            console.log("parseCSV output:", parsed);
+        if (!raw.length) {
+          console.log("parseCSV output:", parsed);
+          throw new Error("No records found in wines.csv");
         }
 
+        const records = normalizeRecords(raw);
+        const visible = filterVisible(records);
 
-        const visible = records
-          .map(r => ({
-            ...r,
-            show: norm(r.show),
-            varietal: norm(r.varietal),
-            name: norm(r.name),
-            bin: norm(r.bin),
-            vintage: norm(r.vintage),
-            bottle_price: norm(r.bottle_price),
-            country: norm(r.country),
-            region_1: norm(r.region_1),
-            region_2: norm(r.region_2),
-          }))
-          .filter(r => isYes(r.show));
+        const staffPicksAll = visible.filter((r) => isYes(r.staff_pick));
 
-        const sparkling = [];
-        const white = [];
-        const red = [];
-
-        for (const r of visible) {
-          const c = inferColor(r);
-          if (c === "sparkling") sparkling.push(r);
-          else if (c === "white") white.push(r);
-          else red.push(r);
-        }
+        const sparkling = visible.filter((r) => topTabForRecord(r) === "sparkling");
+        const white = visible.filter((r) => topTabForRecord(r) === "white");
+        const rose = visible.filter((r) => topTabForRecord(r) === "rose");
+        const red = visible.filter((r) => topTabForRecord(r) === "red");
 
         $pages.innerHTML = "";
         $pages.appendChild(buildCover());
 
-        if (sparkling.length) $pages.appendChild(buildSection("SPARKLING WINES & CHAMPAGNE", sparkling, { sprig: true }));
-        if (white.length) $pages.appendChild(buildSection("WHITE WINES", white, { sprig: false }));
-        if (red.length) $pages.appendChild(buildSection("RED WINES", red, { sprig: true }));
+        const order = [
+          { key: "sparkling", label: "Sparkling", rows: sparkling },
+          { key: "white", label: "White", rows: white },
+          { key: "rose", label: "Rosé", rows: rose },
+          { key: "red", label: "Red", rows: red },
+        ];
+
+        for (const t of order) {
+          const pages = buildTypePages(`${t.label} Wines`, t.key, t.rows);
+          for (const p of pages) $pages.appendChild(p);
+        }
+
+        const specialsPages = buildSpecialsPages(visible);
+        for (const p of specialsPages) $pages.appendChild(p);
 
         setStatus("");
       }
 
       $btnPrint?.addEventListener("click", () => window.print());
 
-      load().catch(err => {
+      load().catch((err) => {
         console.error(err);
         setStatus(err?.message || "Error loading print view.");
       });
