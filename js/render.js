@@ -344,7 +344,19 @@ export function renderMenu(records, state) {
       rowEl.addEventListener("click", () => {
         const id = rowEl.getAttribute("data-id");
         const item = view.find((r) => r._id === id);
-        if (item) openDrawer(item);
+        if (item) {
+        
+          if (typeof gtag === "function") {
+            gtag('event', 'wine_click', {
+              wine_name: item.name,
+              varietal: item.varietal,
+              price: item.bottle_price,
+              type: item.type
+            });
+          }
+
+          openDrawer(item);
+        }
       });
     });
 
@@ -433,7 +445,19 @@ export function renderMenu(records, state) {
     rowEl.addEventListener("click", () => {
       const id = rowEl.getAttribute("data-id");
       const item = view.find((r) => r._id === id);
-      if (item) openDrawer(item);
+      if (item) {
+        
+          if (typeof gtag === "function") {
+            gtag('event', 'wine_click', {
+              wine_name: item.name,
+              varietal: item.varietal,
+              price: item.bottle_price,
+              type: item.type
+            });
+          }
+
+          openDrawer(item);
+        }
     });
   });
 }

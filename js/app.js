@@ -11,6 +11,19 @@ import {
 
 const statusId = "status";
 
+
+function trackWineClick(wine) {
+  if (typeof gtag !== 'function') return;
+
+  gtag('event', 'wine_click', {
+    wine_name: wine.name,
+    varietal: wine.varietal,
+    price: wine.price,
+    type: wine.type
+  });
+}
+
+
 function setStatus(msg) {
   let el = document.getElementById(statusId);
   if (!el) {
