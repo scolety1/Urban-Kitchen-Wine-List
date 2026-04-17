@@ -69,6 +69,8 @@ export const DECIDER_STEPS = [
 ];
 
 export function recommendWines(records, answers, limit = 3) {
+  if (answers.type === "dessert") return recommendDessertWines(records, limit);
+
   let pool = records.filter((wine) => isAvailable(wine));
   const budgetPool = filterByBudget(pool, answers.budget);
 
@@ -80,6 +82,31 @@ export function recommendWines(records, answers, limit = 3) {
 
   if (answers.type === "any") return spreadRecommendations(candidates, limit);
   return candidates.slice(0, limit);
+}
+
+function recommendDessertWines(records, limit) {
+  return records
+    .filter((wine) => isAvailable(wine))
+    .map((wine) => {
+      const type = wineType(wine);
+      const text = searchText(wine);
+      const price = numericPrice(wine.bottle_price);
+      let score = 0;
+
+      if (type === "dessert") score += 50;
+      if (/(dessert|sweet|port|sauternes|late harvest|moscato|brachetto)/.test(text)) score += 35;
+      if (price != null) score += 5;
+      score += metadataScore(wine);
+      if (isYes(wine.staff_pick)) score += WEIGHTS.staffPick;
+
+      return {
+        wine,
+        score,
+        why: "This fits because it is the best available match for a sweet finish.",
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
 }
 
 function scoreWine(wine, answers) {

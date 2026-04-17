@@ -415,6 +415,10 @@ function renderChooserStep(drawer, records, answers, index) {
   optionsEl.querySelectorAll(".chooser-option").forEach((button) => {
     button.addEventListener("click", () => {
       answers[step.key] = button.getAttribute("data-value") || "";
+      if (step.key === "type" && answers.type === "dessert") {
+        renderChooserResults(records, answers, titleEl, optionsEl, resultEl);
+        return;
+      }
       renderChooserStep(drawer, records, answers, index + 1);
     });
   });
