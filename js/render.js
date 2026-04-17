@@ -33,7 +33,10 @@ const REQUIRED = [
 
 export function getStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const tab = normLower(params.get("tab") || "all");
+  const requestedTab = normLower(params.get("tab") || "all");
+  const tab = ["all", "red", "white", "sparkling", "rose", "specials"].includes(requestedTab)
+    ? requestedTab
+    : "all";
   const varietal = normLower(params.get("varietal") || "");
   const special = normLower(params.get("special") || "");
   return { tab, varietal, special };
@@ -340,25 +343,7 @@ export function renderMenu(records, state) {
 
     menuEl.innerHTML = html.join("");
 
-    menuEl.querySelectorAll(".table-row[data-id]").forEach((rowEl) => {
-      rowEl.addEventListener("click", () => {
-        const id = rowEl.getAttribute("data-id");
-        const item = view.find((r) => r._id === id);
-        if (item) {
-        
-          if (typeof gtag === "function") {
-            gtag('event', 'wine_click', {
-              wine_name: item.name,
-              varietal: item.varietal,
-              price: item.bottle_price,
-              type: item.type
-            });
-          }
-
-          openDrawer(item);
-        }
-      });
-    });
+    attachRowHandlers(menuEl, view);
 
     return;
   }
@@ -441,24 +426,39 @@ export function renderMenu(records, state) {
 
   menuEl.innerHTML = html.join("");
 
+  attachRowHandlers(menuEl, view);
+}
+
+function attachRowHandlers(menuEl, view) {
   menuEl.querySelectorAll(".table-row[data-id]").forEach((rowEl) => {
-    rowEl.addEventListener("click", () => {
+    const open = () => {
       const id = rowEl.getAttribute("data-id");
       const item = view.find((r) => r._id === id);
-      if (item) {
-        
-          if (typeof gtag === "function") {
-            gtag('event', 'wine_click', {
-              wine_name: item.name,
-              varietal: item.varietal,
-              price: item.bottle_price,
-              type: item.type
-            });
-          }
+      if (item) openItem(item);
+    };
 
-          openDrawer(item);
-        }
+    rowEl.addEventListener("click", open);
+    rowEl.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      open();
     });
+  });
+}
+
+function openItem(item) {
+  trackWineClick(item);
+  openDrawer(item);
+}
+
+function trackWineClick(item) {
+  if (typeof gtag !== "function") return;
+
+  gtag("event", "wine_click", {
+    wine_name: item.name,
+    varietal: item.varietal,
+    price: item.bottle_price,
+    type: item.type,
   });
 }
 
