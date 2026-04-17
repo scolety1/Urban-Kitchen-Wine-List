@@ -25,7 +25,7 @@
   max-height: min(78vh, 760px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 14px var(--pad) 18px var(--pad);
+  padding: 14px var(--pad) calc(18px + env(safe-area-inset-bottom)) var(--pad);
 }
 
 .drawer-open #drawer-backdrop {
@@ -73,6 +73,14 @@
   cursor: pointer;
   user-select: none;
   flex: 0 0 34px;
+}
+
+@media (pointer: coarse) {
+  .drawer-close {
+    height: 44px;
+    width: 44px;
+    flex-basis: 44px;
+  }
 }
 
 .drawer-close:active {

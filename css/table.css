@@ -26,6 +26,7 @@
   cursor: pointer;
   user-select: none;
   background: transparent;
+  min-height: 56px;
 }
 
 .table-row:hover {
@@ -138,6 +139,8 @@
 
   .table-row {
     grid-template-columns: 56px 1fr 76px;
+    padding-top: 14px;
+    padding-bottom: 14px;
   }
 
   .name-text {
