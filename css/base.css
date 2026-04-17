@@ -186,10 +186,14 @@ a {
 
 .choose-btn {
   min-width: 132px;
-  background: rgba(181, 154, 106, 0.20);
-  border-color: rgba(181, 154, 106, 0.52);
-  color: #fff8eb;
+  background: rgba(99, 34, 42, 0.46);
+  border-color: rgba(196, 103, 112, 0.58);
+  color: #ffecef;
   font-weight: 850;
+}
+
+.choose-btn:active {
+  background: rgba(122, 42, 52, 0.58);
 }
 
 button,

@@ -42,6 +42,8 @@ export function getStateFromUrl() {
   return { tab, varietal };
 }
 
+let activeJumpVarietal = "";
+
 function setUrlState(next) {
   const params = new URLSearchParams(window.location.search);
 
@@ -185,10 +187,11 @@ export function renderSubtabs(records, state) {
     el.classList.remove("hidden");
 
     const activeVar = normLower(state?.varietal || "");
-    const parts = [makeBtn("All", "", !activeVar, "varietal")];
+    const jumpVar = activeJumpVarietal && varietals.includes(activeJumpVarietal) ? activeJumpVarietal : "";
+    const parts = [makeBtn("All", "", !jumpVar && !activeVar, "varietal")];
 
     for (const v of varietals) {
-      parts.push(makeBtn(titleCase(v.replaceAll("_", " ")), v, activeVar === v, "varietal"));
+      parts.push(makeBtn(titleCase(v.replaceAll("_", " ")), v, jumpVar === v || activeVar === v, "varietal"));
     }
 
     el.innerHTML = parts.join("");
@@ -196,6 +199,8 @@ export function renderSubtabs(records, state) {
     el.querySelectorAll("[data-kind='varietal']").forEach((b) => {
       b.addEventListener("click", () => {
         const key = b.getAttribute("data-key") || "";
+        activeJumpVarietal = key;
+        renderSubtabs(records, { ...state, varietal: "" });
         scrollToCurrentSection(key);
       });
     });
