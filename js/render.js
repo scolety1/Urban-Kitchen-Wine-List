@@ -373,6 +373,7 @@ function openChooser(records) {
       <button class="chooser-back" type="button" hidden>Back</button>
       <div class="chooser-options"></div>
       <div class="chooser-result" hidden></div>
+      <p class="chooser-disclaimer">Experimental feature. Suggestions may not always be accurate; your server can help confirm the best choice.</p>
     </div>
   `;
 
