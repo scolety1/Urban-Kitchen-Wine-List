@@ -99,21 +99,6 @@
           .filter(Boolean);
       }
 
-      function getSpecialTags(records) {
-        const set = new Set();
-        for (const r of records) {
-          for (const tag of parseTags(r._collection || r.collection || "")) set.add(tag);
-        }
-        return Array.from(set).sort((a, b) => cmpText(a, b));
-      }
-
-      function matchesSpecial(r, specialKey) {
-        const key = normLower(specialKey || "");
-        if (!key) return false;
-        const tags = parseTags(r._collection || r.collection || "");
-        return tags.includes(key);
-      }
-
       function groupBy(arr, keyFn) {
         const out = {};
         for (const item of arr) {
@@ -420,61 +405,6 @@
         });
       }
 
-      function buildSpecialsPages(records) {
-        const tags = getSpecialTags(records);
-        if (!tags.length) return [];
-
-        const pages = [];
-
-        for (const tag of tags) {
-          const title = titleCase(String(tag).replaceAll("_", " "));
-          const rows = records.filter((r) => matchesSpecial(r, tag));
-          if (!rows.length) continue;
-
-          const page = buildPageTitle(`Specials — ${title}`, "");
-
-          const staff = rows.filter((r) => isYes(r.staff_pick));
-          const rest = rows.filter((r) => !isYes(r.staff_pick));
-
-          if (staff.length) {
-            const sBlock = el("div", "subsection");
-            const sHeader = el("div", "subheader");
-            sHeader.appendChild(el("div", "sub-title", "Staff Picks"));
-            sHeader.appendChild(el("div", "rule light"));
-            sBlock.appendChild(sHeader);
-
-            const sBody = el("div", "section-body");
-            const oldWorld = staff.filter((r) => r._world === "old");
-            const newWorld = staff.filter((r) => r._world === "new");
-            const otherWorld = staff.filter((r) => r._world !== "old" && r._world !== "new");
-            if (oldWorld.length) sBody.appendChild(renderWorldBlock("old", oldWorld));
-            if (newWorld.length) sBody.appendChild(renderWorldBlock("new", newWorld));
-            if (otherWorld.length) sBody.appendChild(renderWorldBlock("other", otherWorld));
-            sBlock.appendChild(sBody);
-
-            page.appendChild(sBlock);
-          }
-
-          const oldWorld = rest.filter((r) => r._world === "old");
-          const newWorld = rest.filter((r) => r._world === "new");
-          const otherWorld = rest.filter((r) => r._world !== "old" && r._world !== "new");
-
-          const body = el("div", "section-body");
-          if (oldWorld.length) body.appendChild(renderWorldBlock("old", oldWorld));
-          if (newWorld.length) body.appendChild(renderWorldBlock("new", newWorld));
-          if (otherWorld.length) body.appendChild(renderWorldBlock("other", otherWorld));
-
-          const block = el("div", "subsection");
-          block.appendChild(body);
-          page.appendChild(block);
-
-          addPageSprig(page);
-          pages.push(page);
-        }
-
-        return pages;
-      }
-
       async function load() {
         setStatus("Loading…");
 
@@ -522,8 +452,6 @@
           for (const p of pages) $pages.appendChild(p);
         }
 
-        const specialsPages = buildSpecialsPages(visible);
-        for (const p of specialsPages) $pages.appendChild(p);
 
         setStatus("");
       }

@@ -119,6 +119,102 @@
   white-space: pre-wrap;
 }
 
+.chooser-intro {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.chooser-step-title {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chooser-options {
+  display: grid;
+  gap: 8px;
+}
+
+.chooser-option,
+.recommendation-card {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font: inherit;
+  font-weight: 750;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.chooser-option:active,
+.recommendation-card:active {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.chooser-result {
+  margin-top: 4px;
+}
+
+.chooser-result p {
+  margin: 8px 0 14px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.chooser-recommendation {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.recommendation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.recommendation-card {
+  display: grid;
+  gap: 6px;
+}
+
+.recommendation-name {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.recommendation-meta,
+.recommendation-price {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.recommendation-description,
+.recommendation-why {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.recommendation-why {
+  color: var(--muted);
+}
+
 @media (min-width: 900px) {
   #drawer {
     left: 50%;

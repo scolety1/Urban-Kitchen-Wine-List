@@ -5,6 +5,8 @@ It is intentionally simple and spreadsheet-driven so updates can be made without
 
 Please read this before making changes.
 
+For the simplest bar-manager instructions, use `BAR_MANAGER_GUIDE.md`.
+
 ---
 
 ## What you should edit (important)
@@ -140,3 +142,41 @@ This system is designed so that:
 - normal updates do not break anything
 
 If something feels unclear or frustrating to update, that is a system issue — not a user issue — and should be addressed properly.
+
+---
+
+## Wine enrichment pipeline
+
+The source spreadsheet remains `data/wines.csv`. The enrichment pipeline reads that file, validates required columns, preserves original notes, adds normalized structured fields, and writes `data/wines.cleaned.csv` for review plus `data/wines.json` for the guest-facing website.
+
+Run it from the project root:
+
+```sh
+node scripts/enrich-wines.mjs
+```
+
+Description fields are handled in this order: `description_final`, then `description_ai`, then the original `description`, which is preserved as `description_original`.
+
+The pipeline also normalizes useful recommendation fields such as `type`, `style`, `body`, `acidity`, `sweetness`, `oak`, `pairing_tags`, `available`, and `staff_pick`. If those fields already exist in the source CSV, the pipeline keeps them; otherwise it infers practical defaults from the existing wine data.
+
+Validation warnings are printed in the console. Missing names, missing prices, and missing descriptions are flagged so the data can be cleaned before publishing.
+
+---
+
+## Help Me Decide scoring
+
+The guest-facing **Help Me Decide** feature is rules-based and deterministic. It does not call an AI model.
+
+The questions are intentionally short: wine type, body, style, food, glass or bottle, and bottle budget.
+
+The scoring logic lives in `js/recommend.js`. It gives points for matching type, body, style, food pairing, glass/bottle preference, budget, metadata completeness, and staff picks. Staff Picks get a small boost, but they do not dominate the results.
+
+If a guest chooses **Anything**, the recommender tries to return a smart spread across different wine types. If exact matches are limited, it broadens to the closest available wines instead of failing.
+
+---
+
+## Specials status
+
+Specials are intentionally removed from the current guest-facing app and print output. There is no Specials tab, page, route, or visible UI right now.
+
+The wine data may still contain `collection` values so Specials can be reintroduced later without changing the spreadsheet structure.

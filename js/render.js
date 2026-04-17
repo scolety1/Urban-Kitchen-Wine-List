@@ -10,7 +10,8 @@ import {
   normLower,
   priceToDisplay,
 } from "./utils.js";
-import { openDrawer } from "./drawer.js";
+import { openDrawer, openDrawerHtml } from "./drawer.js";
+import { DECIDER_STEPS, recommendWines } from "./recommend.js";
 
 const REQUIRED = [
   "name",
@@ -34,12 +35,11 @@ const REQUIRED = [
 export function getStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const requestedTab = normLower(params.get("tab") || "all");
-  const tab = ["all", "red", "white", "sparkling", "rose", "specials"].includes(requestedTab)
+  const tab = ["all", "red", "white", "sparkling", "rose"].includes(requestedTab)
     ? requestedTab
     : "all";
   const varietal = normLower(params.get("varietal") || "");
-  const special = normLower(params.get("special") || "");
-  return { tab, varietal, special };
+  return { tab, varietal };
 }
 
 function setUrlState(next) {
@@ -51,8 +51,6 @@ function setUrlState(next) {
   if (next.varietal) params.set("varietal", next.varietal);
   else params.delete("varietal");
 
-  if (next.special) params.set("special", next.special);
-  else params.delete("special");
 
   const qs = params.toString();
   const url = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash || ""}`;
@@ -67,19 +65,24 @@ export function validateHeaders(headers) {
 
 export function normalizeRecords(records) {
   return records.map((r, idx) => {
-    const row = {};
+    const row = { ...r };
     for (const key of REQUIRED) {
       row[key] = r[key] ?? r[key.toUpperCase?.()] ?? r[key.toLowerCase?.()] ?? "";
     }
 
-    row._id = `${idx}-${norm(row.name)}-${norm(row.bin)}`;
+    row.description_original = r.description_original || r.description || "";
+    row.description_ai = r.description_ai || "";
+    row.description_final = r.description_final || "";
+    row.description = row.description_final || row.description_ai || row.description_original || row.description || "";
+
+    row._id = r.id || `${idx}-${norm(row.name)}-${norm(row.bin)}`;
     row._binNum = toInt(row.bin) ?? 999999;
 
     row._varietal = canonicalVarietal(row.varietal);
 
     let t = normLower(row.type);
-    if (t === "rosé") t = "rose";
-    if (t === "rosé wine") t = "rose";
+    if (t === "ros\u00e9") t = "rose";
+    if (t === "ros\u00e9 wine") t = "rose";
     if (!["red", "white", "sparkling", "rose"].includes(t)) t = "red";
     row._type = t;
 
@@ -102,6 +105,7 @@ export function normalizeRecords(records) {
 
 export function filterVisible(records) {
   return records.filter((r) => {
+    if (normLower(r.available) && isNo(r.available)) return false;
     const s = normLower(r.show);
     if (!s) return true;
     if (isNo(s)) return false;
@@ -137,18 +141,21 @@ export function renderTabs(_varietals, activeTab) {
     btn("All", "all", current === "all"),
     btn("Red", "red", current === "red"),
     btn("White", "white", current === "white"),
-    btn("Rosé", "rose", current === "rose"),
+    btn("Ros\u00e9", "rose", current === "rose"),
     btn("Sparkling", "sparkling", current === "sparkling"),
-    btn("Specials", "specials", current === "specials"),
+    `<button class="tab-btn choose-btn" type="button" data-choose="true">Help Me Decide</button>`,
   ].join("");
 
   tabsEl.querySelectorAll("[data-tab]").forEach((el) => {
     el.addEventListener("click", () => {
       const tab = el.getAttribute("data-tab") || "all";
-      setUrlState({ tab, varietal: "", special: "" });
+      setUrlState({ tab, varietal: "" });
       window.dispatchEvent(new Event("hashchange"));
     });
   });
+
+  const chooseBtn = tabsEl.querySelector("[data-choose]");
+  if (chooseBtn) chooseBtn.addEventListener("click", () => openChooser(_varietals || []));
 }
 
 export function renderSubtabs(records, state) {
@@ -193,7 +200,7 @@ export function renderSubtabs(records, state) {
     el.querySelectorAll("[data-kind='varietal']").forEach((b) => {
       b.addEventListener("click", () => {
         const key = b.getAttribute("data-key") || "";
-        setUrlState({ tab, varietal: key, special: "" });
+        setUrlState({ tab, varietal: key });
         window.dispatchEvent(new Event("hashchange"));
       });
     });
@@ -201,34 +208,6 @@ export function renderSubtabs(records, state) {
     return;
   }
 
-  if (tab === "specials") {
-    const tags = getSpecialTags(records);
-    if (!tags.length) return;
-
-    let activeSpecial = normLower(state?.special || "");
-    if (!activeSpecial) {
-      activeSpecial = tags[0];
-      setUrlState({ tab: "specials", varietal: "", special: activeSpecial });
-    }
-
-    el.classList.remove("hidden");
-
-    const parts = tags.map((t) =>
-      makeBtn(titleCase(t.replaceAll("_", " ")), t, activeSpecial === t, "special")
-    );
-
-    el.innerHTML = parts.join("");
-
-    el.querySelectorAll("[data-kind='special']").forEach((b) => {
-      b.addEventListener("click", () => {
-        const key = b.getAttribute("data-key") || "";
-        setUrlState({ tab: "specials", varietal: "", special: key });
-        window.dispatchEvent(new Event("hashchange"));
-      });
-    });
-
-    return;
-  }
 }
 
 
@@ -278,15 +257,6 @@ export function renderMenu(records, state) {
 
   if (tab === "red" || tab === "white" || tab === "sparkling" || tab === "rose") {
     view = view.filter((r) => topTabForRecord(r) === tab);
-  } else if (tab === "specials") {
-    let specialKey = normLower(state?.special || "");
-    if (!specialKey) {
-      const tags = getSpecialTags(records);
-      specialKey = tags[0] || "";
-      if (specialKey) setUrlState({ tab: "specials", varietal: "", special: specialKey });
-    }
-    view = specialKey ? view.filter((r) => matchesSpecial(r, specialKey)) : [];
-    state = { ...(state || {}), tab: "specials", special: specialKey };
   }
 
   const vSub = normLower(state?.varietal || "");
@@ -301,60 +271,13 @@ export function renderMenu(records, state) {
 
   if (staff.length) html.push(renderPinnedStaff(staff));
 
-  if (tab === "specials") {
-    const title = titleCase(String(state?.special || "Specials").replaceAll("_", " "));
-    const oldWorld = rest.filter((r) => r._world === "old");
-    const newWorld = rest.filter((r) => r._world === "new");
-    const otherWorld = rest.filter((r) => r._world !== "old" && r._world !== "new");
-
-    const sections = [];
-    if (oldWorld.length) sections.push({ world: "old", rows: oldWorld });
-    if (newWorld.length) sections.push({ world: "new", rows: newWorld });
-    if (otherWorld.length) sections.push({ world: "other", rows: otherWorld });
-
-    html.push(`
-      <section class="section" id="${escapeHtml(slug(title))}">
-        <div class="sticky-stack">
-          <div class="varietal-header">
-            <div class="varietal-title">${escapeHtml(title)}</div>
-          </div>
-          <div class="table-head">
-            <div>Bin</div>
-            <div>Wine</div>
-            <div style="text-align:right;">Bottle</div>
-          </div>
-        </div>
-
-        <div class="section-body">
-          ${sections.map((s) => renderWorldBlock(s.world, s.rows)).join("")}
-        </div>
-      </section>
-    `);
-
-    if (!html.length) {
-      menuEl.innerHTML = `
-        <div class="card" style="padding: 14px;">
-          <div style="font-weight: 800; margin-bottom: 6px;">No items to show</div>
-          <div style="color: var(--muted); font-weight: 600;">Try a different tab.</div>
-        </div>
-      `;
-      return;
-    }
-
-    menuEl.innerHTML = html.join("");
-
-    attachRowHandlers(menuEl, view);
-
-    return;
-  }
-
   let byVarietal = groupBy(rest, (r) => r._varietal || "Other");
 
   const otherLabel =
     tab === "red" ? "Other Red" :
     tab === "white" ? "Other White" :
     tab === "sparkling" ? "Other Sparkling" :
-    tab === "rose" ? "Other Rosé" :
+    tab === "rose" ? "Other Ros\u00e9" :
     "Other";
 
   const merged = {};
@@ -462,7 +385,101 @@ function trackWineClick(item) {
   });
 }
 
+function openChooser(records) {
+  const answers = {};
+  const body = `
+    <div class="chooser" data-step="0">
+      <p class="chooser-intro">Answer a few quick questions and we will point you toward three good options.</p>
+      <div class="chooser-step-title"></div>
+      <div class="chooser-options"></div>
+      <div class="chooser-result" hidden></div>
+    </div>
+  `;
 
+  openDrawerHtml({
+    title: "Help Me Decide",
+    body,
+    onOpen(drawer) {
+      renderChooserStep(drawer, records, answers, 0);
+    },
+  });
+}
+
+function renderChooserStep(drawer, records, answers, index) {
+  const titleEl = drawer.querySelector(".chooser-step-title");
+  const optionsEl = drawer.querySelector(".chooser-options");
+  const resultEl = drawer.querySelector(".chooser-result");
+  if (!titleEl || !optionsEl || !resultEl) return;
+
+  if (index >= DECIDER_STEPS.length) {
+    renderChooserResults(records, answers, titleEl, optionsEl, resultEl);
+    return;
+  }
+
+  const step = DECIDER_STEPS[index];
+  titleEl.textContent = step.title;
+  resultEl.hidden = true;
+  resultEl.innerHTML = "";
+  optionsEl.innerHTML = step.options.map((option) => `
+    <button class="chooser-option" type="button" data-value="${escapeHtml(option.value)}">
+      ${escapeHtml(option.label)}
+    </button>
+  `).join("");
+
+  optionsEl.querySelectorAll(".chooser-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      answers[step.key] = button.getAttribute("data-value") || "";
+      renderChooserStep(drawer, records, answers, index + 1);
+    });
+  });
+}
+
+function renderChooserResults(records, answers, titleEl, optionsEl, resultEl) {
+  const recommendations = recommendWines(records, answers, 3);
+
+  titleEl.textContent = "Three good options";
+  optionsEl.innerHTML = "";
+  resultEl.hidden = false;
+
+  if (!recommendations.length) {
+    resultEl.innerHTML = `
+      <p>No close matches are available right now. Your server can help find something similar.</p>
+    `;
+    return;
+  }
+
+  resultEl.innerHTML = `
+    <div class="recommendation-list">
+      ${recommendations.map((item) => renderRecommendationCard(item)).join("")}
+    </div>
+  `;
+
+  resultEl.querySelectorAll("[data-rec-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = recommendations.find((rec) => rec.wine._id === button.getAttribute("data-rec-id"));
+      if (item) openItem(item.wine);
+    });
+  });
+}
+
+function renderRecommendationCard(item) {
+  const wine = item.wine;
+  const bottle = priceToDisplay(wine.bottle_price);
+  const glass = priceToDisplay(wine.glass_price);
+  const price = glass ? `$${escapeHtml(glass)} glass` : bottle ? `$${escapeHtml(bottle)} bottle` : "Ask for price";
+  const description = norm(wine.description_final || wine.description || wine.description_ai || wine.description_original);
+  const shortDescription = description.length > 120 ? `${description.slice(0, 117).trim()}...` : description;
+
+  return `
+    <button class="recommendation-card" type="button" data-rec-id="${escapeHtml(wine._id)}">
+      <span class="recommendation-name">${escapeHtml(wine.name)}</span>
+      <span class="recommendation-meta">${escapeHtml([wine.vintage, wine.varietal].filter(Boolean).join(" | "))}</span>
+      <span class="recommendation-description">${escapeHtml(shortDescription || "A balanced choice from the current list.")}</span>
+      <span class="recommendation-why">${escapeHtml(item.why)}</span>
+      <span class="recommendation-price">${price}</span>
+    </button>
+  `;
+}
 function renderPinnedStaff(rows) {
   const sorted = rows.slice().sort((a, b) => (a._binNum ?? 999999) - (b._binNum ?? 999999));
   const rowsHtml = sorted.map((r) => renderRow(r)).join("");
@@ -484,28 +501,6 @@ function renderPinnedStaff(rows) {
       </div>
     </section>
   `;
-}
-
-function parseTags(s) {
-  return normLower(s)
-    .split("|")
-    .map((x) => x.trim())
-    .filter(Boolean);
-}
-
-function getSpecialTags(records) {
-  const set = new Set();
-  for (const r of records) {
-    for (const tag of parseTags(r._collection || r.collection || "")) set.add(tag);
-  }
-  return Array.from(set).sort((a, b) => cmpText(a, b));
-}
-
-function matchesSpecial(r, specialKey) {
-  const key = normLower(specialKey || "");
-  if (!key) return false;
-  const tags = parseTags(r._collection || r.collection || "");
-  return tags.includes(key);
 }
 
 function renderWorldBlock(world, rows) {
@@ -545,7 +540,7 @@ function renderRow(r) {
   const name = escapeHtml(r._name);
   const loc = escapeHtml(makeShortLocation(r));
   const vintage = norm(r.vintage) ? escapeHtml(norm(r.vintage)) : "";
-  const subtitle = [loc, vintage].filter(Boolean).join(" · ");
+  const subtitle = [loc, vintage].filter(Boolean).join(" &middot; ");
 
   const bottleRaw = priceToDisplay(r.bottle_price);
   const bottle = bottleRaw === "mp" ? "mp" : withDollar(bottleRaw);
@@ -555,7 +550,7 @@ function renderRow(r) {
 
   return `
     <div class="table-row" data-id="${escapeHtml(r._id)}" role="button" tabindex="0">
-      <div class="cell bin">${escapeHtml(norm(r.bin) || "—")}</div>
+      <div class="cell bin">${escapeHtml(norm(r.bin) || "-")}</div>
       <div class="cell name">
         <div class="name-line">
           <div class="name-text">${name}</div>
@@ -587,7 +582,7 @@ function slug(s) {
 
 function topTabForRecord(r) {
   const t = normLower(r._type || r.type || "");
-  if (t === "rosé") return "rose";
+  if (t === "ros\u00e9") return "rose";
   if (t === "rose") return "rose";
   if (t === "white") return "white";
   if (t === "sparkling") return "sparkling";

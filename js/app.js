@@ -34,6 +34,12 @@ async function loadCSV(path) {
   return await res.text();
 }
 
+async function loadJSON(path) {
+  const res = await fetch(path, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load ${path}`);
+  return await res.json();
+}
+
 function syncTopbarHeight() {
   const topbar = document.getElementById("top-bar");
   if (!topbar) return;
@@ -52,6 +58,11 @@ function dataPathForMenu() {
   return type === "whiskey" ? "data/whiskey.csv" : "data/wines.csv";
 }
 
+function jsonPathForMenu() {
+  const type = document.body?.dataset?.menu || "wine";
+  return type === "whiskey" ? "" : "data/wines.json";
+}
+
 let ALL = [];
 
 window.addEventListener("hashchange", () => {
@@ -66,7 +77,7 @@ window.addEventListener("popstate", () => {
 
 function renderFromUrl() {
   const state = getStateFromUrl();
-  renderTabs([], state.tab);
+  renderTabs(ALL, state.tab);
   renderSubtabs(ALL, state);
   syncTopbarHeight();
 
@@ -78,15 +89,35 @@ async function init() {
     syncTopbarHeight();
     addEventListener("resize", syncTopbarHeight);
 
-    setStatus("Loading menu…");
+    setStatus("Loading menu...");
 
-    const csvText = await loadCSV(dataPathForMenu());
-    const { headers, records } = parseCSV(csvText);
+    let records = [];
+    const jsonPath = jsonPathForMenu();
 
-    const missing = validateHeaders(headers);
-    if (missing.length) {
-      setStatus(`Menu file is missing columns: ${missing.join(", ")}`);
-      return;
+    if (jsonPath) {
+      try {
+        records = await loadJSON(jsonPath);
+      } catch (e) {
+        console.warn("Frontend JSON unavailable; falling back to CSV.", e);
+      }
+    }
+
+    if (!records.length) {
+      const csvText = await loadCSV(dataPathForMenu());
+      const parsed = parseCSV(csvText);
+      const { headers } = parsed;
+      records = parsed.records;
+
+      if (!headers.length && !records.length) {
+        setStatus("No menu items are available right now.");
+        return;
+      }
+
+      const missing = validateHeaders(headers);
+      if (missing.length) {
+        setStatus(`Menu file is missing columns: ${missing.join(", ")}`);
+        return;
+      }
     }
 
     const normalized = normalizeRecords(records);
