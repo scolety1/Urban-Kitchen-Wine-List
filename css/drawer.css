@@ -1,7 +1,7 @@
 #drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.62);
   opacity: 0;
   pointer-events: none;
   transition: opacity 160ms ease;
@@ -13,19 +13,22 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: var(--z-drawer);
+  max-height: min(80vh, 760px);
+  overflow: auto;
   transform: translateY(110%);
   transition: transform 220ms ease;
-  z-index: var(--z-drawer);
-  background: rgba(17, 17, 20, 0.96);
-  backdrop-filter: blur(14px);
-  border-top: 1px solid var(--border);
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(181, 154, 106, 0.05), transparent 70px),
+    rgba(18, 16, 14, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(213, 191, 151, 0.22);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   box-shadow: var(--shadow);
-  max-height: min(78vh, 760px);
-  overflow: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 14px var(--pad) calc(18px + env(safe-area-inset-bottom)) var(--pad);
+  padding: 18px var(--pad) calc(20px + env(safe-area-inset-bottom));
 }
 
 .drawer-open #drawer-backdrop {
@@ -42,49 +45,43 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(213, 191, 151, 0.14);
+  margin-bottom: 14px;
 }
 
 .drawer-title {
-  font-size: 18px;
-  font-weight: 900;
-  line-height: 1.2;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.16;
 }
 
 .drawer-subtitle {
   margin-top: 6px;
-  font-size: 13px;
   color: var(--muted);
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .drawer-close {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  border-radius: 999px;
-  height: 34px;
-  width: 34px;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(181, 154, 106, 0.30);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text);
   cursor: pointer;
   user-select: none;
-  flex: 0 0 34px;
-}
-
-@media (pointer: coarse) {
-  .drawer-close {
-    height: 44px;
-    width: 44px;
-    flex-basis: 44px;
-  }
 }
 
 .drawer-close:active {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(181, 154, 106, 0.12);
 }
 
 .drawer-keyline {
@@ -95,27 +92,28 @@
 }
 
 .drawer-notes {
-  margin-top: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: var(--radius);
-  padding: 12px;
+  margin-top: 14px;
+  border: 1px solid rgba(213, 191, 151, 0.13);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 13px;
 }
 
-.drawer-notes-title {
+.drawer-notes-title,
+.chooser-step-title {
+  color: var(--accent);
   font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
   font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .drawer-notes-text {
   margin-top: 10px;
-  font-size: 14px;
   color: var(--text);
-  font-weight: 600;
-  line-height: 1.45;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.5;
   white-space: pre-wrap;
 }
 
@@ -129,11 +127,6 @@
 
 .chooser-step-title {
   margin-bottom: 10px;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
 }
 
 .chooser-options {
@@ -145,20 +138,23 @@
 .recommendation-card {
   width: 100%;
   min-height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(213, 191, 151, 0.16);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.025);
   color: var(--text);
   font: inherit;
-  font-weight: 750;
   text-align: left;
-  padding: 10px 12px;
   cursor: pointer;
+}
+
+.chooser-option {
+  padding: 11px 12px;
+  font-weight: 750;
 }
 
 .chooser-option:active,
 .recommendation-card:active {
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(181, 154, 106, 0.12);
 }
 
 .chooser-result {
@@ -174,8 +170,9 @@
 }
 
 .chooser-recommendation {
-  font-size: 18px;
-  font-weight: 900;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
   line-height: 1.25;
 }
 
@@ -186,44 +183,56 @@
 
 .recommendation-card {
   display: grid;
-  gap: 6px;
+  gap: 7px;
+  padding: 13px;
 }
 
 .recommendation-name {
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 1.25;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.22;
 }
 
 .recommendation-meta,
 .recommendation-price {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .recommendation-description,
 .recommendation-why {
+  color: var(--text);
   font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-weight: 550;
+  line-height: 1.42;
 }
 
 .recommendation-why {
   color: var(--muted);
+}
+
+@media (pointer: coarse) {
+  .drawer-close {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
 }
 
 @media (min-width: 900px) {
   #drawer {
     left: 50%;
     right: auto;
-    transform: translate(-50%, 110%);
+    bottom: 20px;
     width: min(680px, 92vw);
-    border-radius: 18px;
-    border: 1px solid var(--border);
-    bottom: 18px;
+    border: 1px solid rgba(213, 191, 151, 0.20);
+    border-radius: 8px;
+    transform: translate(-50%, 110%);
   }
 
   .drawer-open #drawer {
