@@ -79,6 +79,9 @@ a {
   gap: 2px;
   padding: 14px var(--pad) 4px;
   text-align: center;
+  transition: opacity 160ms ease, max-height 180ms ease, padding 180ms ease;
+  max-height: 64px;
+  overflow: hidden;
 }
 
 .masthead-kicker {
@@ -95,6 +98,13 @@ a {
   font-size: 27px;
   font-weight: 500;
   line-height: 1.1;
+}
+
+#top-bar.is-compact .masthead {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 #content {
@@ -115,6 +125,11 @@ a {
 #tabs {
   min-height: var(--tabs-row-h);
   padding: 8px var(--pad) 10px;
+}
+
+#top-bar.is-compact #tabs {
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 #subtabs {
@@ -149,6 +164,10 @@ a {
   font-weight: 750;
 }
 
+#top-bar.is-compact .tab-btn {
+  height: 34px;
+}
+
 .subtab-btn {
   height: 30px;
   padding: 0 11px;
@@ -166,7 +185,11 @@ a {
 }
 
 .choose-btn {
-  color: var(--accent);
+  min-width: 132px;
+  background: rgba(181, 154, 106, 0.20);
+  border-color: rgba(181, 154, 106, 0.52);
+  color: #fff8eb;
+  font-weight: 850;
 }
 
 button,

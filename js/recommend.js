@@ -5,9 +5,7 @@ const WEIGHTS = {
   bodyExact: 18,
   styleExact: 16,
   pairingExact: 18,
-  byTheGlass: 10,
-  bottle: 4,
-  budget: 14,
+  budget: 22,
   metadata: 10,
   staffPick: 5,
 };
@@ -59,29 +57,24 @@ export const DECIDER_STEPS = [
     ],
   },
   {
-    key: "format",
-    title: "Glass or bottle?",
-    options: [
-      { label: "Glass", value: "glass" },
-      { label: "Bottle", value: "bottle" },
-      { label: "Either", value: "either" },
-    ],
-  },
-  {
     key: "budget",
     title: "Bottle budget?",
     options: [
       { label: "Any", value: "any" },
-      { label: "Under $75", value: "under_75" },
-      { label: "$75-$125", value: "75_125" },
-      { label: "$125+", value: "125_plus" },
+      { label: "$75 & under", value: "under_75" },
+      { label: "$80-$90", value: "80_90" },
+      { label: "$90+", value: "90_plus" },
     ],
   },
 ];
 
 export function recommendWines(records, answers, limit = 3) {
-  const candidates = records
-    .filter((wine) => isAvailable(wine))
+  let pool = records.filter((wine) => isAvailable(wine));
+  const budgetPool = filterByBudget(pool, answers.budget);
+
+  if (budgetPool.length >= limit) pool = budgetPool;
+
+  const candidates = pool
     .map((wine) => scoreWine(wine, answers))
     .sort((a, b) => b.score - a.score);
 
@@ -97,7 +90,6 @@ function scoreWine(wine, answers) {
   const style = wineStyle(wine);
   const pairings = pairingTags(wine);
   const bottlePrice = numericPrice(wine.bottle_price);
-  const glassPrice = numericPrice(wine.glass_price);
 
   if (answers.type !== "any" && type === answers.type) {
     score += WEIGHTS.typeExact;
@@ -124,13 +116,6 @@ function scoreWine(wine, answers) {
     score += WEIGHTS.pairingExact;
     reasons.push(`pairs well with ${answers.pairing}`);
   }
-
-  if (answers.format === "glass" && glassPrice != null) {
-    score += WEIGHTS.byTheGlass;
-    reasons.push("is available by the glass");
-  }
-
-  if (answers.format === "bottle" && bottlePrice != null) score += WEIGHTS.bottle;
 
   const budgetScore = scoreBudget(bottlePrice, answers.budget);
   score += budgetScore;
@@ -236,10 +221,22 @@ function pairingTags(wine) {
 
 function scoreBudget(price, budget) {
   if (!budget || budget === "any" || price == null) return WEIGHTS.budget / 2;
-  if (budget === "under_75") return price <= 75 ? WEIGHTS.budget : price <= 95 ? WEIGHTS.budget / 2 : 0;
-  if (budget === "75_125") return price >= 75 && price <= 125 ? WEIGHTS.budget : price < 150 ? WEIGHTS.budget / 2 : 0;
-  if (budget === "125_plus") return price >= 125 ? WEIGHTS.budget : WEIGHTS.budget / 3;
+  if (budget === "under_75") return price <= 75 ? WEIGHTS.budget : 0;
+  if (budget === "80_90") return price >= 80 && price <= 90 ? WEIGHTS.budget : price >= 76 && price <= 95 ? WEIGHTS.budget / 2 : 0;
+  if (budget === "90_plus") return price >= 90 ? WEIGHTS.budget : price >= 80 ? WEIGHTS.budget / 3 : 0;
   return 0;
+}
+
+function filterByBudget(records, budget) {
+  if (!budget || budget === "any") return records;
+  return records.filter((wine) => {
+    const price = numericPrice(wine.bottle_price);
+    if (price == null) return false;
+    if (budget === "under_75") return price <= 75;
+    if (budget === "80_90") return price >= 80 && price <= 90;
+    if (budget === "90_plus") return price >= 90;
+    return true;
+  });
 }
 
 function metadataScore(wine) {

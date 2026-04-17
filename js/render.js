@@ -138,12 +138,12 @@ export function renderTabs(_varietals, activeTab) {
   `;
 
   tabsEl.innerHTML = [
+    `<button class="tab-btn choose-btn" type="button" data-choose="true">Help Me Decide</button>`,
     btn("All", "all", current === "all"),
     btn("Red", "red", current === "red"),
     btn("White", "white", current === "white"),
     btn("Ros\u00e9", "rose", current === "rose"),
     btn("Sparkling", "sparkling", current === "sparkling"),
-    `<button class="tab-btn choose-btn" type="button" data-choose="true">Help Me Decide</button>`,
   ].join("");
 
   tabsEl.querySelectorAll("[data-tab]").forEach((el) => {
@@ -178,13 +178,9 @@ export function renderSubtabs(records, state) {
   if (tab === "red" || tab === "white" || tab === "sparkling" || tab === "rose") {
     const filteredForType = records.filter((r) => topTabForRecord(r) === tab);
 
-    const varietals = Array.from(
-      new Set(
-        filteredForType
-          .map((r) => normLower(r._varietal))
-          .filter(Boolean)
-      )
-    ).sort((a, b) => cmpText(a, b));
+    const groups = getVarietalGroups(filteredForType, tab);
+    const varietals = Object.keys(groups);
+    if (varietals.length <= 1) return;
 
     el.classList.remove("hidden");
 
@@ -200,8 +196,7 @@ export function renderSubtabs(records, state) {
     el.querySelectorAll("[data-kind='varietal']").forEach((b) => {
       b.addEventListener("click", () => {
         const key = b.getAttribute("data-key") || "";
-        setUrlState({ tab, varietal: key });
-        window.dispatchEvent(new Event("hashchange"));
+        scrollToCurrentSection(key);
       });
     });
 
@@ -233,6 +228,9 @@ function canonicalVarietal(raw) {
   const rules = [
     { keys: ["syrah", "shiraz"], label: "Syrah/Shiraz" },
     { keys: ["grenache", "garnacha"], label: "Grenache/Garnacha" },
+    { keys: ["red blend", "bordeaux blend", "rhône blend", "rhone blend"], label: "Red Blends" },
+    { keys: ["white blend", "white bordeaux blend", "white rhône blend", "white rhone blend"], label: "White Blends" },
+    { keys: ["champagne", "sparkling"], label: "Sparkling" },
   ];
 
   for (const r of rules) {
@@ -271,31 +269,7 @@ export function renderMenu(records, state) {
 
   if (staff.length) html.push(renderPinnedStaff(staff));
 
-  let byVarietal = groupBy(rest, (r) => r._varietal || "Other");
-
-  const otherLabel =
-    tab === "red" ? "Other Red" :
-    tab === "white" ? "Other White" :
-    tab === "sparkling" ? "Other Sparkling" :
-    tab === "rose" ? "Other Ros\u00e9" :
-    "Other";
-
-  const merged = {};
-  let otherRows = [];
-
-  for (const [k, rows] of Object.entries(byVarietal)) {
-    if (k !== "Other" && rows.length <= 2) otherRows = otherRows.concat(rows);
-    else merged[k] = rows;
-  }
-
-  if (otherRows.length) merged[otherLabel] = (merged[otherLabel] || []).concat(otherRows);
-
-  if (merged["Other"] && otherLabel !== "Other") {
-    merged[otherLabel] = (merged[otherLabel] || []).concat(merged["Other"]);
-    delete merged["Other"];
-  }
-
-  byVarietal = merged;
+  const byVarietal = getVarietalGroups(rest, tab);
 
   const varietalKeys = Object.keys(byVarietal).sort((a, b) => {
     const ao = isOtherBucket(a) ? 1 : 0;
@@ -391,6 +365,7 @@ function openChooser(records) {
     <div class="chooser" data-step="0">
       <p class="chooser-intro">Answer a few quick questions and we will point you toward three good options.</p>
       <div class="chooser-step-title"></div>
+      <button class="chooser-back" type="button" hidden>Back</button>
       <div class="chooser-options"></div>
       <div class="chooser-result" hidden></div>
     </div>
@@ -407,11 +382,16 @@ function openChooser(records) {
 
 function renderChooserStep(drawer, records, answers, index) {
   const titleEl = drawer.querySelector(".chooser-step-title");
+  const backBtn = drawer.querySelector(".chooser-back");
   const optionsEl = drawer.querySelector(".chooser-options");
   const resultEl = drawer.querySelector(".chooser-result");
-  if (!titleEl || !optionsEl || !resultEl) return;
+  if (!titleEl || !backBtn || !optionsEl || !resultEl) return;
+
+  backBtn.hidden = index <= 0;
+  backBtn.onclick = () => renderChooserStep(drawer, records, answers, Math.max(0, index - 1));
 
   if (index >= DECIDER_STEPS.length) {
+    backBtn.hidden = false;
     renderChooserResults(records, answers, titleEl, optionsEl, resultEl);
     return;
   }
@@ -501,6 +481,52 @@ function renderPinnedStaff(rows) {
       </div>
     </section>
   `;
+}
+
+function getVarietalGroups(rows, tab) {
+  const grouped = groupBy(rows, (r) => r._varietal || "Other");
+  const otherLabel =
+    tab === "red" ? "Other Red" :
+    tab === "white" ? "Other White" :
+    tab === "sparkling" ? "Other Sparkling" :
+    tab === "rose" ? "Other Ros\u00e9" :
+    "Other";
+
+  const merged = {};
+  let otherRows = [];
+
+  for (const [label, items] of Object.entries(grouped)) {
+    if (label !== "Other" && items.length <= 2) otherRows = otherRows.concat(items);
+    else merged[label] = items;
+  }
+
+  if (otherRows.length) merged[otherLabel] = (merged[otherLabel] || []).concat(otherRows);
+
+  if (merged.Other && otherLabel !== "Other") {
+    merged[otherLabel] = (merged[otherLabel] || []).concat(merged.Other);
+    delete merged.Other;
+  }
+
+  return Object.fromEntries(
+    Object.entries(merged).sort(([a], [b]) => {
+      const ao = isOtherBucket(a) ? 1 : 0;
+      const bo = isOtherBucket(b) ? 1 : 0;
+      if (ao !== bo) return ao - bo;
+      return cmpText(a, b);
+    })
+  );
+}
+
+function scrollToCurrentSection(key) {
+  requestAnimationFrame(() => {
+    const target = key
+      ? document.getElementById(slug(titleCase(key.replaceAll("_", " "))))
+      : document.getElementById("menu");
+    if (!target) return;
+    const offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--topbar-h"), 10) || 0;
+    const y = target.getBoundingClientRect().top + window.scrollY - offset - 10;
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  });
 }
 
 function renderWorldBlock(world, rows) {

@@ -58,6 +58,15 @@ function dataPathForMenu() {
   return type === "whiskey" ? "data/whiskey.csv" : "data/wines.csv";
 }
 
+function syncCompactHeader() {
+  const topbar = document.getElementById("top-bar");
+  if (!topbar) return;
+  const compact = window.scrollY > 28;
+  if (topbar.classList.toggle("is-compact", compact)) {
+    requestAnimationFrame(syncTopbarHeight);
+  }
+}
+
 function jsonPathForMenu() {
   const type = document.body?.dataset?.menu || "wine";
   return type === "whiskey" ? "" : "data/wines.json";
@@ -88,6 +97,8 @@ async function init() {
   try {
     syncTopbarHeight();
     addEventListener("resize", syncTopbarHeight);
+    addEventListener("scroll", syncCompactHeader, { passive: true });
+    syncCompactHeader();
 
     setStatus("Loading menu...");
 

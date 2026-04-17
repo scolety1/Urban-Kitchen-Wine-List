@@ -95,17 +95,17 @@ function normalizeType(value) {
 
 function inferBody(row) {
   const text = searchable(row);
-  if (/(full|bold|rich|powerful|structured|cabernet|syrah|shiraz|malbec|nebbiolo)/i.test(text)) return "bold";
-  if (/(light|fresh|delicate|crisp|pinot noir|gamay|riesling|sauvignon|gruner|grüner)/i.test(text)) return "light";
+  if (/(full|bold|rich|powerful|structured|dense|concentrated|cabernet|syrah|shiraz|malbec|nebbiolo|zinfandel|mourv[eè]dre)/i.test(text)) return "bold";
+  if (/(light|fresh|delicate|crisp|bright|pinot noir|gamay|barbera|riesling|sauvignon|gruner|grüner|albari[nñ]o|picpoul|txakolina|hondarrabi)/i.test(text)) return "light";
   return "medium";
 }
 
 function inferStyle(row) {
   const text = searchable(row);
-  if (/(crisp|bright|fresh|citrus|mineral|acid)/i.test(text)) return "crisp";
-  if (/(smooth|soft|round|polished|velvety)/i.test(text)) return "smooth";
-  if (/(rich|creamy|butter|brioche|toast|full)/i.test(text)) return "rich";
-  if (/(fruit|fruity|berry|cherry|apple|pear|stone fruit)/i.test(text)) return "fruity";
+  if (/(crisp|bright|fresh|citrus|lemon|lime|mineral|acid|saline|zesty|racy)/i.test(text)) return "crisp";
+  if (/(smooth|soft|round|polished|velvety|supple|silky|plush)/i.test(text)) return "smooth";
+  if (/(rich|creamy|butter|brioche|toast|toasted|full|opulent|weight|texture)/i.test(text)) return "rich";
+  if (/(fruit|fruity|berry|cherry|raspberry|strawberry|apple|pear|peach|stone fruit|plum)/i.test(text)) return "fruity";
   return "dry";
 }
 
@@ -133,12 +133,14 @@ function inferPairings(row) {
   const text = searchable(row);
   const tags = new Set();
 
-  if (type === "red") tags.add("steak");
-  if (type === "white" || type === "sparkling") tags.add("seafood");
-  if (/(pinot|grenache|sangiovese|nebbiolo|barbera|chianti|burgundy|rh[oô]ne)/i.test(text)) tags.add("pasta");
-  if (/(sauvignon|riesling|gruner|grüner|crisp|bright|sparkling|rose|rosé)/i.test(text)) tags.add("salad");
-  if (/(champagne|sparkling|prosecco|crisp|fresh|easy)/i.test(text)) tags.add("sipping");
-  if (/(cabernet|syrah|shiraz|malbec|merlot|bold|structured)/i.test(text)) tags.add("steak");
+  if (/(cabernet|syrah|shiraz|malbec|zinfandel|bold|structured|tannin|dark fruit|cedar)/i.test(text)) tags.add("steak");
+  if (/(chardonnay|sauvignon|riesling|gruner|grüner|albari[nñ]o|picpoul|seafood|shellfish|citrus|mineral|saline|sparkling)/i.test(text)) tags.add("seafood");
+  if (/(pinot|grenache|garnacha|sangiovese|nebbiolo|barbera|chianti|burgundy|rh[oô]ne|tomato|savory|earth)/i.test(text)) tags.add("pasta");
+  if (/(sauvignon|riesling|gruner|grüner|albari[nñ]o|picpoul|crisp|bright|sparkling|rose|rosé|fresh|saline)/i.test(text)) tags.add("salad");
+  if (/(champagne|sparkling|prosecco|brut|crisp|fresh|easy|aperitif|lighter|delicate)/i.test(text)) tags.add("sipping");
+
+  if (type === "red" && !tags.size) tags.add("steak");
+  if ((type === "white" || type === "sparkling" || type === "rose") && !tags.size) tags.add("seafood");
 
   if (!tags.size) tags.add("sipping");
   return Array.from(tags).join("|");
