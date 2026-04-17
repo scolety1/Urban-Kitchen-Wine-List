@@ -62,8 +62,8 @@ export const DECIDER_STEPS = [
     options: [
       { label: "Any", value: "any" },
       { label: "$75 & under", value: "under_75" },
-      { label: "$80-$90", value: "80_90" },
-      { label: "$90+", value: "90_plus" },
+      { label: "$75-$150", value: "75_150" },
+      { label: "$150+", value: "150_plus" },
     ],
   },
 ];
@@ -222,8 +222,8 @@ function pairingTags(wine) {
 function scoreBudget(price, budget) {
   if (!budget || budget === "any" || price == null) return WEIGHTS.budget / 2;
   if (budget === "under_75") return price <= 75 ? WEIGHTS.budget : 0;
-  if (budget === "80_90") return price >= 80 && price <= 90 ? WEIGHTS.budget : price >= 76 && price <= 95 ? WEIGHTS.budget / 2 : 0;
-  if (budget === "90_plus") return price >= 90 ? WEIGHTS.budget : price >= 80 ? WEIGHTS.budget / 3 : 0;
+  if (budget === "75_150") return price >= 75 && price <= 150 ? WEIGHTS.budget : price > 150 && price <= 175 ? WEIGHTS.budget / 3 : 0;
+  if (budget === "150_plus") return price >= 150 ? WEIGHTS.budget : price >= 125 ? WEIGHTS.budget / 3 : 0;
   return 0;
 }
 
@@ -233,8 +233,8 @@ function filterByBudget(records, budget) {
     const price = numericPrice(wine.bottle_price);
     if (price == null) return false;
     if (budget === "under_75") return price <= 75;
-    if (budget === "80_90") return price >= 80 && price <= 90;
-    if (budget === "90_plus") return price >= 90;
+    if (budget === "75_150") return price >= 75 && price <= 150;
+    if (budget === "150_plus") return price >= 150;
     return true;
   });
 }
