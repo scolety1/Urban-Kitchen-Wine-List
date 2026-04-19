@@ -394,7 +394,12 @@ function renderChooserStep(drawer, records, answers, index) {
   if (!titleEl || !backBtn || !optionsEl || !resultEl) return;
 
   backBtn.hidden = index <= 0;
-  backBtn.onclick = () => renderChooserStep(drawer, records, answers, Math.max(0, index - 1));
+  backBtn.onclick = () => {
+    const previousIndex = answers.type === "dessert" && DECIDER_STEPS[index]?.key === "budget"
+      ? 0
+      : Math.max(0, index - 1);
+    renderChooserStep(drawer, records, answers, previousIndex);
+  };
 
   if (index >= DECIDER_STEPS.length) {
     backBtn.hidden = false;
@@ -416,7 +421,8 @@ function renderChooserStep(drawer, records, answers, index) {
     button.addEventListener("click", () => {
       answers[step.key] = button.getAttribute("data-value") || "";
       if (step.key === "type" && answers.type === "dessert") {
-        renderChooserResults(records, answers, titleEl, optionsEl, resultEl);
+        const budgetIndex = DECIDER_STEPS.findIndex((next) => next.key === "budget");
+        renderChooserStep(drawer, records, answers, budgetIndex >= 0 ? budgetIndex : index + 1);
         return;
       }
       renderChooserStep(drawer, records, answers, index + 1);

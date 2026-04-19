@@ -22,12 +22,12 @@ export const DECIDER_STEPS = [
       { label: "Rose", value: "rose" },
       { label: "Sparkling", value: "sparkling" },
       { label: "Dessert", value: "dessert" },
-      { label: "Anything", value: "any" },
+      { label: "Open to anything", value: "any" },
     ],
   },
   {
     key: "body",
-    title: "How much body?",
+    title: "How full-bodied?",
     options: [
       { label: "Light", value: "light" },
       { label: "Medium", value: "medium" },
@@ -36,7 +36,7 @@ export const DECIDER_STEPS = [
   },
   {
     key: "style",
-    title: "What style?",
+    title: "What sounds best?",
     options: [
       { label: "Dry", value: "dry" },
       { label: "Fruity", value: "fruity" },
@@ -53,7 +53,7 @@ export const DECIDER_STEPS = [
       { label: "Seafood", value: "seafood" },
       { label: "Pasta", value: "pasta" },
       { label: "Salad", value: "salad" },
-      { label: "Sipping", value: "sipping" },
+      { label: "Just sipping", value: "sipping" },
     ],
   },
   {
@@ -69,7 +69,7 @@ export const DECIDER_STEPS = [
 ];
 
 export function recommendWines(records, answers, limit = 3) {
-  if (answers.type === "dessert") return recommendDessertWines(records, limit);
+  if (answers.type === "dessert") return recommendDessertWines(records, answers, limit);
 
   let pool = records.filter((wine) => isAvailable(wine));
   const budgetPool = filterByBudget(pool, answers.budget);
@@ -84,9 +84,12 @@ export function recommendWines(records, answers, limit = 3) {
   return candidates.slice(0, limit);
 }
 
-function recommendDessertWines(records, limit) {
-  return records
-    .filter((wine) => isAvailable(wine))
+function recommendDessertWines(records, answers, limit) {
+  let pool = records.filter((wine) => isAvailable(wine));
+  const budgetPool = filterByBudget(pool, answers.budget);
+  if (budgetPool.length >= limit) pool = budgetPool;
+
+  return pool
     .map((wine) => {
       const type = wineType(wine);
       const text = searchText(wine);
@@ -95,7 +98,7 @@ function recommendDessertWines(records, limit) {
 
       if (type === "dessert") score += 50;
       if (/(dessert|sweet|port|sauternes|late harvest|moscato|brachetto)/.test(text)) score += 35;
-      if (price != null) score += 5;
+      score += scoreBudget(price, answers.budget);
       score += metadataScore(wine);
       if (isYes(wine.staff_pick)) score += WEIGHTS.staffPick;
 
