@@ -4,10 +4,10 @@
 GREEN
 
 ## Progress Against Mission
-Branch is moving toward the mission with small, reviewable frontend-only improvements to wine descriptions, Help Me Decide, and mobile wine card scanability.
+Branch is moving toward the mission with focused frontend-only polish across mobile browsing, wine descriptions, filters, Help Me Decide, and selected wine details.
 
 ## Safety Review
-None found. Changed files stay within allowed static data, CSS, JS UI logic, and Codex docs.
+No risky files or forbidden scope found. Changes stay within static CSS, JS, wine data, and docs.
 
 ## Build Result
 External build passed: Static wine list check passed.
@@ -17,5 +17,6 @@ continue
 
 ## Notes For Human Reviewer
 - Working tree is clean.
-- No forbidden backend, auth, payment, API, dependency, deployment, tracking, or secret changes indicated.
-- Next useful task is likely wine filters polish.
+- Build passed after latest checkpoint.
+- No backend, auth, payments, APIs, dependencies, deployment, or tracking changes listed.
+- Next queued task is no-results and empty-state polish.
