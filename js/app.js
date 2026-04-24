@@ -67,6 +67,27 @@ function syncCompactHeader() {
   }
 }
 
+function attachIntroHandlers() {
+  const chooseBtn = document.querySelector("[data-intro-choose]");
+  const browseBtn = document.querySelector("[data-intro-browse]");
+
+  if (chooseBtn) {
+    chooseBtn.addEventListener("click", () => {
+      document.querySelector("[data-choose]")?.click();
+    });
+  }
+
+  if (browseBtn) {
+    browseBtn.addEventListener("click", () => {
+      const menu = document.getElementById("menu");
+      if (!menu) return;
+      const offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--topbar-h"), 10) || 0;
+      const y = menu.getBoundingClientRect().top + window.scrollY - offset - 10;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    });
+  }
+}
+
 function jsonPathForMenu() {
   const type = document.body?.dataset?.menu || "wine";
   return type === "whiskey" ? "" : "data/wines.json";
@@ -99,6 +120,7 @@ async function init() {
     addEventListener("resize", syncTopbarHeight);
     addEventListener("scroll", syncCompactHeader, { passive: true });
     syncCompactHeader();
+    attachIntroHandlers();
 
     setStatus("Loading menu...");
 
