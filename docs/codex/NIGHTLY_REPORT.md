@@ -34,3 +34,12 @@
 - Files changed:
 - js/recommend.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 16:55:14
+
+- Task attempted: Mobile wine card scanability: improve one mobile layout detail in the wine cards so name, region, varietal, price, style, and notes are easier to scan. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or broad rewrites.
+- Build result: Passed
+- Files changed:
+- css/table.css
+- js/render.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.

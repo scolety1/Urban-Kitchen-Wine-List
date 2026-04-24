@@ -582,11 +582,28 @@ function withDollar(val) {
   return `$${s}`;
 }
 
+function mobileNoteSnippet(row) {
+  const note = norm(row.description || row.description_final || row.description_ai);
+  if (!note) return "";
+  const firstSentence = note.match(/^[^.!?]+[.!?]/)?.[0] || note;
+  return firstSentence.length > 92 ? `${firstSentence.slice(0, 89).trim()}...` : firstSentence;
+}
+
 function renderRow(r) {
   const name = escapeHtml(r._name);
   const loc = escapeHtml(makeShortLocation(r));
   const vintage = norm(r.vintage) ? escapeHtml(norm(r.vintage)) : "";
   const subtitle = [loc, vintage].filter(Boolean).join(" &middot; ");
+  const style = norm(r.style);
+  const mobileMeta = [norm(r.varietal), style ? `${style} style` : ""].filter(Boolean).join(" &middot; ");
+  const mobileNote = mobileNoteSnippet(r);
+  const mobileDetailsHtml = mobileMeta || mobileNote
+    ? `
+        <div class="mobile-card-details">
+          ${mobileMeta ? `<span>${escapeHtml(mobileMeta)}</span>` : ""}
+          ${mobileNote ? `<span>${escapeHtml(mobileNote)}</span>` : ""}
+        </div>`
+    : "";
 
   const bottleRaw = priceToDisplay(r.bottle_price);
   const bottle = bottleRaw === "mp" ? "mp" : withDollar(bottleRaw);
@@ -603,6 +620,7 @@ function renderRow(r) {
           ${star}
         </div>
         <div class="subtext">${subtitle || ""}</div>
+        ${mobileDetailsHtml}
       </div>
       <div class="cell price">${bottleHtml || ""}</div>
     </div>

@@ -94,6 +94,10 @@
   white-space: nowrap;
 }
 
+.mobile-card-details {
+  display: none;
+}
+
 .price {
   justify-content: flex-end;
   align-items: flex-start;
@@ -141,6 +145,29 @@
 
 .world-block + .world-block {
   border-top: 1px solid rgba(213, 191, 151, 0.12);
+}
+
+@media (max-width: 640px) {
+  .cell.name {
+    gap: 6px;
+  }
+
+  .mobile-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    color: var(--muted-2);
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.32;
+  }
+
+  .mobile-card-details span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 420px) {

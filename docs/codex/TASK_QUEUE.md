@@ -10,7 +10,7 @@
 
 - [x] Help Me Decide recommendation quality pass: refine the static matching choices or result language so recommendations feel credible for common guest intents like crisp white, bold red, celebratory, steak, seafood, patio, and something easy-drinking. Do not add AI, backend, APIs, tracking, dependencies, persistence, package changes, deployment, or real external data.
 
-- [ ] Mobile wine card scanability: improve one mobile layout detail in the wine cards so name, region, varietal, price, style, and notes are easier to scan. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or broad rewrites.
+- [x] Mobile wine card scanability: improve one mobile layout detail in the wine cards so name, region, varietal, price, style, and notes are easier to scan. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or broad rewrites.
 
 - [ ] Wine filters polish: improve the visual hierarchy or copy of wine filters/search so guests can quickly browse by style, category, or mood. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, CNAME changes, or real external data.
 
