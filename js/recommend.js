@@ -47,13 +47,15 @@ export const DECIDER_STEPS = [
   },
   {
     key: "pairing",
-    title: "What are you having?",
+    title: "What are you planning?",
     options: [
       { label: "Steak", value: "steak" },
       { label: "Seafood", value: "seafood" },
       { label: "Pasta", value: "pasta" },
       { label: "Salad", value: "salad" },
-      { label: "Just sipping", value: "sipping" },
+      { label: "Celebrating", value: "celebratory" },
+      { label: "Patio bottle", value: "patio" },
+      { label: "Easy-drinking", value: "easy" },
     ],
   },
   {
@@ -144,7 +146,7 @@ function scoreWine(wine, answers) {
 
   if (pairings.includes(answers.pairing)) {
     score += WEIGHTS.pairingExact;
-    reasons.push(`pairs well with ${answers.pairing}`);
+    reasons.push(pairingReason(answers.pairing));
   }
 
   const budgetScore = scoreBudget(bottlePrice, answers.budget);
@@ -235,18 +237,41 @@ function pairingTags(wine) {
     .split("|")
     .map((tag) => tag.trim())
     .filter(Boolean);
-  if (explicit.length) return explicit;
+  const text = searchText(wine);
+  if (explicit.length) {
+    const tags = new Set(explicit);
+    if (/(champagne|sparkling|prosecco|brut|moscato|brachetto)/.test(text)) tags.add("celebratory");
+    if (/(rose|ros.|sauvignon|riesling|gruner|picpoul|crisp|bright|fresh|sparkling)/.test(text)) tags.add("patio");
+    if (/(easy|approachable|smooth|soft|fresh|light|gamay|pinot|rose|sparkling)/.test(text)) tags.add("easy");
+    return Array.from(tags);
+  }
 
   const type = wineType(wine);
-  const text = searchText(wine);
   const tags = new Set();
   if (type === "red") tags.add("steak");
   if (type === "white" || type === "sparkling") tags.add("seafood");
   if (/(pinot|grenache|sangiovese|nebbiolo|barbera|chianti|burgundy|rhone|rhône)/.test(text)) tags.add("pasta");
   if (/(sauvignon|riesling|gruner|grüner|crisp|bright|sparkling|rose|rosé)/.test(text)) tags.add("salad");
   if (/(champagne|sparkling|prosecco|crisp|fresh|easy)/.test(text)) tags.add("sipping");
+  if (/(champagne|sparkling|prosecco|brut|moscato|brachetto)/.test(text)) tags.add("celebratory");
+  if (/(rose|ros.|sauvignon|riesling|gruner|gr.ner|albarino|albari.o|picpoul|crisp|bright|fresh|sparkling)/.test(text)) tags.add("patio");
+  if (/(easy|approachable|smooth|soft|fresh|light|gamay|pinot|rose|ros.|sparkling)/.test(text)) tags.add("easy");
   if (!tags.size) tags.add("sipping");
   return Array.from(tags);
+}
+
+function pairingReason(pairing) {
+  const labels = {
+    steak: "has enough structure for steak",
+    seafood: "has the freshness to work with seafood",
+    pasta: "has enough texture for pasta",
+    salad: "stays bright with lighter plates",
+    celebratory: "feels right for a celebratory pour",
+    patio: "is refreshing enough for the patio",
+    easy: "is easy-drinking without feeling generic",
+    sipping: "works well for sipping",
+  };
+  return labels[pairing] || `pairs well with ${pairing}`;
 }
 
 function scoreBudget(price, budget) {

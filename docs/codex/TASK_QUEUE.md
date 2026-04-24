@@ -8,7 +8,7 @@
 
 - [x] Help Me Decide audit: inspect the current recommendation button/flow and improve one small part of the selection experience, recommendation copy, or result card so it feels more useful and fun on mobile. Keep logic static/frontend-only. Do not add AI, backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
 
-- [ ] Help Me Decide recommendation quality pass: refine the static matching choices or result language so recommendations feel credible for common guest intents like crisp white, bold red, celebratory, steak, seafood, patio, and something easy-drinking. Do not add AI, backend, APIs, tracking, dependencies, persistence, package changes, deployment, or real external data.
+- [x] Help Me Decide recommendation quality pass: refine the static matching choices or result language so recommendations feel credible for common guest intents like crisp white, bold red, celebratory, steak, seafood, patio, and something easy-drinking. Do not add AI, backend, APIs, tracking, dependencies, persistence, package changes, deployment, or real external data.
 
 - [ ] Mobile wine card scanability: improve one mobile layout detail in the wine cards so name, region, varietal, price, style, and notes are easier to scan. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or broad rewrites.
 

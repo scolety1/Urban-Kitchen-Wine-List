@@ -26,3 +26,11 @@
 - css/drawer.css
 - js/render.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 16:52:57
+
+- Task attempted: Help Me Decide recommendation quality pass: refine the static matching choices or result language so recommendations feel credible for common guest intents like crisp white, bold red, celebratory, steak, seafood, patio, and something easy-drinking. Do not add AI, backend, APIs, tracking, dependencies, persistence, package changes, deployment, or real external data.
+- Build result: Passed
+- Files changed:
+- js/recommend.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
