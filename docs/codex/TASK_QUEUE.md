@@ -12,7 +12,7 @@
 
 - [x] Mobile wine card scanability: improve one mobile layout detail in the wine cards so name, region, varietal, price, style, and notes are easier to scan. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or broad rewrites.
 
-- [ ] Wine filters polish: improve the visual hierarchy or copy of wine filters/search so guests can quickly browse by style, category, or mood. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, CNAME changes, or real external data.
+- [x] Wine filters polish: improve the visual hierarchy or copy of wine filters/search so guests can quickly browse by style, category, or mood. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, CNAME changes, or real external data.
 
 - [ ] Selected wine detail polish: improve the selected wine/detail state so it gives a clear reason to choose the wine, a pairing cue, and a staff-friendly talking point. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or fake claims.
 

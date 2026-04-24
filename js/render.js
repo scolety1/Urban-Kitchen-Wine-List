@@ -140,7 +140,9 @@ export function renderTabs(_varietals, activeTab) {
   `;
 
   tabsEl.innerHTML = [
-    `<button class="tab-btn choose-btn" type="button" data-choose="true">Help Me Decide</button>`,
+    `<span class="filter-label" aria-hidden="true">Mood</span>`,
+    `<button class="tab-btn choose-btn" type="button" data-choose="true" aria-label="Help me decide by mood">Help Me Decide</button>`,
+    `<span class="filter-label" aria-hidden="true">Category</span>`,
     btn("All", "all", current === "all"),
     btn("Red", "red", current === "red"),
     btn("White", "white", current === "white"),
@@ -188,7 +190,10 @@ export function renderSubtabs(records, state) {
 
     const activeVar = normLower(state?.varietal || "");
     const jumpVar = activeJumpVarietal && varietals.includes(activeJumpVarietal) ? activeJumpVarietal : "";
-    const parts = [makeBtn("All", "", !jumpVar && !activeVar, "varietal")];
+    const parts = [
+      `<span class="filter-label filter-label-sub" aria-hidden="true">Style</span>`,
+      makeBtn("All", "", !jumpVar && !activeVar, "varietal"),
+    ];
 
     for (const v of varietals) {
       parts.push(makeBtn(titleCase(v.replaceAll("_", " ")), v, jumpVar === v || activeVar === v, "varietal"));

@@ -43,3 +43,12 @@
 - css/table.css
 - js/render.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 16:57:26
+
+- Task attempted: Wine filters polish: improve the visual hierarchy or copy of wine filters/search so guests can quickly browse by style, category, or mood. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, CNAME changes, or real external data.
+- Build result: Passed
+- Files changed:
+- css/base.css
+- js/render.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
