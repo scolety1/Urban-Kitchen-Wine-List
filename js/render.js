@@ -446,7 +446,7 @@ function renderChooserResults(records, answers, titleEl, optionsEl, resultEl) {
 
   resultEl.innerHTML = `
     <div class="recommendation-list">
-      ${recommendations.map((item) => renderRecommendationCard(item)).join("")}
+      ${recommendations.map((item, index) => renderRecommendationCard(item, index)).join("")}
     </div>
   `;
 
@@ -458,21 +458,25 @@ function renderChooserResults(records, answers, titleEl, optionsEl, resultEl) {
   });
 }
 
-function renderRecommendationCard(item) {
+function renderRecommendationCard(item, index = 0) {
   const wine = item.wine;
   const bottle = priceToDisplay(wine.bottle_price);
   const glass = priceToDisplay(wine.glass_price);
   const price = glass ? `$${escapeHtml(glass)} glass` : bottle ? `$${escapeHtml(bottle)} bottle` : "Ask for price";
   const description = norm(wine.description_final || wine.description || wine.description_ai || wine.description_original);
   const shortDescription = description.length > 120 ? `${description.slice(0, 117).trim()}...` : description;
+  const badge = index === 0 ? "Best match" : "Good fit";
 
   return `
     <button class="recommendation-card" type="button" data-rec-id="${escapeHtml(wine._id)}">
+      <span class="recommendation-topline">
+        <span class="recommendation-badge">${badge}</span>
+        <span class="recommendation-price">${price}</span>
+      </span>
       <span class="recommendation-name">${escapeHtml(wine.name)}</span>
       <span class="recommendation-meta">${escapeHtml([wine.vintage, wine.varietal].filter(Boolean).join(" | "))}</span>
       <span class="recommendation-description">${escapeHtml(shortDescription || "A balanced choice from the current list.")}</span>
       <span class="recommendation-why">${escapeHtml(item.why)}</span>
-      <span class="recommendation-price">${price}</span>
     </button>
   `;
 }

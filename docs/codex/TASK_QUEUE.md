@@ -6,7 +6,7 @@
 
 - [x] Wine description polish pass 1: improve 3-5 wine descriptions so they sound more polished, specific, and useful to a guest choosing wine. Include flavor profile, body/style, and a pairing cue when available. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or fake claims.
 
-- [ ] Help Me Decide audit: inspect the current recommendation button/flow and improve one small part of the selection experience, recommendation copy, or result card so it feels more useful and fun on mobile. Keep logic static/frontend-only. Do not add AI, backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
+- [x] Help Me Decide audit: inspect the current recommendation button/flow and improve one small part of the selection experience, recommendation copy, or result card so it feels more useful and fun on mobile. Keep logic static/frontend-only. Do not add AI, backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
 
 - [ ] Help Me Decide recommendation quality pass: refine the static matching choices or result language so recommendations feel credible for common guest intents like crisp white, bold red, celebratory, steak, seafood, patio, and something easy-drinking. Do not add AI, backend, APIs, tracking, dependencies, persistence, package changes, deployment, or real external data.
 

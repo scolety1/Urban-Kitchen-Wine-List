@@ -213,6 +213,27 @@
   padding: 13px;
 }
 
+.recommendation-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recommendation-badge {
+  border: 1px solid rgba(181, 154, 106, 0.34);
+  border-radius: 999px;
+  background: rgba(181, 154, 106, 0.10);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  line-height: 1;
+  padding: 6px 8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .recommendation-name {
   color: var(--text);
   font-family: var(--serif);
@@ -228,6 +249,12 @@
   font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.recommendation-price {
+  flex: 1;
+  min-width: 86px;
+  text-align: right;
 }
 
 .recommendation-description,
