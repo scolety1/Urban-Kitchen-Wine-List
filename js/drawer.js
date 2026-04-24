@@ -74,12 +74,96 @@ function renderItemPills(item) {
 
 function renderItemDescription(item) {
   const desc = escapeHtml(norm(item.description));
+  const guide = renderSelectionGuide(item);
   return `
     <div class="drawer-notes">
       <div class="drawer-notes-title">Description</div>
       <div class="drawer-notes-text">${desc || "-"}</div>
     </div>
+    ${guide}
   `;
+}
+
+function renderSelectionGuide(item) {
+  const cards = [
+    ["Why choose it", chooseReason(item)],
+    ["Pairing cue", pairingCue(item)],
+    ["Staff talking point", staffTalkingPoint(item)],
+  ].filter(([, text]) => text);
+
+  if (!cards.length) return "";
+
+  return `
+    <div class="drawer-guide" aria-label="Selection guidance">
+      ${cards.map(([label, text]) => `
+        <div class="drawer-guide-card">
+          <div class="drawer-notes-title">${escapeHtml(label)}</div>
+          <div class="drawer-guide-text">${escapeHtml(text)}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function chooseReason(item) {
+  const style = cleanDescriptor(item.style);
+  const body = cleanDescriptor(item.body);
+  const type = cleanDescriptor(item.type);
+  const acidity = cleanDescriptor(item.acidity);
+  const sweetness = cleanDescriptor(item.sweetness);
+  const traits = [body, style].filter(Boolean).join(", ");
+  const wineType = type ? `${type} wine` : "wine";
+
+  if (traits && acidity) return `Choose this for a ${traits} ${wineType} with ${acidity} acidity.`;
+  if (traits && sweetness) return `Choose this for a ${traits} ${wineType} that reads ${sweetness}.`;
+  if (traits) return `Choose this for a ${traits} ${wineType}.`;
+  if (acidity) return `Choose this when a guest wants a ${wineType} with ${acidity} acidity.`;
+  return "";
+}
+
+function pairingCue(item) {
+  const pairings = norm(item.pairing_tags)
+    .split("|")
+    .map((tag) => pairingLabel(tag))
+    .filter(Boolean);
+
+  if (!pairings.length) return "";
+  if (pairings.length === 1) return `Point guests toward ${pairings[0]}.`;
+  return `Point guests toward ${pairings.slice(0, 2).join(" or ")}.`;
+}
+
+function staffTalkingPoint(item) {
+  const varietal = norm(item.varietal);
+  const location = makeLocation(item);
+  const style = cleanDescriptor(item.style);
+  const body = cleanDescriptor(item.body);
+  const sweetness = cleanDescriptor(item.sweetness);
+  const descriptors = [body, style, sweetness].filter(Boolean).slice(0, 2).join(" and ");
+
+  if (varietal && location && descriptors) {
+    return `Lead with ${varietal} from ${location}; describe it as ${descriptors}.`;
+  }
+  if (varietal && location) return `Lead with ${varietal} from ${location}.`;
+  if (varietal && descriptors) return `Lead with the ${varietal}; describe it as ${descriptors}.`;
+  return "";
+}
+
+function cleanDescriptor(value) {
+  const text = normLower(value);
+  if (!text || text === "unknown") return "";
+  return text;
+}
+
+function pairingLabel(value) {
+  const key = normLower(value);
+  const labels = {
+    seafood: "seafood or lighter fish dishes",
+    salad: "salads, herbs, and lighter starters",
+    sipping: "a glass before the meal",
+    steak: "steak or richer proteins",
+    pasta: "pasta or creamier dishes",
+  };
+  return labels[key] || "";
 }
 
 export function closeDrawer() {

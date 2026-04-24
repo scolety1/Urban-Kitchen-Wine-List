@@ -14,7 +14,7 @@
 
 - [x] Wine filters polish: improve the visual hierarchy or copy of wine filters/search so guests can quickly browse by style, category, or mood. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, CNAME changes, or real external data.
 
-- [ ] Selected wine detail polish: improve the selected wine/detail state so it gives a clear reason to choose the wine, a pairing cue, and a staff-friendly talking point. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or fake claims.
+- [x] Selected wine detail polish: improve the selected wine/detail state so it gives a clear reason to choose the wine, a pairing cue, and a staff-friendly talking point. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or fake claims.
 
 - [ ] No-results and empty-state polish: make filter/search no-results states feel polished and helpful, with a path back to Help Me Decide or the full list. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
 

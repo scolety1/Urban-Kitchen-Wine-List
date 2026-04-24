@@ -52,3 +52,12 @@
 - css/base.css
 - js/render.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 17:00:19
+
+- Task attempted: Selected wine detail polish: improve the selected wine/detail state so it gives a clear reason to choose the wine, a pairing cue, and a staff-friendly talking point. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or fake claims.
+- Build result: Passed
+- Files changed:
+- css/drawer.css
+- js/drawer.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
