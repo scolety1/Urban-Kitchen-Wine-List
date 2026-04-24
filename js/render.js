@@ -323,17 +323,41 @@ export function renderMenu(records, state) {
 
   if (!html.length) {
     menuEl.innerHTML = `
-      <div class="card" style="padding: 14px;">
-        <div style="font-weight: 800; margin-bottom: 6px;">No items to show</div>
-        <div style="color: var(--muted); font-weight: 600;">Try a different tab.</div>
+      <div class="card empty-state">
+        <div class="empty-state-kicker">Nothing matched</div>
+        <div class="empty-state-title">Let's get you back to a good pour.</div>
+        <p class="empty-state-copy">Try the full wine list, or use Help Me Decide for three options that fit the mood.</p>
+        <div class="empty-state-actions">
+          <button class="tab-btn choose-btn" type="button" data-empty-choose="true">Help Me Decide</button>
+          <button class="tab-btn" type="button" data-empty-reset="true">Show Full List</button>
+        </div>
       </div>
     `;
+    attachEmptyStateHandlers(menuEl, records);
     return;
   }
 
   menuEl.innerHTML = html.join("");
 
   attachRowHandlers(menuEl, view);
+}
+
+function attachEmptyStateHandlers(menuEl, records) {
+  const chooseBtn = menuEl.querySelector("[data-empty-choose]");
+  const resetBtn = menuEl.querySelector("[data-empty-reset]");
+
+  if (chooseBtn) {
+    chooseBtn.addEventListener("click", () => openChooser(records || []));
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      activeJumpVarietal = "";
+      setUrlState({ tab: "all", varietal: "" });
+      window.dispatchEvent(new Event("hashchange"));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
 }
 
 function attachRowHandlers(menuEl, view) {

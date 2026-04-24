@@ -16,7 +16,7 @@
 
 - [x] Selected wine detail polish: improve the selected wine/detail state so it gives a clear reason to choose the wine, a pairing cue, and a staff-friendly talking point. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or fake claims.
 
-- [ ] No-results and empty-state polish: make filter/search no-results states feel polished and helpful, with a path back to Help Me Decide or the full list. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
+- [x] No-results and empty-state polish: make filter/search no-results states feel polished and helpful, with a path back to Help Me Decide or the full list. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
 
 - [ ] First-screen mobile polish: improve the first 10 seconds on mobile so the page clearly feels like Urban Kitchen's wine list and gives an obvious path to browse or use Help Me Decide. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, deployment, package changes, CNAME changes, or real external data.
 

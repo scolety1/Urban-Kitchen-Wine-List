@@ -61,3 +61,12 @@
 - css/drawer.css
 - js/drawer.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 17:02:19
+
+- Task attempted: No-results and empty-state polish: make filter/search no-results states feel polished and helpful, with a path back to Help Me Decide or the full list. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, persistence, package changes, deployment, or CNAME changes.
+- Build result: Passed
+- Files changed:
+- css/base.css
+- js/render.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
