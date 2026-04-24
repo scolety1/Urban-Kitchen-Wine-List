@@ -368,7 +368,7 @@ function openChooser(records) {
   const answers = {};
   const body = `
     <div class="chooser" data-step="0">
-      <p class="chooser-intro">Answer a few quick questions and we will point you toward three good options.</p>
+      <p class="chooser-intro">Answer a few quick questions and we'll point you toward three good options from the current list.</p>
       <div class="chooser-step-title"></div>
       <button class="chooser-back" type="button" hidden>Back</button>
       <div class="chooser-options"></div>
