@@ -50,12 +50,17 @@
   margin-bottom: 14px;
 }
 
+.drawer-header > div {
+  min-width: 0;
+}
+
 .drawer-title {
   color: var(--text);
   font-family: var(--serif);
   font-size: 23px;
   font-weight: 500;
   line-height: 1.16;
+  overflow-wrap: anywhere;
 }
 
 .drawer-subtitle {

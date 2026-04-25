@@ -88,3 +88,13 @@
 - Files changed:
 - js/render.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 21:46:12
+
+- Task attempted: Mobile visual QA polish: inspect the first screen, wine cards, filter bar, Help Me Decide drawer, and selected-wine detail at phone widths, then fix one or two obvious spacing, overflow, tap-target, or hierarchy issues. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
+- Build result: Passed
+- Files changed:
+- css/base.css
+- css/drawer.css
+- css/table.css
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.

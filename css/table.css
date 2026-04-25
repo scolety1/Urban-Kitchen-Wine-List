@@ -173,11 +173,22 @@
 @media (max-width: 420px) {
   .table-head,
   .table-row {
-    grid-template-columns: 42px minmax(0, 1fr) 58px;
+    grid-template-columns: 38px minmax(0, 1fr) 52px;
     gap: 8px;
   }
 
+  .name-line {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .name-line .tag {
+    flex: 0 0 auto;
+  }
+
   .name-text {
+    width: 100%;
     font-size: 14px;
   }
 

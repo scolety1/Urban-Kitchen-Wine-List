@@ -24,5 +24,5 @@
 
 ## Checkpoint Planner Tasks 2026-04-24 21:41:59
 
-- [ ] Mobile visual QA polish: inspect the first screen, wine cards, filter bar, Help Me Decide drawer, and selected-wine detail at phone widths, then fix one or two obvious spacing, overflow, tap-target, or hierarchy issues. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
+- [x] Mobile visual QA polish: inspect the first screen, wine cards, filter bar, Help Me Decide drawer, and selected-wine detail at phone widths, then fix one or two obvious spacing, overflow, tap-target, or hierarchy issues. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
 - [ ] Help Me Decide microcopy pass: tighten the static question labels, option text, and recommendation result copy so the flow feels concise, wine-aware, and staff-friendly on mobile. Do not add AI, backend, APIs, persistence, analytics, tracking, dependencies, package or lock changes, deployment changes, real external data, or fake restaurant claims.

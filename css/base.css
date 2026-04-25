@@ -119,6 +119,7 @@ a {
   align-items: center;
   gap: 8px;
   overflow-x: auto;
+  scroll-padding-inline: var(--pad);
   scroll-snap-type: x mandatory;
 }
 
@@ -454,5 +455,16 @@ button:focus-visible,
   .tab-btn,
   .subtab-btn {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 420px) {
+  #tabs {
+    gap: 6px;
+  }
+
+  #tabs .filter-label,
+  #subtabs .filter-label {
+    display: none;
   }
 }
