@@ -116,3 +116,13 @@
 - js/drawer.js
 - js/render.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 22:10:16
+
+- Task attempted: Wine data consistency pass: audit static wine data for inconsistent casing, missing style cues, overly generic notes, or mismatched region/varietal display, then make a small correction pass on 3-6 entries only. Do not add real external data, fake claims, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment changes, CNAME changes, or broad data rewrites.
+- Build result: Passed
+- Files changed:
+- data/wines.cleaned.csv
+- data/wines.csv
+- data/wines.json
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
