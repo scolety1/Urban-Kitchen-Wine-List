@@ -4,25 +4,20 @@
 GREEN
 
 ## Progress Against Mission
-Branch remains GREEN for handoff readiness. Recent work stayed aligned with the mission: mobile browsing, wine copy, Help Me Decide, accessibility, and static data consistency were improved in small reviewable batches.
+Branch is moving clearly toward the mission. Changes focus on mobile browsing polish, Help Me Decide quality, wine description/data consistency, accessibility labels, and handoff docs while staying frontend-only and static.
 
 ## Safety Review
-No risky behavior found. Changes stayed within allowed static frontend, wine data, CSS/JS, HTML, and docs files. No backend, auth, payments, APIs, secrets, dependencies, deployment, tracking, package, lock, or CNAME changes reported.
+No risky behavior found. Changed files are within allowed frontend, static data, CSS, JS, HTML, and `docs/codex` reporting scope. No backend, auth, payments, APIs, secrets, dependencies, deployment files, tracking, package files, lock files, or `CNAME` changes reported.
 
 ## Build Result
-Static check passed with the documented command:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\codex-static-check.ps1
-```
-
-Result: `Static wine list check passed.`
+External build passed: Static wine list check passed.
 
 ## Recommended Next Step
 continue
 
 ## Notes For Human Reviewer
-- Expect the working tree to be clean after the final docs-only handoff commit; any remaining dirty state should be reviewed before merge.
-- Scope appears reviewable and aligned with unattended-safe work.
-- Manual mobile review should still inspect the first screen, filter/search area, wine cards, Help Me Decide drawer, selected-wine detail, no-results state, and restaurant info area.
-- Confirm at phone widths that tap targets, focus states, card spacing, drawer close/select actions, and any horizontal overflow still feel polished before showing externally.
+- Working tree is clean.
+- Static check passed.
+- Review mobile flow manually on a real phone before showing externally.
+- Spot-check wine data changes for tone and accuracy.
+- No forbidden-scope changes apparent from file list.
