@@ -44,5 +44,5 @@
 
 ## Checkpoint Planner Tasks 2026-04-24 22:23:21
 
-- [ ] Phone-width regression pass: inspect the first screen, filter/search area, wine cards, Help Me Decide drawer, and selected-wine detail at a narrow mobile viewport, then fix only one clear spacing, overflow, focus, or hierarchy issue if found. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, new claims, or data-wide edits.
+- [x] Phone-width regression pass: inspect the first screen, filter/search area, wine cards, Help Me Decide drawer, and selected-wine detail at a narrow mobile viewport, then fix only one clear spacing, overflow, focus, or hierarchy issue if found. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, new claims, or data-wide edits.
 - [ ] Handoff readiness note: refresh one docs/codex handoff or review file with the current GREEN status, static-check result, clean working-tree expectation, and remaining manual mobile review points for human review. Do not change app behavior, wine data, CSS, JavaScript, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock files, deployment files, CNAME, or product copy.
