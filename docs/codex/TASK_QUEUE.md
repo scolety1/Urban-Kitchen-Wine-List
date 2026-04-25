@@ -35,4 +35,4 @@
 ## Checkpoint Planner Tasks 2026-04-24 22:11:16
 
 - [x] Final mobile handoff polish: inspect the phone-width flow from first screen to filters, wine cards, Help Me Decide, and selected-wine detail, then fix one tiny visual or copy issue that still feels rough. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new claims.
-- [ ] Static review notes refresh: update the docs/codex handoff or nightly report with the current safe-state summary, remaining manual mobile review points, and any known low-risk follow-up. Do not change app behavior, wine data, CSS, JavaScript, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock files, deployment files, or CNAME.
+- [x] Static review notes refresh: update the docs/codex handoff or nightly report with the current safe-state summary, remaining manual mobile review points, and any known low-risk follow-up. Do not change app behavior, wine data, CSS, JavaScript, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock files, deployment files, or CNAME.
