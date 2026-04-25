@@ -36,3 +36,8 @@
 
 - [x] Final mobile handoff polish: inspect the phone-width flow from first screen to filters, wine cards, Help Me Decide, and selected-wine detail, then fix one tiny visual or copy issue that still feels rough. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new claims.
 - [x] Static review notes refresh: update the docs/codex handoff or nightly report with the current safe-state summary, remaining manual mobile review points, and any known low-risk follow-up. Do not change app behavior, wine data, CSS, JavaScript, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock files, deployment files, or CNAME.
+
+## Checkpoint Planner Tasks 2026-04-24 22:16:02
+
+- [ ] Accessibility label polish: audit visible button text, icon-only controls, filter chips, search, and drawer actions for clear labels and screen-reader names, then make one small frontend-only improvement if needed. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new restaurant claims.
+- [ ] Final static source consistency check: compare `data/wines.csv`, `data/wines.cleaned.csv`, and `data/wines.json` for obvious mismatched names, prices, categories, descriptions, or stale duplicate copy, then correct only 1-3 clear inconsistencies. Do not add real external data, fake claims, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, or broad data rewrites.
