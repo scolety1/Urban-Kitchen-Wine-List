@@ -190,6 +190,10 @@
   .name-text {
     width: 100%;
     font-size: 14px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
   }
 
   .subtext {

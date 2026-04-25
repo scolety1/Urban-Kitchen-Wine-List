@@ -126,3 +126,12 @@
 - data/wines.csv
 - data/wines.json
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 22:13:27
+
+- Task attempted: Final mobile handoff polish: inspect the phone-width flow from first screen to filters, wine cards, Help Me Decide, and selected-wine detail, then fix one tiny visual or copy issue that still feels rough. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new claims.
+- Build result: Passed
+- Files changed:
+- css/table.css
+- js/recommend.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.

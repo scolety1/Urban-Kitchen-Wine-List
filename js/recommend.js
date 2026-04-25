@@ -19,7 +19,7 @@ export const DECIDER_STEPS = [
     options: [
       { label: "Red", value: "red" },
       { label: "White", value: "white" },
-      { label: "Rose", value: "rose" },
+      { label: "Ros\u00e9", value: "rose" },
       { label: "Sparkling", value: "sparkling" },
       { label: "Dessert", value: "dessert" },
       { label: "Open to anything", value: "any" },
@@ -334,6 +334,6 @@ function searchText(wine) {
 }
 
 function labelFor(type) {
-  if (type === "rose") return "rose";
+  if (type === "rose") return "ros\u00e9";
   return type;
 }
