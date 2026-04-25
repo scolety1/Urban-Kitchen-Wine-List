@@ -402,7 +402,7 @@ function openChooser(records) {
       <button class="chooser-back" type="button" hidden>Back</button>
       <div class="chooser-options"></div>
       <div class="chooser-result" hidden></div>
-      <p class="chooser-disclaimer">Experimental feature. Suggestions may not always be accurate; your server can help confirm the best choice.</p>
+      <p class="chooser-disclaimer">Suggestions come from the current list; the service team can confirm availability and help choose the right bottle at the table.</p>
     </div>
   `;
 
@@ -462,7 +462,7 @@ function renderChooserStep(drawer, records, answers, index) {
 function renderChooserResults(records, answers, titleEl, optionsEl, resultEl) {
   const recommendations = recommendWines(records, answers, 3);
 
-  titleEl.textContent = "Three good options";
+  titleEl.textContent = "Three tailored options";
   optionsEl.innerHTML = "";
   resultEl.hidden = false;
 

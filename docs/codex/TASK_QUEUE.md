@@ -20,4 +20,4 @@
 
 - [x] First-screen mobile polish: improve the first 10 seconds on mobile so the page clearly feels like Urban Kitchen's wine list and gives an obvious path to browse or use Help Me Decide. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, deployment, package changes, CNAME changes, or real external data.
 
-- [ ] Final wine-person QA pass: remove rough placeholder language, generic tasting notes, confusing labels, or unfinished copy that would feel weak in front of wine people. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or real customer claims.
+- [x] Final wine-person QA pass: remove rough placeholder language, generic tasting notes, confusing labels, or unfinished copy that would feel weak in front of wine people. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package changes, deployment, CNAME changes, or real customer claims.
