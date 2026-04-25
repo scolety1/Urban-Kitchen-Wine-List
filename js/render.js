@@ -651,9 +651,10 @@ function renderRow(r) {
   const bottleHtml = bottle === "mp" ? `<span class="mp">mp</span>` : escapeHtml(bottle || "");
 
   const star = isYes(r.staff_pick) ? `<span class="tag">Staff</span>` : "";
+  const actionLabel = `View details for ${norm(r._name) || "this wine"}`;
 
   return `
-    <div class="table-row" data-id="${escapeHtml(r._id)}" role="button" tabindex="0">
+    <div class="table-row" data-id="${escapeHtml(r._id)}" role="button" tabindex="0" aria-label="${escapeHtml(actionLabel)}">
       <div class="cell bin">${escapeHtml(norm(r.bin) || "-")}</div>
       <div class="cell name">
         <div class="name-line">
