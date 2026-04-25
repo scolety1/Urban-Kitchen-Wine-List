@@ -4,39 +4,38 @@
 YELLOW
 
 ## One-Sentence Read
-The direction is credible and hospitality-aware, but the mobile UI still feels more like a styled data table than a truly polished restaurant wine experience.
+The wine list now has a credible dark hospitality mood, but the mobile hierarchy still feels oversized and slightly crude where it needs to feel edited, calm, and premium.
 
 ## Mission Fit
-The design matches the mission in broad strokes: dark dining-room mood, strong restaurant identity, staff picks, clearer calls to browse or use Help Me Decide, and more useful wine copy. The problem is execution polish on mobile. The first screen says "premium wine list," but the browsing layer still exposes too much table machinery, truncation, and horizontal crowding for something meant to be shown confidently on a phone.
+The direction matches the mission: it is static, mobile-first, wine-aware, and clearly built around browsing plus "Help Me Decide." The first screen does communicate Urban Kitchen, the wine list, and the two core actions quickly. The remaining gap is refinement: on mobile, the interface feels more like a bold prototype of a premium list than a fully finessed restaurant tool ready for wine people.
 
 ## Taste Check
-The strongest taste choice is the restrained black, ivory, and muted gold palette. It feels appropriate for a serious wine list and avoids generic SaaS brightness. The serif headline and section titles give the experience some restaurant character.
+The dark background, warm gold accents, serif wine-list typography, and staff-pick framing are all on-mission and more distinctive than generic SaaS styling. The table/card hybrid also makes sense for hospitality because bin, bottle, vintage, and price remain visible.
 
-What feels weaker: the top filter rail is oversized and clipped on mobile, the table headers make the list feel operational rather than guest-facing, and the staff pick rows are dense in a way that hurts elegance. The UI is not amateur, but it is still carrying too much spreadsheet DNA.
+What is off: mobile scale is too heavy. Buttons, headings, and cards are all fighting for dominance, so the screen feels inflated instead of elegant. The staff badge is visually loud, wine names truncate too aggressively, and the top horizontal filter row feels like a chunky app toolbar rather than a refined wine-list control.
 
 ## Visual Problems To Fix
-- Mobile category controls are visibly cut off at the right edge, making the first interaction feel unfinished.
-- The "Mood" and "Category" labels compete with the actual filter buttons instead of quietly organizing them.
-- Wine names and descriptions truncate aggressively on mobile, which undermines the goal of better wine descriptions.
-- Staff badges sit in the main title line and create visual clutter beside long wine names.
-- The mobile list still uses table columns like "BIN," "WINE," and "BOTTLE," which feels less guest-friendly than a composed card layout.
-- The hero card is strong, but it consumes a large amount of first-screen height before showing enough actual wine content.
-- Price has good visibility, but the row hierarchy makes bin, badge, name, region, style, and description fight for attention.
-- Desktop layout is clean but conservative; it feels competent, not yet memorable.
+- Mobile filter buttons are too large and too tall; they consume premium first-screen space before the wine content earns attention.
+- The hero card on mobile is oversized, with a very large headline and broad padding that push the actual list too far down.
+- Wine names truncate on mobile in a way that hides important producer and cuvee information, weakening trust for wine-savvy users.
+- The "STAFF" badges are too prominent relative to wine metadata and create visual noise inside each row.
+- The mobile list rows feel dense but not fully composed: bin, name, badge, region, style, note, and price compete instead of forming a clean reading path.
+- Desktop is more controlled, but the centered page width leaves the wine list feeling slightly boxed-in and heavy rather than quietly luxurious.
+- Screenshots show the main list, but not the Help Me Decide drawer or selected wine detail, so confidence is lower on the signature flow.
 
 ## Strongest Opportunities
-- Turn mobile wine rows into true hospitality cards: name, price, region, style, and one useful tasting line without table-header baggage.
-- Make Help Me Decide feel more like the signature feature by giving it a more distinctive mobile entry point and result presentation.
-- Replace heavy truncation with intentional two-line limits and clearer tap affordance for full details.
-- Reduce the filter rail visual weight so the restaurant name, Help Me Decide, and wine content lead the page.
-- Use section rhythm more deliberately: staff picks should feel curated, not like the first rows in a database.
+- Make the mobile first screen more editorial: smaller controls, tighter hero copy, and faster arrival at the first wines.
+- Treat wine names as the premium object: allow a second line before truncation, reduce badge aggression, and keep price aligned but quieter.
+- Give the filter row a more refined segmented-control feel with smaller type, less button mass, and clearer active state.
+- Use the staff-pick section as a hospitality moment: fewer loud badges, stronger tasting line, and a more confident reason-to-order cue.
+- Review the Help Me Decide drawer visually on a phone; that feature must feel more polished than the rest, not merely functional.
 
 ## Next 5 Design Tasks
-- [ ] Fix the mobile filter rail so no category pill is clipped at common phone widths; keep horizontal scrolling only if the cut edge is clearly intentional and polished.
-- [ ] Redesign one mobile wine row pattern to reduce table feel; preserve bin and price, but make name, region, style, and note scan cleanly without visual crowding.
-- [ ] Move or restyle the "STAFF" badge so it supports the wine name instead of interrupting it; verify long wine names still read well.
-- [ ] Adjust mobile truncation rules so wine names and tasting notes get enough room to feel useful; do not allow cards to become oversized or uneven.
-- [ ] Tighten the first-screen vertical spacing so the hero remains premium but more of the wine list is visible on initial mobile load.
+- [ ] Reduce mobile top filter button height and font size, keeping tap targets usable and preserving the current categories.
+- [ ] Tighten the mobile hero card by reducing padding and headline scale, with the guardrail that both CTAs remain visible and readable.
+- [ ] Adjust mobile wine row typography so wine names can wrap to two lines before truncating, without breaking price alignment.
+- [ ] Restyle the "STAFF" badge to be quieter and smaller, with the guardrail that staff picks remain recognizable.
+- [ ] Capture and review mobile screenshots of Help Me Decide open state and selected wine detail, then fix only visible spacing, hierarchy, or overflow issues.
 
 ## Stop Or Continue
 continue but fix visual issues first
