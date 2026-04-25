@@ -624,7 +624,7 @@ function renderRow(r) {
   const vintage = norm(r.vintage) ? escapeHtml(norm(r.vintage)) : "";
   const subtitle = [loc, vintage].filter(Boolean).join(" &middot; ");
   const style = norm(r.style);
-  const mobileMeta = [norm(r.varietal), style ? `${style} style` : ""].filter(Boolean).join(" &middot; ");
+  const mobileMeta = [norm(r.varietal), style ? `${style} style` : ""].filter(Boolean).join(" · ");
   const mobileNote = mobileNoteSnippet(r);
   const mobileDetailsHtml = mobileMeta || mobileNote
     ? `

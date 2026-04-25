@@ -23,7 +23,7 @@
   --z-backdrop: 80;
   --z-drawer: 90;
 
-  --font: "Avenir Next", "Gill Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --serif: Georgia, "Times New Roman", serif;
 }
 
@@ -266,8 +266,8 @@ button:focus-visible,
   margin: 0;
   color: var(--muted);
   font-size: 14px;
-  font-weight: 650;
-  line-height: 1.42;
+  font-weight: 500;
+  line-height: 1.52;
 }
 
 .mobile-welcome-actions {
@@ -283,7 +283,7 @@ button:focus-visible,
   border-radius: 8px;
   font: inherit;
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 750;
   cursor: pointer;
 }
 

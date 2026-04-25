@@ -159,8 +159,8 @@
     width: 100%;
     color: var(--muted-2);
     font-size: 11px;
-    font-weight: 650;
-    line-height: 1.32;
+    font-weight: 500;
+    line-height: 1.4;
   }
 
   .mobile-card-details span {
@@ -173,11 +173,20 @@
 @media (max-width: 420px) {
   .table-head,
   .table-row {
-    grid-template-columns: 46px 1fr 68px;
+    grid-template-columns: 42px minmax(0, 1fr) 58px;
+    gap: 8px;
   }
 
   .name-text {
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  .subtext {
+    font-size: 11px;
+  }
+
+  .price {
+    font-size: 14px;
   }
 }
 
