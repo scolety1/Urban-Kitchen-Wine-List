@@ -397,12 +397,12 @@ function openChooser(records) {
   const answers = {};
   const body = `
     <div class="chooser" data-step="0">
-      <p class="chooser-intro">Answer a few quick questions and we'll point you toward three good options from the current list.</p>
+      <p class="chooser-intro">A few quick taps for three staff-ready picks from the current list.</p>
       <div class="chooser-step-title"></div>
       <button class="chooser-back" type="button" hidden>Back</button>
       <div class="chooser-options"></div>
       <div class="chooser-result" hidden></div>
-      <p class="chooser-disclaimer">Suggestions come from the current list; the service team can confirm availability and help choose the right bottle at the table.</p>
+      <p class="chooser-disclaimer">Suggestions use the current list; the service team can confirm availability and steer the final bottle.</p>
     </div>
   `;
 
@@ -462,13 +462,13 @@ function renderChooserStep(drawer, records, answers, index) {
 function renderChooserResults(records, answers, titleEl, optionsEl, resultEl) {
   const recommendations = recommendWines(records, answers, 3);
 
-  titleEl.textContent = "Three tailored options";
+  titleEl.textContent = "Staff-ready picks";
   optionsEl.innerHTML = "";
   resultEl.hidden = false;
 
   if (!recommendations.length) {
     resultEl.innerHTML = `
-      <p>No close matches are available right now. Your server can help find something similar.</p>
+      <p>No tight match right now. Ask the service team for the closest bottle in the same style.</p>
     `;
     return;
   }
@@ -494,7 +494,7 @@ function renderRecommendationCard(item, index = 0) {
   const price = glass ? `$${escapeHtml(glass)} glass` : bottle ? `$${escapeHtml(bottle)} bottle` : "Ask for price";
   const description = norm(wine.description_final || wine.description || wine.description_ai || wine.description_original);
   const shortDescription = description.length > 120 ? `${description.slice(0, 117).trim()}...` : description;
-  const badge = index === 0 ? "Best match" : "Good fit";
+  const badge = index === 0 ? "First pick" : "Also works";
 
   return `
     <button class="recommendation-card" type="button" data-rec-id="${escapeHtml(wine._id)}">
@@ -504,7 +504,7 @@ function renderRecommendationCard(item, index = 0) {
       </span>
       <span class="recommendation-name">${escapeHtml(wine.name)}</span>
       <span class="recommendation-meta">${escapeHtml([wine.vintage, wine.varietal].filter(Boolean).join(" | "))}</span>
-      <span class="recommendation-description">${escapeHtml(shortDescription || "A balanced choice from the current list.")}</span>
+      <span class="recommendation-description">${escapeHtml(shortDescription || "A balanced, table-ready choice from the current list.")}</span>
       <span class="recommendation-why">${escapeHtml(item.why)}</span>
     </button>
   `;

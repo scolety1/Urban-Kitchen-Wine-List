@@ -98,3 +98,12 @@
 - css/drawer.css
 - css/table.css
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 21:48:41
+
+- Task attempted: Help Me Decide microcopy pass: tighten the static question labels, option text, and recommendation result copy so the flow feels concise, wine-aware, and staff-friendly on mobile. Do not add AI, backend, APIs, persistence, analytics, tracking, dependencies, package or lock changes, deployment changes, real external data, or fake restaurant claims.
+- Build result: Passed
+- Files changed:
+- js/recommend.js
+- js/render.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.

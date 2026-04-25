@@ -15,7 +15,7 @@ const TYPE_SPREAD = ["red", "white", "sparkling", "rose"];
 export const DECIDER_STEPS = [
   {
     key: "type",
-    title: "What sounds good?",
+    title: "Choose a pour style",
     options: [
       { label: "Red", value: "red" },
       { label: "White", value: "white" },
@@ -27,40 +27,40 @@ export const DECIDER_STEPS = [
   },
   {
     key: "body",
-    title: "How full-bodied?",
+    title: "Preferred weight?",
     options: [
-      { label: "Light", value: "light" },
-      { label: "Medium", value: "medium" },
-      { label: "Bold", value: "bold" },
+      { label: "Light and bright", value: "light" },
+      { label: "Medium and flexible", value: "medium" },
+      { label: "Bold and full", value: "bold" },
     ],
   },
   {
     key: "style",
-    title: "What sounds best?",
+    title: "Flavor lane?",
     options: [
-      { label: "Dry", value: "dry" },
-      { label: "Fruity", value: "fruity" },
-      { label: "Rich", value: "rich" },
-      { label: "Crisp", value: "crisp" },
-      { label: "Smooth", value: "smooth" },
+      { label: "Dry and clean", value: "dry" },
+      { label: "Fruit-forward", value: "fruity" },
+      { label: "Rich and rounded", value: "rich" },
+      { label: "Crisp and mineral", value: "crisp" },
+      { label: "Smooth and polished", value: "smooth" },
     ],
   },
   {
     key: "pairing",
-    title: "What are you planning?",
+    title: "Food or moment?",
     options: [
-      { label: "Steak", value: "steak" },
+      { label: "Steak or rich protein", value: "steak" },
       { label: "Seafood", value: "seafood" },
       { label: "Pasta", value: "pasta" },
-      { label: "Salad", value: "salad" },
-      { label: "Celebrating", value: "celebratory" },
+      { label: "Salads and starters", value: "salad" },
+      { label: "Celebration", value: "celebratory" },
       { label: "Patio bottle", value: "patio" },
-      { label: "Easy-drinking", value: "easy" },
+      { label: "Easy table pour", value: "easy" },
     ],
   },
   {
     key: "budget",
-    title: "Bottle budget?",
+    title: "Bottle range?",
     options: [
       { label: "Any", value: "any" },
       { label: "$75 & under", value: "under_75" },
@@ -107,7 +107,7 @@ function recommendDessertWines(records, answers, limit) {
       return {
         wine,
         score,
-        why: "This fits because it is the best available match for a sweet finish.",
+        why: "Why it works: closest sweet-finish match from the current list.",
       };
     })
     .sort((a, b) => b.score - a.score)
@@ -186,9 +186,9 @@ function spreadRecommendations(scored, limit) {
 
 function buildWhy(reasons, wine, answers) {
   const clean = reasons.slice(0, 3);
-  if (clean.length >= 2) return `This fits because it ${joinReasons(clean)}.`;
-  if (clean.length === 1) return `This fits because it ${clean[0]} and has enough balance for the table.`;
-  return `This is one of the strongest available matches for your ${answers.body} ${answers.style} preference.`;
+  if (clean.length >= 2) return `Why it works: ${joinReasons(clean)}.`;
+  if (clean.length === 1) return `Why it works: ${clean[0]}; balanced enough for the table.`;
+  return `Why it works: closest ${answers.body}, ${answers.style} match from the current list.`;
 }
 
 function joinReasons(reasons) {
@@ -262,14 +262,14 @@ function pairingTags(wine) {
 
 function pairingReason(pairing) {
   const labels = {
-    steak: "has enough structure for steak",
-    seafood: "has the freshness to work with seafood",
-    pasta: "has enough texture for pasta",
-    salad: "stays bright with lighter plates",
-    celebratory: "feels right for a celebratory pour",
-    patio: "is refreshing enough for the patio",
-    easy: "is easy-drinking without feeling generic",
-    sipping: "works well for sipping",
+    steak: "structured for steak",
+    seafood: "fresh with seafood",
+    pasta: "textured enough for pasta",
+    salad: "bright with lighter plates",
+    celebratory: "right for a celebratory pour",
+    patio: "refreshing for patio service",
+    easy: "easy-drinking and polished",
+    sipping: "comfortable for sipping",
   };
   return labels[pairing] || `pairs well with ${pairing}`;
 }
