@@ -29,5 +29,5 @@
 
 ## Checkpoint Planner Tasks 2026-04-24 22:03:44
 
-- [ ] Touch-target and keyboard polish pass: inspect mobile filter chips, search, wine cards, Help Me Decide controls, and drawer close/select actions; fix one or two obvious focus, tap-target, or keyboard navigation rough edges. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
+- [x] Touch-target and keyboard polish pass: inspect mobile filter chips, search, wine cards, Help Me Decide controls, and drawer close/select actions; fix one or two obvious focus, tap-target, or keyboard navigation rough edges. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
 - [ ] Wine data consistency pass: audit static wine data for inconsistent casing, missing style cues, overly generic notes, or mismatched region/varietal display, then make a small correction pass on 3-6 entries only. Do not add real external data, fake claims, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment changes, CNAME changes, or broad data rewrites.

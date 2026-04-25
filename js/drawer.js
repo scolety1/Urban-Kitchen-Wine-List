@@ -1,5 +1,15 @@
 import { escapeHtml, makeLocation, priceToDisplay, norm, normLower } from "./utils.js";
 
+let previousFocus = null;
+const focusableSelector = [
+  "button:not([disabled])",
+  "[href]",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
 function withDollar(val) {
   const s = norm(val);
   if (!s) return "";
@@ -22,10 +32,20 @@ export function openDrawerHtml({ title, subtitle = "", keyline = "", body = "", 
   const drawer = document.getElementById("drawer");
   if (!backdrop || !drawer) return;
 
+  const activeEl = document.activeElement;
+  previousFocus = activeEl instanceof HTMLElement && activeEl !== document.body && !drawer.contains(activeEl)
+    ? activeEl
+    : previousFocus;
+
+  drawer.setAttribute("role", "dialog");
+  drawer.setAttribute("aria-modal", "true");
+  drawer.setAttribute("aria-labelledby", "drawer-title");
+  drawer.setAttribute("tabindex", "-1");
+
   drawer.innerHTML = `
     <div class="drawer-header">
       <div>
-        <div class="drawer-title">${title || ""}</div>
+        <div class="drawer-title" id="drawer-title">${title || ""}</div>
         ${subtitle}
       </div>
       <button class="drawer-close" type="button" aria-label="Close">&times;</button>
@@ -42,9 +62,12 @@ export function openDrawerHtml({ title, subtitle = "", keyline = "", body = "", 
 
   backdrop.addEventListener("click", closeDrawer);
 
-  window.addEventListener("keydown", onEsc, { once: true });
+  window.removeEventListener("keydown", onDrawerKeydown);
+  window.addEventListener("keydown", onDrawerKeydown);
 
   if (typeof onOpen === "function") onOpen(drawer);
+
+  closeBtn?.focus({ preventScroll: true });
 }
 
 function renderItemSubtitle(item) {
@@ -169,9 +192,42 @@ function pairingLabel(value) {
 export function closeDrawer() {
   const backdrop = document.getElementById("drawer-backdrop");
   if (backdrop) backdrop.removeEventListener("click", closeDrawer);
+  window.removeEventListener("keydown", onDrawerKeydown);
   document.body.classList.remove("drawer-open");
+  if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+  previousFocus = null;
 }
 
-function onEsc(e) {
-  if (e.key === "Escape") closeDrawer();
+function onDrawerKeydown(e) {
+  if (e.key === "Escape") {
+    closeDrawer();
+    return;
+  }
+
+  if (e.key !== "Tab") return;
+
+  const drawer = document.getElementById("drawer");
+  if (!drawer || !document.body.classList.contains("drawer-open")) return;
+
+  const focusable = Array.from(drawer.querySelectorAll(focusableSelector))
+    .filter((el) => el instanceof HTMLElement && el.offsetParent !== null);
+  if (!focusable.length) {
+    e.preventDefault();
+    drawer.focus({ preventScroll: true });
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus({ preventScroll: true });
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus({ preventScroll: true });
+  } else if (!drawer.contains(document.activeElement)) {
+    e.preventDefault();
+    first.focus({ preventScroll: true });
+  }
 }

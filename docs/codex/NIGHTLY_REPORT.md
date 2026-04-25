@@ -107,3 +107,12 @@
 - js/recommend.js
 - js/render.js
 - Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.
+
+## 2026-04-24 22:07:10
+
+- Task attempted: Touch-target and keyboard polish pass: inspect mobile filter chips, search, wine cards, Help Me Decide controls, and drawer close/select actions; fix one or two obvious focus, tap-target, or keyboard navigation rough edges. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
+- Build result: Passed
+- Files changed:
+- js/drawer.js
+- js/render.js
+- Risks or follow-up needed: Low. External build passed and checkpoint loop review completed.

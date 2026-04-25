@@ -428,6 +428,7 @@ function renderChooserStep(drawer, records, answers, index) {
       ? 0
       : Math.max(0, index - 1);
     renderChooserStep(drawer, records, answers, previousIndex);
+    focusChooserAction(drawer);
   };
 
   if (index >= DECIDER_STEPS.length) {
@@ -452,11 +453,22 @@ function renderChooserStep(drawer, records, answers, index) {
       if (step.key === "type" && answers.type === "dessert") {
         const budgetIndex = DECIDER_STEPS.findIndex((next) => next.key === "budget");
         renderChooserStep(drawer, records, answers, budgetIndex >= 0 ? budgetIndex : index + 1);
+        focusChooserAction(drawer);
         return;
       }
       renderChooserStep(drawer, records, answers, index + 1);
+      focusChooserAction(drawer);
     });
   });
+}
+
+function focusChooserAction(drawer) {
+  const backBtn = drawer.querySelector(".chooser-back");
+  const next =
+    drawer.querySelector(".chooser-option") ||
+    drawer.querySelector(".recommendation-card") ||
+    (backBtn instanceof HTMLElement && !backBtn.hidden ? backBtn : null);
+  next?.focus({ preventScroll: true });
 }
 
 function renderChooserResults(records, answers, titleEl, optionsEl, resultEl) {
