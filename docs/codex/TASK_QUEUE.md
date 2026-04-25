@@ -31,3 +31,8 @@
 
 - [x] Touch-target and keyboard polish pass: inspect mobile filter chips, search, wine cards, Help Me Decide controls, and drawer close/select actions; fix one or two obvious focus, tap-target, or keyboard navigation rough edges. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new content claims.
 - [x] Wine data consistency pass: audit static wine data for inconsistent casing, missing style cues, overly generic notes, or mismatched region/varietal display, then make a small correction pass on 3-6 entries only. Do not add real external data, fake claims, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment changes, CNAME changes, or broad data rewrites.
+
+## Checkpoint Planner Tasks 2026-04-24 22:11:16
+
+- [ ] Final mobile handoff polish: inspect the phone-width flow from first screen to filters, wine cards, Help Me Decide, and selected-wine detail, then fix one tiny visual or copy issue that still feels rough. Do not add backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock changes, deployment files, CNAME changes, broad rewrites, or new claims.
+- [ ] Static review notes refresh: update the docs/codex handoff or nightly report with the current safe-state summary, remaining manual mobile review points, and any known low-risk follow-up. Do not change app behavior, wine data, CSS, JavaScript, backend, auth, payments, APIs, analytics, tracking, dependencies, package or lock files, deployment files, or CNAME.
