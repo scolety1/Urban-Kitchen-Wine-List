@@ -7,6 +7,11 @@
   --muted-2: #958978;
   --accent: #b59a6a;
   --accent-soft: rgba(181, 154, 106, 0.16);
+  --accent-border: rgba(181, 154, 106, 0.46);
+  --accent-focus: rgba(181, 154, 106, 0.85);
+  --accent-glow: rgba(181, 154, 106, 0.08);
+  --accent-hover: rgba(181, 154, 106, 0.055);
+  --accent-active: rgba(181, 154, 106, 0.10);
   --border: rgba(213, 191, 151, 0.16);
   --shadow: 0 18px 52px rgba(0, 0, 0, 0.42);
 
@@ -46,7 +51,7 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 50% -10%, rgba(181, 154, 106, 0.08), transparent 34rem),
+    radial-gradient(circle at 50% -10%, var(--accent-glow), transparent 34rem),
     linear-gradient(180deg, #0d0b09 0%, var(--bg) 44%);
   color: var(--text);
   font-family: var(--font);
@@ -55,6 +60,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
   touch-action: manipulation;
+}
+
+body[data-menu="whiskey"].whiskey-theme-violet-red {
+  --accent: #b7647d;
+  --accent-soft: rgba(183, 100, 125, 0.18);
+  --accent-border: rgba(183, 100, 125, 0.56);
+  --accent-focus: rgba(201, 112, 139, 0.92);
+  --accent-glow: rgba(116, 41, 72, 0.22);
+  --accent-hover: rgba(183, 100, 125, 0.075);
+  --accent-active: rgba(183, 100, 125, 0.14);
+  --border: rgba(183, 100, 125, 0.22);
 }
 
 a {
@@ -180,7 +196,7 @@ a {
 .subtab-btn[aria-selected="true"],
 .subtab-btn.is-active {
   background: var(--accent-soft);
-  border-color: rgba(181, 154, 106, 0.46);
+  border-color: var(--accent-border);
   color: #fff8eb;
 }
 
@@ -203,7 +219,7 @@ button,
 
 button:focus-visible,
 [role="button"]:focus-visible {
-  outline: 2px solid rgba(181, 154, 106, 0.85);
+  outline: 2px solid var(--accent-focus);
   outline-offset: 2px;
 }
 
@@ -216,6 +232,18 @@ button:focus-visible,
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.menu-status {
+  margin-bottom: 16px;
+  padding: 18px var(--pad);
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.menu-status[data-state="error"] {
+  border-color: var(--accent-border);
+  color: var(--text);
 }
 
 .card,
@@ -288,7 +316,7 @@ button:focus-visible,
   height: 32px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid rgba(181, 154, 106, 0.28);
+  border: 1px solid var(--accent-border);
   background: var(--accent-soft);
   color: var(--text);
   font-weight: 700;

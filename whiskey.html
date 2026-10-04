@@ -12,23 +12,20 @@
     <link rel="stylesheet" href="css/drawer.css" />
     <link rel="stylesheet" href="css/language.css" />
   </head>
-  <body data-menu="whiskey">
+  <body data-menu="whiskey" class="whiskey-theme-violet-red">
     <header id="top-bar">
       <div class="masthead" aria-label="Urban Kitchen Whiskey List">
         <div class="masthead-kicker">Urban Kitchen</div>
         <div class="masthead-title">Whiskey List</div>
       </div>
       <div id="tabs"></div>
-      <div id="language-toggle"></div>
     </header>
 
     <main id="content">
+      <div id="status" class="card menu-status" role="status" aria-live="polite">Loading Whiskey list…</div>
       <div id="menu"></div>
     </main>
 
-    <div id="drawer-backdrop"></div>
-    <div id="drawer"></div>
-    
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/whiskey.js"></script>
   </body>
 </html>

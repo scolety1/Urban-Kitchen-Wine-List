@@ -1,0 +1,15 @@
+Authority: owner-supplied Urban Kitchen whiskey-menu JPEG, rechecked pixel-by-pixel by the exact-photo transcription worker.
+Library file: libfile_45a3865459d08191846a1ed92cbc0611
+Filename: 81277030685__91FECC58-8D53-4C38-ADFC-3093B00E4F66.jpeg
+SHA-256: de8c97202129d36e98bb4aa29bfe4125a51c9c80f7b59deba4a3083e1171ee44
+
+Publication policy:
+- Source rows: 109.
+- Publishable confirmed rows: 99.
+- Hold all 10 collision rows marked H: source ids 2, 3, 39, 40, 56, 57, 60, 61, 74, and 75.
+- The 18 publishable rows marked U have no printed category and use the neutral category Whiskey.
+- Do not infer a Scotch category.
+- Do not infer allocation marks, local-product marks, serving volume, currency, stock, proof, age, or other facts not established by this source.
+- The public dollar prefix follows the existing verified site's price-display convention; the source records only the printed numeric price.
+
+No older photo or external product data was substituted for this transcription.

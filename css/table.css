@@ -34,11 +34,11 @@
 }
 
 .table-row:hover {
-  background: rgba(181, 154, 106, 0.055);
+  background: var(--accent-hover);
 }
 
 .table-row:active {
-  background: rgba(181, 154, 106, 0.10);
+  background: var(--accent-active);
 }
 
 .cell {
@@ -117,7 +117,7 @@
   height: 20px;
   padding: 0 8px;
   border-radius: 8px;
-  border: 1px solid rgba(181, 154, 106, 0.34);
+  border: 1px solid var(--accent-border);
   background: var(--accent-soft);
   color: #fff2da;
   font-size: 10px;
@@ -141,6 +141,53 @@
 
 .world-block + .world-block {
   border-top: 1px solid rgba(213, 191, 151, 0.12);
+}
+
+.whiskey-table-head,
+.whiskey-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px;
+  gap: 14px;
+  align-items: center;
+}
+
+.whiskey-table-head {
+  padding: 9px var(--pad);
+  border-block: 1px solid var(--border);
+  color: var(--muted-2);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.whiskey-table-head span:last-child {
+  text-align: right;
+}
+
+.whiskey-row {
+  min-height: 58px;
+  padding: 13px var(--pad);
+  border-bottom: 1px solid var(--border);
+}
+
+.whiskey-row:last-child {
+  border-bottom: 0;
+}
+
+.whiskey-name {
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.whiskey-price {
+  justify-self: end;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
 }
 
 @media (max-width: 420px) {

@@ -1,0 +1,110 @@
+id,category,name,price,flags
+1,Rye,Bulleit,10,
+2,Rye,High West Double Rye,,H
+3,Rye,North Fork,12,H
+4,Rye,Rittenhouse,12,
+5,Rye,Templeton 4 yr,12,
+6,Rye,Pendleton 1910,13,
+7,Rye,Pikesville,14,
+8,Rye,Angels Envy,15,
+9,Rye,Sudden Wisdom,15,
+10,Rye,Templeton 6 yr,15,
+11,Rye,Whistle Pig 6 yr,16,
+12,Rye,Willet Small Batch,17,
+13,Rye,High West Campfire Blend,21,
+14,Rye,Old Elk Rum Cask,25,
+15,Rye,Whistle Pig 12 yr,35,
+16,Rye,Kentucky Owl,51,
+17,Rye,Lock Stock & Barrel 18 yr,60,
+18,Rye,Whistle Pig “Boss Hog”,150,
+19,Japanese,Suntory Toki,12,
+20,Japanese,Akashi,15,
+21,Japanese,Nikka Coffee Grain,22,
+22,Japanese,Fukano,26,
+23,,Johnnie Walker Red,11,U
+24,,Singleton,13,U
+25,,Glenmorangie 10 yr,14,U
+26,,Glenfiddich 12 yr,16,U
+27,,Highland Park 12 yr,17,U
+28,,Balvenie 12 yr,18,U
+29,,Caol Ila,18,U
+30,,Glenlivet 12 yr,18,U
+31,,Laphroaig 10 yr,18,U
+32,,Macallan 12 yr,18,U
+33,,Dalwhinnie 15 yr,19,U
+34,,Lagavulin 16 yr,23,U
+35,,Oban 14 yr,23,U
+36,,Balvenie 14 yr,24,U
+37,,Talisker 10 yr,26,U
+38,,Johnnie Walker Blue,60,U
+39,,Orphan Barrel Muckety Muck,,H+U
+40,,Balvenie 21 yr,66,H+U
+41,,Macallan 18 yr,72,U
+42,,Macallan 30 yr,450,U
+43,Bourbon,Bulleit,10,
+44,Bourbon,Elijah Craig Small Batch,10,
+45,Bourbon,Woodford Reserve,11,
+46,Bourbon,Basil Hayden,12,
+47,Bourbon,Buffalo Trace,12,
+48,Bourbon,Rabbit Hole Heigold,12,
+49,Bourbon,George Remus,13,
+50,Bourbon,Maker’s Mark,13,
+51,Bourbon,Willie’s Big Horn,13,
+52,Bourbon,Blade And Bow,14,
+53,Bourbon,Angels Envy,15,
+54,Bourbon,Four Roses Small Batch,15,
+55,Bourbon,Henry Mckenna 10 yr Sgl Brl,15,
+56,Bourbon,Wild Rye Five Drops,15,H
+57,Bourbon,,16,H
+58,Bourbon,Woodford Double Oaked,16,
+59,Bourbon,Heavens Door Double Barrel,16,
+60,Bourbon,Horse Soldier Reserve,17,H
+61,Bourbon,,18,H
+62,Bourbon,Four Roses Single Barrel,18,
+63,Bourbon,Smoke Wagon Uncut,18,
+64,Bourbon,Widow Jane 10 yr,19,
+65,Bourbon,Elijah Craig Barrel Proof,20,
+66,Bourbon,Willet Pot,20,
+67,Bourbon,Jefferson’s Ocean,21,
+68,Bourbon,Jefferson’s Reserve,22,
+69,Bourbon,Widow Jane Lucky 13,26,
+70,Bourbon,Blanton’s,30,
+71,Bourbon,EH Taylor Single Barrel,30,
+72,Bourbon,Elmer T Lee Single Barrel,30,
+73,Bourbon,Joseph Magnus Cigar Blend,34,
+74,Bourbon,Orphan Barrel Fanged Pursuit,,H
+75,Bourbon,Calumet 16 yr,36,H
+76,Bourbon,Weller Special Reserve,36,
+77,Bourbon,Weller Full Proof,42,
+78,Bourbon,Weller Antique 107,45,
+79,Bourbon,Weller 12 yr,45,
+80,Bourbon,Stagg Barrel Proof,50,
+81,Bourbon,Blood Oath Pact No. 7,60,
+82,Bourbon,Old Rip Van Winkle 10 yr,60,
+83,Bourbon,Sam Houston 15 yr,65,
+84,Bourbon,Blood Oath Pact No. 6,70,
+85,Bourbon,Elijah Craig 18 yr,75,
+86,Bourbon,Bookers Barry’s Batch,75,
+87,Bourbon,Kentucky Owl 10 yr,77,
+88,Bourbon,Heaven Hill 18 yr,95,
+89,Canadian,Pendleton,9,
+90,Canadian,Willie’s,10,
+91,Canadian,Crown Royal,10,
+92,Irish,Bushmills,9,
+93,Irish,Jameson,9,
+94,Irish,Proper Twelve,10,
+95,Irish,Bushmills Black Label,12,
+96,Irish,Tullamore Dew,14,
+97,Irish,Knappogue Castle 18 yr,15,
+98,Irish,Red Breast 12 yr,15,
+99,Irish,Writer’s Tears,16,
+100,Irish,Tullamore Dew 12 yr,17,
+101,Irish,Green Spot,20,
+102,Irish,Jameson 18 yr,48,
+103,Other Whiskey,Whistling Andy’s Harvest Select,10,
+104,Other Whiskey,Dry Hills Bin 7,11,
+105,Other Whiskey,Willie’s Honey Moonshine,11,
+106,Other Whiskey,Stranahan’s,12,
+107,Other Whiskey,Dry Hills Four Grain,13,
+108,Other Whiskey,George Dickel 15 yr,14,
+109,Other Whiskey,Dry Hills Bottled-In-Bond,16,
