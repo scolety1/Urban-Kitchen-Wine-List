@@ -1,3 +1,58 @@
+import { parseCSV } from "./csv.js";
+
+export function parseWhiskeyCsv(text) {
+  const source = String(text ?? "");
+  let inQuotes = false;
+  let atFieldStart = true;
+  let afterClosingQuote = false;
+
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index];
+
+    if (inQuotes) {
+      if (character !== '"') continue;
+      if (source[index + 1] === '"') {
+        index += 1;
+        continue;
+      }
+      inQuotes = false;
+      afterClosingQuote = true;
+      continue;
+    }
+
+    if (afterClosingQuote) {
+      if (character === "," || character === "\n") {
+        afterClosingQuote = false;
+        atFieldStart = true;
+        continue;
+      }
+      if (character === "\r" && source[index + 1] === "\n") continue;
+      throw new Error("Whiskey data contains invalid quote placement.");
+    }
+
+    if (character === '"') {
+      if (!atFieldStart) throw new Error("Whiskey data contains invalid quote placement.");
+      inQuotes = true;
+      atFieldStart = false;
+      continue;
+    }
+
+    if (character === "," || character === "\n") {
+      atFieldStart = true;
+      continue;
+    }
+    if (character === "\r") {
+      if (source[index + 1] !== "\n") {
+        throw new Error("Whiskey data contains invalid quote placement.");
+      }
+      continue;
+    }
+    atFieldStart = false;
+  }
+  if (inQuotes) throw new Error("Whiskey data contains an unterminated quoted field.");
+  return parseCSV(source);
+}
+
 export function prepareWhiskeyRows(records) {
   return records.map((record, index) => {
     const sourceId = Number(record.source_id);

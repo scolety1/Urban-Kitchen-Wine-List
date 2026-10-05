@@ -9,16 +9,13 @@ source_id,category,name,price
 10,Rye,Templeton 6 yr,15
 11,Rye,Whistle Pig 6 yr,16
 12,Rye,Willet Small Batch,17
-13,Rye,High West Campfire Blend,21
 14,Rye,Old Elk Rum Cask,25
 15,Rye,Whistle Pig 12 yr,35
 16,Rye,Kentucky Owl,51
 17,Rye,Lock Stock & Barrel 18 yr,60
 18,Rye,Whistle Pig “Boss Hog”,150
 19,Japanese,Suntory Toki,12
-20,Japanese,Akashi,15
-21,Japanese,Nikka Coffee Grain,22
-22,Japanese,Fukano,26
+21,Japanese,Nikka Coffey Grain,22
 23,Whiskey,Johnnie Walker Red,11
 24,Whiskey,Singleton,13
 25,Whiskey,Glenmorangie 10 yr,14
@@ -51,7 +48,6 @@ source_id,category,name,price
 54,Bourbon,Four Roses Small Batch,15
 55,Bourbon,Henry Mckenna 10 yr Sgl Brl,15
 58,Bourbon,Woodford Double Oaked,16
-59,Bourbon,Heavens Door Double Barrel,16
 62,Bourbon,Four Roses Single Barrel,18
 63,Bourbon,Smoke Wagon Uncut,18
 64,Bourbon,Widow Jane 10 yr,19
@@ -75,17 +71,13 @@ source_id,category,name,price
 84,Bourbon,Blood Oath Pact No. 6,70
 85,Bourbon,Elijah Craig 18 yr,75
 86,Bourbon,Bookers Barry’s Batch,75
-87,Bourbon,Kentucky Owl 10 yr,77
 88,Bourbon,Heaven Hill 18 yr,95
 89,Canadian,Pendleton,9
-90,Canadian,Willie’s,10
 91,Canadian,Crown Royal,10
 92,Irish,Bushmills,9
 93,Irish,Jameson,9
 94,Irish,Proper Twelve,10
-95,Irish,Bushmills Black Label,12
 96,Irish,Tullamore Dew,14
-97,Irish,Knappogue Castle 18 yr,15
 98,Irish,Red Breast 12 yr,15
 99,Irish,Writer’s Tears,16
 100,Irish,Tullamore Dew 12 yr,17

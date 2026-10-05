@@ -1,0 +1,27 @@
+{
+  "authority": "Primary-source identity audit supplied for all 109 owner-photo transcription rows",
+  "counts": {
+    "source_rows": 109,
+    "publish_verified": 55,
+    "publish_identity_only": 36,
+    "hold": 18,
+    "public_rows": 91
+  },
+  "held_source_ids": [2, 3, 13, 20, 22, 39, 40, 56, 57, 59, 60, 61, 74, 75, 87, 90, 95, 97],
+  "public_name_corrections": {
+    "21": {
+      "source": "Nikka Coffee Grain",
+      "public": "Nikka Coffey Grain",
+      "basis": "Exact official Nikka product nomenclature"
+    }
+  },
+  "publication_limits": [
+    "The owner photo remains authoritative for venue lineup and numeric prices.",
+    "Held rows are not published pending owner, bottle, category, or collision clarification.",
+    "Identity-only rows receive no expression-specific description.",
+    "No retailer prices, serving volume, proof, ABV, inventory, allocation badge, or local-product badge is inferred.",
+    "Numeric photo prices do not assert serving volume and use the existing site's dollar-display convention only.",
+    "Photo category remains separate from researched product type; no Scotch heading is inferred from an unprinted category.",
+    "Current producer specifications are not backfilled onto an unknown older bottle."
+  ]
+}

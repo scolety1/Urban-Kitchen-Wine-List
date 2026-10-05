@@ -49,34 +49,71 @@ test("empty and failed menu data resolve to explicit menu-specific status copy",
   assert.match(whiskeyHtml, /aria-live="polite"/);
 });
 
-test("authoritative transcription publishes 99 confirmed rows and holds all collisions", () => {
+test("authoritative transcription publishes the 91-row audited subset and holds all 18 exclusions", () => {
   for (const path of [
-    "data/source/whiskey-menu-transcription.csv",
-    "data/source/whiskey-menu-transcription.txt",
+    "_audit/whiskey/whiskey-menu-transcription.csv",
+    "_audit/whiskey/whiskey-menu-transcription.txt",
+    "_audit/whiskey/primary-source-audit-release-decision.json",
     "data/whiskey.csv",
-    "data/whiskey.withheld.csv",
+    "_audit/whiskey/whiskey.withheld.csv",
   ]) {
     assert.ok(fs.existsSync(new URL(`../${path}`, import.meta.url)), `${path} must exist`);
   }
 
-  const source = parseCSV(read("data/source/whiskey-menu-transcription.csv")).records;
+  const source = parseCSV(read("_audit/whiskey/whiskey-menu-transcription.csv")).records;
   const published = parseCSV(read("data/whiskey.csv")).records;
-  const withheld = parseCSV(read("data/whiskey.withheld.csv")).records;
+  const withheld = parseCSV(read("_audit/whiskey/whiskey.withheld.csv")).records;
 
   assert.equal(source.length, 109);
-  assert.equal(published.length, 99);
-  assert.equal(withheld.length, 10);
+  assert.equal(published.length, 91);
+  assert.equal(withheld.length, 18);
   assert.deepEqual(
     withheld.map((row) => Number(row.source_id)),
-    [2, 3, 39, 40, 56, 57, 60, 61, 74, 75],
+    [2, 3, 13, 20, 22, 39, 40, 56, 57, 59, 60, 61, 74, 75, 87, 90, 95, 97],
   );
   assert.equal(published.filter((row) => row.category === "Whiskey").length, 18);
   assert.equal(published.some((row) => row.category === "Scotch"), false);
   assert.equal(published.some((row) => !row.name || !row.category || !row.price), false);
+  const heldIds = new Set(withheld.map((row) => row.source_id));
+  assert.deepEqual(
+    published,
+    source
+      .filter(
+        (row) =>
+          !new Set([2, 3, 13, 20, 22, 39, 40, 56, 57, 59, 60, 61, 74, 75, 87, 90, 95, 97]).has(
+            Number(row.id),
+          ),
+      )
+      .map((row) => ({
+        source_id: row.id,
+        category: row.category || "Whiskey",
+        name:
+          Number(row.id) === 21
+            ? "Nikka Coffey Grain"
+            : row.name.replaceAll("&amp;", "&").trim(),
+        price: row.price,
+      })),
+  );
+  assert.equal(published.some((row) => heldIds.has(row.source_id)), false);
+  assert.deepEqual(
+    [...published.map((row) => row.source_id), ...withheld.map((row) => row.source_id)]
+      .map(Number)
+      .sort((a, b) => a - b),
+    Array.from({ length: 109 }, (_, index) => index + 1),
+  );
   assert.match(
-    read("data/source/whiskey-menu-transcription.txt"),
+    read("_audit/whiskey/whiskey-menu-transcription.txt"),
     /de8c97202129d36e98bb4aa29bfe4125a51c9c80f7b59deba4a3083e1171ee44/i,
   );
+  const auditDecision = JSON.parse(read("_audit/whiskey/primary-source-audit-release-decision.json"));
+  assert.deepEqual(auditDecision.counts, {
+    source_rows: 109,
+    publish_verified: 55,
+    publish_identity_only: 36,
+    hold: 18,
+    public_rows: 91,
+  });
+  assert.equal(published.find((row) => row.source_id === "21").name, "Nikka Coffey Grain");
 });
 
 test("Whiskey has an isolated list renderer with safe price and empty-state behavior", async () => {
@@ -108,11 +145,52 @@ test("Whiskey has an isolated list renderer with safe price and empty-state beha
 });
 
 test("a zero-byte Whiskey file becomes an empty state before header validation", async () => {
-  const { resolveWhiskeyDataset } = await import(new URL("../js/whiskey-menu.js", import.meta.url));
+  const { parseWhiskeyCsv, resolveWhiskeyDataset } = await import(
+    new URL("../js/whiskey-menu.js", import.meta.url)
+  );
   assert.equal(typeof resolveWhiskeyDataset, "function");
   assert.deepEqual(resolveWhiskeyDataset({ headers: [], records: [] }), { state: "empty", rows: [] });
   assert.throws(
     () => resolveWhiskeyDataset({ headers: ["name"], records: [{ name: "Bulleit" }] }),
     /missing required columns/i,
   );
+  assert.throws(
+    () => parseWhiskeyCsv('source_id,category,name,price\n1,Rye,Bulleit,"10'),
+    /unterminated quoted field/i,
+  );
+  for (const malformed of [
+    'source_id,category,name,price\n1,Rye,Bul"leit",10',
+    'source_id,category,name,price\n1,Rye,"Bulleit"junk,10',
+    'source_id,category,name,price\n1,Rye,Bulleit,"1"0',
+  ]) {
+    assert.throws(() => parseWhiskeyCsv(malformed), /invalid quote placement/i);
+  }
+});
+
+test("Whiskey uses stable filter buttons and synchronizes fixed-header height", () => {
+  const script = read("js/whiskey.js");
+  assert.doesNotMatch(script, /role="tab"|role", "tablist"/);
+  assert.match(script, /aria-pressed/);
+  assert.match(script, /syncTopbarHeight/);
+  assert.match(script, /ResizeObserver/);
+});
+
+test("audit-only source and held rows are excluded from the Pages build", () => {
+  const config = read("_config.yml");
+  assert.match(config, /exclude:\s*[\s\S]*- _audit/);
+  assert.equal(fs.existsSync(new URL("../data/whiskey.withheld.csv", import.meta.url)), false);
+  assert.equal(
+    fs.existsSync(new URL("../data/source/whiskey-menu-transcription.csv", import.meta.url)),
+    false,
+  );
+});
+
+test("Wine and Whiskey pages cross-link with an accessible current-page state", () => {
+  const wine = read("wine.html");
+  const whiskey = read("whiskey.html");
+  assert.match(wine, /href="whiskey\.html"/);
+  assert.match(whiskey, /href="wine\.html"/);
+  assert.match(wine, /href="wine\.html" aria-current="page"/);
+  assert.match(whiskey, /href="whiskey\.html" aria-current="page"/);
+  assert.match(read("css/base.css"), /\.menu-switcher/);
 });

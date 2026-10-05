@@ -5,10 +5,13 @@ import { fileURLToPath } from "node:url";
 import { parseCSV } from "../js/csv.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const sourcePath = path.join(root, "data", "source", "whiskey-menu-transcription.csv");
+const auditPath = path.join(root, "_audit", "whiskey");
+const sourcePath = path.join(auditPath, "whiskey-menu-transcription.csv");
 const publishedPath = path.join(root, "data", "whiskey.csv");
-const withheldPath = path.join(root, "data", "whiskey.withheld.csv");
-const expectedHeldIds = [2, 3, 39, 40, 56, 57, 60, 61, 74, 75];
+const withheldPath = path.join(auditPath, "whiskey.withheld.csv");
+const expectedHeldIds = [2, 3, 13, 20, 22, 39, 40, 56, 57, 59, 60, 61, 74, 75, 87, 90, 95, 97];
+const heldIdSet = new Set(expectedHeldIds);
+const supportedNameCorrections = new Map([[21, "Nikka Coffey Grain"]]);
 
 function flagsFor(row) {
   return String(row.flags || "").split("+").filter(Boolean);
@@ -28,18 +31,20 @@ function toCsv(headers, rows) {
 const source = parseCSV(fs.readFileSync(sourcePath, "utf8")).records;
 if (source.length !== 109) throw new Error(`Expected 109 source rows; found ${source.length}.`);
 
-const held = source.filter((row) => flagsFor(row).includes("H"));
+const held = source.filter((row) => heldIdSet.has(Number(row.id)));
 const heldIds = held.map((row) => Number(row.id));
 if (heldIds.join(",") !== expectedHeldIds.join(",")) {
   throw new Error(`Unexpected held ids: ${heldIds.join(", ")}`);
 }
 
 const published = source
-  .filter((row) => !flagsFor(row).includes("H"))
+  .filter((row) => !heldIdSet.has(Number(row.id)))
   .map((row) => {
     const sourceId = Number(row.id);
     const category = row.category || (flagsFor(row).includes("U") ? "Whiskey" : "");
-    const name = String(row.name || "").replaceAll("&amp;", "&").trim();
+    const name =
+      supportedNameCorrections.get(sourceId) ||
+      String(row.name || "").replaceAll("&amp;", "&").trim();
     const price = Number(row.price);
     if (!sourceId || !category || !name || !Number.isFinite(price) || price <= 0) {
       throw new Error(`Source row ${row.id} is not safe to publish.`);
@@ -47,7 +52,7 @@ const published = source
     return { source_id: sourceId, category, name, price };
   });
 
-if (published.length !== 99) throw new Error(`Expected 99 publishable rows; found ${published.length}.`);
+if (published.length !== 91) throw new Error(`Expected 91 publishable rows; found ${published.length}.`);
 if (published.filter((row) => row.category === "Whiskey").length !== 18) {
   throw new Error("Expected 18 neutral Whiskey rows.");
 }
@@ -61,7 +66,9 @@ const withheld = held.map((row) => ({
   source_name: String(row.name || "").replaceAll("&amp;", "&"),
   source_price: row.price,
   flags: row.flags,
-  hold_reason: "Collision in photographed line; do not publish without confirmation",
+  hold_reason: flagsFor(row).includes("H")
+    ? "Collision in photographed line; do not publish without confirmation"
+    : "Primary-source audit requires owner or bottle confirmation before publication",
 }));
 
 fs.writeFileSync(publishedPath, toCsv(["source_id", "category", "name", "price"], published));

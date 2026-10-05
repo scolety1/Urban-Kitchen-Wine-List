@@ -1,11 +1,19 @@
 source_id,source_category,source_name,source_price,flags,hold_reason
 2,Rye,High West Double Rye,,H,Collision in photographed line; do not publish without confirmation
 3,Rye,North Fork,12,H,Collision in photographed line; do not publish without confirmation
+13,Rye,High West Campfire Blend,21,,Primary-source audit requires owner or bottle confirmation before publication
+20,Japanese,Akashi,15,,Primary-source audit requires owner or bottle confirmation before publication
+22,Japanese,Fukano,26,,Primary-source audit requires owner or bottle confirmation before publication
 39,,Orphan Barrel Muckety Muck,,H+U,Collision in photographed line; do not publish without confirmation
 40,,Balvenie 21 yr,66,H+U,Collision in photographed line; do not publish without confirmation
 56,Bourbon,Wild Rye Five Drops,15,H,Collision in photographed line; do not publish without confirmation
 57,Bourbon,,16,H,Collision in photographed line; do not publish without confirmation
+59,Bourbon,Heavens Door Double Barrel,16,,Primary-source audit requires owner or bottle confirmation before publication
 60,Bourbon,Horse Soldier Reserve,17,H,Collision in photographed line; do not publish without confirmation
 61,Bourbon,,18,H,Collision in photographed line; do not publish without confirmation
 74,Bourbon,Orphan Barrel Fanged Pursuit,,H,Collision in photographed line; do not publish without confirmation
 75,Bourbon,Calumet 16 yr,36,H,Collision in photographed line; do not publish without confirmation
+87,Bourbon,Kentucky Owl 10 yr,77,,Primary-source audit requires owner or bottle confirmation before publication
+90,Canadian,Willie’s,10,,Primary-source audit requires owner or bottle confirmation before publication
+95,Irish,Bushmills Black Label,12,,Primary-source audit requires owner or bottle confirmation before publication
+97,Irish,Knappogue Castle 18 yr,15,,Primary-source audit requires owner or bottle confirmation before publication

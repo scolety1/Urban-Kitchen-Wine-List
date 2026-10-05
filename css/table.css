@@ -117,7 +117,7 @@
   height: 20px;
   padding: 0 8px;
   border-radius: 8px;
-  border: 1px solid var(--accent-border);
+  border: 1px solid rgba(181, 154, 106, 0.34);
   background: var(--accent-soft);
   color: #fff2da;
   font-size: 10px;

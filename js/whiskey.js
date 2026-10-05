@@ -1,9 +1,9 @@
-import { parseCSV } from "./csv.js";
 import { escapeHtml } from "./utils.js";
 import {
   categoriesFor,
   categoryId,
   menuStatusCopy,
+  parseWhiskeyCsv,
   priceLabel,
   resolveWhiskeyDataset,
 } from "./whiskey-menu.js";
@@ -11,6 +11,7 @@ import {
 const tabs = document.getElementById("tabs");
 const menu = document.getElementById("menu");
 const status = document.getElementById("status");
+const topbar = document.getElementById("top-bar");
 let rows = [];
 let activeCategory = "All";
 
@@ -20,9 +21,22 @@ function setStatus(message, state = "loading") {
   status.hidden = !message;
 }
 
+function syncTopbarHeight() {
+  if (!topbar) return;
+  const height = Math.ceil(topbar.getBoundingClientRect().height);
+  document.documentElement.style.setProperty("--topbar-h", `${height}px`);
+}
+
+function updateFilterButtons() {
+  tabs.querySelectorAll("[data-whiskey-category]").forEach((button) => {
+    const selected = button.dataset.whiskeyCategory === activeCategory;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
 function renderTabs() {
   const categories = ["All", ...categoriesFor(rows)];
-  tabs.setAttribute("role", "tablist");
   tabs.setAttribute("aria-label", "Whiskey categories");
   tabs.innerHTML = categories
     .map(
@@ -30,8 +44,7 @@ function renderTabs() {
         <button
           class="tab-btn${category === activeCategory ? " is-active" : ""}"
           type="button"
-          role="tab"
-          aria-selected="${category === activeCategory}"
+          aria-pressed="${category === activeCategory}"
           data-whiskey-category="${escapeHtml(category)}"
         >${escapeHtml(category)}</button>`,
     )
@@ -40,7 +53,7 @@ function renderTabs() {
   tabs.querySelectorAll("[data-whiskey-category]").forEach((button) => {
     button.addEventListener("click", () => {
       activeCategory = button.dataset.whiskeyCategory;
-      renderTabs();
+      updateFilterButtons();
       renderMenu();
     });
   });
@@ -86,7 +99,7 @@ async function init() {
   try {
     const response = await fetch("data/whiskey.csv", { cache: "no-store" });
     if (!response.ok) throw new Error(`Whiskey data returned ${response.status}.`);
-    const parsed = parseCSV(await response.text());
+    const parsed = parseWhiskeyCsv(await response.text());
     const resolved = resolveWhiskeyDataset(parsed);
     rows = resolved.rows;
     if (resolved.state === "empty") {
@@ -96,6 +109,7 @@ async function init() {
 
     renderTabs();
     renderMenu();
+    syncTopbarHeight();
     setStatus("", "ready");
   } catch (error) {
     console.error(error);
@@ -104,4 +118,9 @@ async function init() {
   }
 }
 
+syncTopbarHeight();
+addEventListener("resize", syncTopbarHeight);
+if (typeof ResizeObserver === "function" && topbar) {
+  new ResizeObserver(syncTopbarHeight).observe(topbar);
+}
 init();
