@@ -63,14 +63,16 @@ body {
 }
 
 body[data-menu="whiskey"].whiskey-theme-violet-red {
-  --accent: #b7647d;
-  --accent-soft: rgba(183, 100, 125, 0.18);
-  --accent-border: rgba(183, 100, 125, 0.56);
-  --accent-focus: rgba(201, 112, 139, 0.92);
-  --accent-glow: rgba(116, 41, 72, 0.22);
-  --accent-hover: rgba(183, 100, 125, 0.075);
-  --accent-active: rgba(183, 100, 125, 0.14);
-  --border: rgba(183, 100, 125, 0.22);
+  --accent: #d9506a;
+  --accent-soft: rgba(217, 80, 106, 0.18);
+  --accent-border: rgba(217, 80, 106, 0.58);
+  --accent-focus: rgba(238, 112, 136, 0.95);
+  --accent-glow: rgba(150, 28, 52, 0.26);
+  --accent-hover: rgba(217, 80, 106, 0.08);
+  --accent-active: rgba(217, 80, 106, 0.15);
+  --border: rgba(217, 80, 106, 0.24);
+  --panel: #160a0c;
+  --panel-2: #1d0e11;
 }
 
 a {
@@ -93,11 +95,16 @@ a {
 .masthead {
   display: grid;
   gap: 2px;
-  padding: 14px var(--pad) 4px;
+  padding: 14px max(var(--pad), env(safe-area-inset-right)) 4px max(var(--pad), env(safe-area-inset-left));
   text-align: center;
   transition: opacity 160ms ease, max-height 180ms ease, padding 180ms ease;
-  max-height: 92px;
-  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+  /* No height cap while expanded: the wrapped title and switcher must never be clipped at
+     narrow widths or 200%/400% zoom. Only the compact (scrolled) state hides it. */
+  max-height: none;
+  overflow: visible;
+  overflow-wrap: anywhere;
 }
 
 .masthead-kicker {
@@ -118,6 +125,7 @@ a {
 
 #top-bar.is-compact .masthead {
   max-height: 0;
+  overflow: hidden;
   opacity: 0;
   padding-top: 0;
   padding-bottom: 0;
@@ -236,18 +244,30 @@ button:focus-visible,
 
 .menu-switcher {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
+  min-width: 0;
+  max-width: 100%;
   margin-top: 4px;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .menu-switcher a {
-  padding: 3px 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 16px;
   border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 750;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .menu-switcher a[aria-current="page"] {

@@ -1,0 +1,402 @@
+/* Whiskey-only styles: detail/picker dialogs, name buttons, picks. Loaded after the shared CSS. */
+
+/* At 400% zoom the viewport is only a few hundred CSS pixels tall: a fixed header would cover
+   the whole page. Let it scroll away with the page instead of hiding the menu. */
+@media (max-height: 480px) {
+  body[data-menu="whiskey"] #top-bar {
+    position: static;
+  }
+
+  body[data-menu="whiskey"] #content {
+    padding-top: var(--pad);
+  }
+}
+
+.wh-picker-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  min-width: 0;
+  margin-bottom: 16px;
+}
+
+.wh-picker-hint {
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.wh-picker-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 20px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wh-picker-open:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.whiskey-name-btn {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.whiskey-name-btn:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+.whiskey-name-btn:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.whiskey-row {
+  padding-block: 4px;
+}
+
+/* ---------------------------------------------------------------- dialogs */
+
+.wh-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, 0.74);
+  overflow-y: auto;
+}
+
+.wh-modal {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+  max-height: 100%;
+  padding: 14px 16px 20px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  outline: none;
+}
+
+.wh-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0 0 6px auto;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.wh-modal-title {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.wh-modal p {
+  margin: 8px 0;
+  line-height: 1.45;
+}
+
+.wh-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--muted);
+}
+
+.wh-detail-price {
+  color: var(--text);
+  font-weight: 850;
+}
+
+.wh-detail-state {
+  padding: 8px 12px;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+
+.wh-detail-description {
+  color: var(--muted);
+}
+
+.wh-modal a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+.wh-modal a:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+
+/* Critic evidence is visually separate from any recommender text. */
+.wh-critic {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px dashed var(--accent-border);
+  border-radius: 8px;
+}
+
+.wh-critic-title {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------- picker */
+
+.wh-note {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.wh-live {
+  min-height: 0;
+  margin: 0;
+  font-weight: 750;
+}
+
+.wh-fieldset {
+  min-width: 0;
+  margin: 0 0 14px;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.wh-legend {
+  padding: 0 6px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.wh-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wh-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.wh-choice input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.wh-choice:has(input:checked) {
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+  font-weight: 750;
+}
+
+.wh-choice:has(input:checked)::after {
+  content: "\2713";
+}
+
+.wh-choice:focus-within {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+
+.wh-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wh-footer {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.wh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  text-align: center;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.wh-btn-primary {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+
+.wh-btn:focus-visible,
+.wh-picker-open:focus-visible,
+.wh-modal-close:focus-visible {
+  outline: 2px solid var(--accent-focus);
+  outline-offset: 2px;
+}
+
+.wh-results-title {
+  margin: 8px 0;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.wh-cards {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wh-card {
+  min-width: 0;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+}
+
+.wh-card-name {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.wh-card-price {
+  margin: 2px 0 6px;
+  font-weight: 800;
+}
+
+.wh-reasons {
+  margin: 0 0 8px;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.wh-empty {
+  padding: 10px 12px;
+  border: 2px dashed var(--accent-border);
+  border-radius: 8px;
+}
+
+.wh-suggestions {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ------------------------------------------------------------ critic picks */
+
+.wh-picks {
+  margin-bottom: 16px;
+}
+
+.wh-pick-list {
+  margin: 0;
+  padding: 0 var(--pad) 10px;
+  list-style: none;
+}
+
+.wh-pick {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 14px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.wh-pick-critic {
+  grid-column: 1 / -1;
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
