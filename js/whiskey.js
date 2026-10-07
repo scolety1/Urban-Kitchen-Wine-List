@@ -1,19 +1,24 @@
-import { escapeHtml } from "./utils.js";
 import {
-  categoriesFor,
-  categoryId,
   menuStatusCopy,
   parseWhiskeyCsv,
-  priceLabel,
   resolveWhiskeyDataset,
 } from "./whiskey-menu.js";
+import { loadWhiskeyMetadata } from "./whiskey-metadata.js";
+import { openDetail } from "./whiskey-detail.js";
+import { openPicker } from "./whiskey-picker.js";
+import { buildPicks, renderPicksHtml } from "./whiskey-picks.js";
+import { defaultCategory, renderMenuHtml, renderTabsHtml } from "./whiskey-page.js";
 
 const tabs = document.getElementById("tabs");
 const menu = document.getElementById("menu");
 const status = document.getElementById("status");
 const topbar = document.getElementById("top-bar");
+const content = document.getElementById("content");
+const picks = document.getElementById("picks");
+const pickerButton = document.getElementById("help-me-decide");
 let rows = [];
 let activeCategory = "All";
+let metadata = { ok: false, errors: [], byId: {} };
 
 function setStatus(message, state = "loading") {
   status.textContent = message;
@@ -36,19 +41,8 @@ function updateFilterButtons() {
 }
 
 function renderTabs() {
-  const categories = ["All", ...categoriesFor(rows)];
   tabs.setAttribute("aria-label", "Whiskey categories");
-  tabs.innerHTML = categories
-    .map(
-      (category) => `
-        <button
-          class="tab-btn${category === activeCategory ? " is-active" : ""}"
-          type="button"
-          aria-pressed="${category === activeCategory}"
-          data-whiskey-category="${escapeHtml(category)}"
-        >${escapeHtml(category)}</button>`,
-    )
-    .join("");
+  tabs.innerHTML = renderTabsHtml(rows, activeCategory);
 
   tabs.querySelectorAll("[data-whiskey-category]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -60,39 +54,30 @@ function renderTabs() {
 }
 
 function renderMenu() {
-  const visible =
-    activeCategory === "All" ? rows : rows.filter((row) => row.category === activeCategory);
-  const groups = activeCategory === "All" ? categoriesFor(visible) : [activeCategory];
-
-  menu.innerHTML = groups
-    .map((category) => {
-      const items = visible.filter((row) => row.category === category);
-      const headingId = categoryId(category);
-      return `
-        <section class="section whiskey-section" aria-labelledby="${headingId}">
-          <div class="varietal-header">
-            <h2 class="varietal-title" id="${headingId}">${escapeHtml(category)}</h2>
-            <span class="varietal-meta">${items.length} ${items.length === 1 ? "selection" : "selections"}</span>
-          </div>
-          <div class="whiskey-table-head" aria-hidden="true">
-            <span>Whiskey</span>
-            <span>Price</span>
-          </div>
-          <div class="whiskey-list">
-            ${items
-              .map(
-                (item) => `
-                  <div class="whiskey-row">
-                    <span class="whiskey-name">${escapeHtml(item.name)}</span>
-                    <span class="whiskey-price" aria-label="Price ${escapeHtml(priceLabel(item.price))}">${escapeHtml(priceLabel(item.price))}</span>
-                  </div>`,
-              )
-              .join("")}
-          </div>
-        </section>`;
-    })
-    .join("");
+  menu.innerHTML = renderMenuHtml(rows, activeCategory);
 }
+
+function renderPicks() {
+  picks.innerHTML = metadata.ok ? renderPicksHtml(buildPicks(rows, metadata.byId)) : "";
+}
+
+content.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-detail-id]");
+  if (!button) return;
+  const id = Number(button.dataset.detailId);
+  const row = rows.find((candidate) => candidate.sourceId === id);
+  if (row) openDetail(document, row, metadata.ok ? metadata.byId[id] : undefined, { opener: button });
+});
+
+pickerButton?.addEventListener("click", () => {
+  openPicker(document, {
+    rows,
+    metaById: metadata.byId,
+    vocabulary: metadata.vocabulary,
+    available: metadata.ok,
+    opener: pickerButton,
+  });
+});
 
 async function init() {
   setStatus(menuStatusCopy("loading"));
@@ -107,10 +92,15 @@ async function init() {
       return;
     }
 
+    metadata = await loadWhiskeyMetadata(rows);
+    if (!metadata.ok) console.error("Whiskey details unavailable:", metadata.errors);
+    activeCategory = defaultCategory(rows);
     renderTabs();
+    renderPicks();
     renderMenu();
     syncTopbarHeight();
     setStatus("", "ready");
+    if (pickerButton) pickerButton.disabled = false;
   } catch (error) {
     console.error(error);
     menu.replaceChildren();

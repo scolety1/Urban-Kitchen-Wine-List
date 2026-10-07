@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/table.css" />
     <link rel="stylesheet" href="css/drawer.css" />
     <link rel="stylesheet" href="css/language.css" />
+    <link rel="stylesheet" href="css/whiskey.css" />
   </head>
   <body data-menu="whiskey" class="whiskey-theme-violet-red">
     <header id="top-bar">
@@ -27,6 +28,11 @@
 
     <main id="content">
       <div id="status" class="card menu-status" role="status" aria-live="polite">Loading Whiskey list…</div>
+      <div class="wh-picker-bar">
+        <button type="button" id="help-me-decide" class="wh-picker-open" aria-haspopup="dialog" disabled>Help me decide</button>
+        <p class="wh-picker-hint">Answer a few questions to see up to three matches from bottles with verified details.</p>
+      </div>
+      <div id="picks"></div>
       <div id="menu"></div>
     </main>
 
