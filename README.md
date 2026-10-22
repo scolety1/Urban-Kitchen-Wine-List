@@ -1,4 +1,18 @@
-# Urban Kitchen Drinks – Menu Instructions
+# Urban Kitchen beverage discovery
+
+A restaurant beverage-discovery and publication system with spreadsheet-driven menus, print output and explainable wine/whiskey recommendations.
+
+## The problem and approach
+
+Guests need understandable choices, and staff need a menu they can maintain without editing application code. This project connects structured menu data to guest-facing discovery, deterministic recommendations and print output.
+
+My contribution is restaurant-domain product direction, menu and discovery workflow design, and AI-assisted development. This beverage website is separate from HouseOS; use of one does not establish rollout of the other.
+
+The website is used in the restaurant, as reported by its owner. Recommendations are rules/filter-based, not live AI. The repository does not establish a live POS or inventory integration.
+
+For a technical starting point, see [wine recommendation logic](js/recommend.js), [whiskey recommendation logic](js/whiskey-recommend.js), and the enrichment instructions below. For menu maintenance, start with [the bar manager guide](BAR_MANAGER_GUIDE.md).
+
+## Menu maintenance instructions
 
 This site is the live drinks menu used in the restaurant via QR code.
 It is intentionally simple and spreadsheet-driven so updates can be made without touching any code.
