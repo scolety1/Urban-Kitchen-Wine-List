@@ -5,6 +5,7 @@ A QR beverage menu deployed at Urban Kitchen in Bozeman. Guests can browse the w
 - [Live guest menu](https://urbankitchenbeverage.com/)
 - [Recommendation logic](js/recommend.js)
 - [Bar manager guide](BAR_MANAGER_GUIDE.md)
+- [Developer guide, source map and verification](DEVELOPER_GUIDE.md)
 
 ## What you should edit (important)
 
