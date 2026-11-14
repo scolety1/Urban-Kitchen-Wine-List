@@ -1,13 +1,10 @@
-# Urban Kitchen Drinks – Menu Instructions
+# Urban Kitchen Drinks
 
-This site is the live drinks menu used in the restaurant via QR code.
-It is intentionally simple and spreadsheet-driven so updates can be made without touching any code.
+A QR beverage menu deployed at Urban Kitchen in Bozeman. Guests can browse the wine and whiskey lists and use a rule-based wine recommender. Staff update the menu through CSV files.
 
-Please read this before making changes.
-
-For the simplest bar-manager instructions, use `BAR_MANAGER_GUIDE.md`.
-
----
+- [Live guest menu](https://urbankitchenbeverage.com/)
+- [Recommendation logic](js/recommend.js)
+- [Bar manager guide](BAR_MANAGER_GUIDE.md)
 
 ## What you should edit (important)
 
