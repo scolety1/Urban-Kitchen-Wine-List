@@ -1,10 +1,19 @@
 # Urban Kitchen Drinks
 
-A QR beverage menu deployed at Urban Kitchen in Bozeman. Guests can browse the wine and whiskey lists and use a rule-based wine recommender. Staff update the menu through CSV files.
+The deployed beverage-menu component of Spencer Colety's restaurant software work. Guests browse Urban Kitchen's wine and whiskey lists and receive preference-based recommendations; the public site uses menu data and deterministic rules rather than a live AI model.
+
+## HouseOS and the manager workflow
+
+**HouseOS** is the broader front-of-house platform Spencer is developing for restaurant communication, training, shift pickup/drop, tipout sheets and staff/manager operations. The shipped beverage site is one concrete delivery, not a claim that the whole platform is finished.
+
+Spencer designed the restaurant workflow and directed AI-assisted implementation and review. He reports a manager sign-in and content workflow using familiar Google Sheets/Drive tools, including beverage-list maintenance. That manager integration is separate from this public guest-site snapshot and was not authenticated or exercised in the public-site audit. Private manager access, credentials and restaurant operational records are not included here.
+
+The wine and whiskey guest pages and both recommendation flows were exercised publicly on November 14, 2026. Cocktail and private manager-publishing workflows are not covered by that check. The instructions below describe this repository's CSV/GitHub publication path; they are not instructions for signing into the separate manager portal.
 
 - [Live guest menu](https://urbankitchenbeverage.com/)
-- [Recommendation logic](js/recommend.js)
-- [Bar manager guide](BAR_MANAGER_GUIDE.md)
+- [Wine recommendation logic](js/recommend.js)
+- [Whiskey recommendation logic](js/whiskey-recommend.js)
+- [Bar manager guide for this CSV snapshot](BAR_MANAGER_GUIDE.md)
 - [Developer guide, source map and verification](DEVELOPER_GUIDE.md)
 
 ## What you should edit (important)
