@@ -20,3 +20,8 @@ test('beverages links to all three guest menu destinations', () => {
   for (const suffix of ['wine.html', 'whiskey.html', 'liqueur/']) assert.ok(page.includes(suffix))
   assert.match(page, /Other Beverages/i)
 })
+test('other beverages clearly states that the list is still in development', () => {
+  const page = read('liqueur/index.html')
+  assert.match(page, /still in development/i)
+  assert.match(page, /ask your server/i)
+})

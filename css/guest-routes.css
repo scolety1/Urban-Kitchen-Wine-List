@@ -7,3 +7,7 @@
 .guest-menu a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .other-top-bar { min-height: 76px; }
 .other-menu { padding-top: 8rem; }
+.development-notice { padding: clamp(1.25rem, 6vw, 2rem); border: 1px solid var(--accent-border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); }
+.development-notice h1 { margin: .35rem 0 .75rem; font: 500 clamp(1.65rem, 7vw, 2.35rem)/1.1 var(--serif); }
+.development-notice p { margin: 0; line-height: 1.55; }
+.development-label { color: var(--accent) !important; font-size: .72rem; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
