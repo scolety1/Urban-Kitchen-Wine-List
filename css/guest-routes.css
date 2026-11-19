@@ -5,3 +5,5 @@
 .guest-links { list-style: none; padding: 0; display: grid; gap: var(--gap); }
 .guest-links a, .guest-back { display: block; padding: var(--pad); background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); }
 .guest-menu a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.other-top-bar { min-height: 76px; }
+.other-menu { padding-top: 8rem; }

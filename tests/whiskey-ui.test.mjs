@@ -559,16 +559,14 @@ test("a recommender result card is never labelled as a critic rating", () => {
 
 // ----------------------------------------------------------- static contracts
 
-test("whiskey.html has the picker opener in main above the menu, not in the fixed header", () => {
+test("Whiskey creates the picker opener in the same filter row as Wine", () => {
   const html = read("whiskey.html");
-  const header = html.slice(html.indexOf('<header id="top-bar">'), html.indexOf("</header>"));
-  assert.doesNotMatch(header, /help-me-decide/);
-  const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
-  const opener = main.indexOf('id="help-me-decide"');
-  assert.ok(opener > -1);
-  assert.ok(opener < main.indexOf('id="menu"'));
-  assert.match(main, /id="help-me-decide"[^>]*aria-haspopup="dialog"|aria-haspopup="dialog"[^>]*id="help-me-decide"/);
-  assert.match(main, /<button[^>]*id="help-me-decide"[^>]*type="button"|<button[^>]*type="button"[^>]*id="help-me-decide"/);
+  const script = read("js/whiskey.js");
+  assert.match(html, /<div id="tabs"><\/div>/);
+  assert.match(script, /id="help-me-decide"/);
+  assert.match(script, /class="tab-btn choose-btn"/);
+  assert.match(script, /aria-haspopup="dialog"/);
+  assert.match(script, /openRecommendationPicker/);
   assert.doesNotMatch(html, /Critic Picks|\bbest\b/i);
 });
 
@@ -658,25 +656,18 @@ test("picker option groups wrap and never force horizontal overflow", () => {
   assert.doesNotMatch(css, /white-space:\s*nowrap/);
 });
 
-test("shared menu switcher wraps instead of clipping at narrow and zoomed widths", () => {
+test("compact menu loop stays tappable at narrow and zoomed widths", () => {
   const css = read("css/base.css");
-  const nav = cssBlock(css, ".menu-switcher");
+  const nav = cssBlock(css, ".menu-loop");
   assert.match(nav, /display:\s*flex/);
-  assert.match(nav, /flex-wrap:\s*wrap/);
-  assert.match(nav, /justify-content:\s*center/);
-  assert.match(nav, /min-width:\s*0/);
-  assert.match(nav, /max-width:\s*100%/);
-  assert.match(nav, /env\(safe-area-inset-left/);
-  assert.match(nav, /env\(safe-area-inset-right/);
-  assert.doesNotMatch(nav, /white-space:\s*nowrap/);
-  const link = cssBlock(css, ".menu-switcher a");
-  assert.match(link, /min-height:\s*44px/);
+  assert.match(nav, /justify-content:\s*space-between/);
+  assert.match(nav, /pointer-events:\s*none/);
+  const link = cssBlock(css, ".menu-loop-link");
+  assert.match(link, /min-height:\s*36px/);
   assert.match(link, /display:\s*(inline-)?flex/);
   assert.match(link, /align-items:\s*center/);
-  assert.match(link, /justify-content:\s*center/);
-  assert.match(link, /overflow-wrap:\s*anywhere/);
-  assert.doesNotMatch(link, /white-space:\s*nowrap/);
-  assert.match(css, /\.menu-switcher a\[aria-current="page"\]\s*\{[^}]*border-color:/);
+  assert.match(link, /pointer-events:\s*auto/);
+  assert.match(css, /@media\s*\(max-width:\s*420px\)/);
 });
 
 test("masthead never clips its wrapped content: no fixed height cap or overflow clip while expanded", () => {
@@ -694,8 +685,8 @@ test("masthead never clips its wrapped content: no fixed height cap or overflow 
   const compact = cssBlock(css, "#top-bar.is-compact .masthead");
   assert.match(compact, /max-height:\s*0/);
   assert.match(compact, /overflow:\s*hidden/);
-  // the switcher and its links never carry a fixed height or clip either
-  for (const selector of [".menu-switcher", ".menu-switcher a"]) {
+  // the compact loop and its links never carry a fixed height or clip either
+  for (const selector of [".menu-loop", ".menu-loop-link"]) {
     const block = cssBlock(css, selector);
     assert.doesNotMatch(block, /(?<![-\w])(?:max-)?height:\s*\d/, selector);
     assert.doesNotMatch(block, /overflow(?:-y|-x)?:\s*(hidden|clip|auto|scroll)/, selector);

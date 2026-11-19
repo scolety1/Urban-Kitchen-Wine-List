@@ -14,9 +14,9 @@ for (const [route, title, destination] of [
     assert.ok(read(destination.slice(1)).includes('<title>' + title + '</title>'))
   })
 }
-test('beverages links only to established wine and whiskey URLs', () => {
+test('beverages links to all three guest menu destinations', () => {
   const page = read('beverages/index.html')
   assert.match(page, /<h1[^>]*>Beverages<\/h1>/)
-  for (const suffix of ['wine.html', 'whiskey.html']) assert.ok(page.includes(suffix))
-  assert.doesNotMatch(page, /liqueur|Other Beverages/i)
+  for (const suffix of ['wine.html', 'whiskey.html', 'liqueur/']) assert.ok(page.includes(suffix))
+  assert.match(page, /Other Beverages/i)
 })

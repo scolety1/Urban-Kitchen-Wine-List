@@ -153,12 +153,15 @@ test("audit-only source and held rows are excluded from the Pages build", () => 
   );
 });
 
-test("Wine and Whiskey pages cross-link with an accessible current-page state", () => {
+test("Wine, Whiskey and Other Beverages form an accessible menu loop", () => {
   const wine = read("wine.html");
   const whiskey = read("whiskey.html");
+  const other = read("liqueur/index.html");
   assert.match(wine, /href="whiskey\.html"/);
+  assert.match(wine, /href="liqueur\/"/);
   assert.match(whiskey, /href="wine\.html"/);
-  assert.match(wine, /href="wine\.html" aria-current="page"/);
-  assert.match(whiskey, /href="whiskey\.html" aria-current="page"/);
-  assert.match(read("css/base.css"), /\.menu-switcher/);
+  assert.match(whiskey, /href="liqueur\/"/);
+  assert.match(other, /href="\/wine\.html"/);
+  assert.match(other, /href="\/whiskey\.html"/);
+  assert.match(read("css/base.css"), /\.menu-loop/);
 });

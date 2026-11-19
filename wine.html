@@ -24,12 +24,16 @@
   <body data-menu="wine">
     <header id="top-bar">
       <div class="masthead" aria-label="Urban Kitchen Wine List">
+        <nav class="menu-loop" aria-label="Switch beverage menu">
+          <a class="menu-loop-link menu-loop-previous" href="liqueur/" aria-label="View Other Beverages">
+            <span aria-hidden="true">←</span><span>Other</span>
+          </a>
+          <a class="menu-loop-link menu-loop-next" href="whiskey.html" aria-label="View Whiskey List">
+            <span>Whiskey</span><span aria-hidden="true">→</span>
+          </a>
+        </nav>
         <div class="masthead-kicker">Urban Kitchen</div>
         <div class="masthead-title">Wine List</div>
-        <nav class="menu-switcher" aria-label="Beverage menus">
-          <a href="wine.html" aria-current="page">Wine</a>
-          <a href="whiskey.html">Whiskey</a>
-        </nav>
       </div>
       <div id="tabs"></div>
       <div id="subtabs" class="hidden"></div>

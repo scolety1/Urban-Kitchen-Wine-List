@@ -15,7 +15,7 @@ const status = document.getElementById("status");
 const topbar = document.getElementById("top-bar");
 const content = document.getElementById("content");
 const picks = document.getElementById("picks");
-const pickerButton = document.getElementById("help-me-decide");
+let pickerButton = null;
 let rows = [];
 let activeCategory = "All";
 let metadata = { ok: false, errors: [], byId: {} };
@@ -42,7 +42,9 @@ function updateFilterButtons() {
 
 function renderTabs() {
   tabs.setAttribute("aria-label", "Whiskey categories");
-  tabs.innerHTML = renderTabsHtml(rows, activeCategory);
+  tabs.innerHTML = `<button type="button" id="help-me-decide" class="tab-btn choose-btn" aria-haspopup="dialog">Help Me Decide</button>${renderTabsHtml(rows, activeCategory)}`;
+  pickerButton = document.getElementById("help-me-decide");
+  pickerButton?.addEventListener("click", openRecommendationPicker);
 
   tabs.querySelectorAll("[data-whiskey-category]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -69,7 +71,7 @@ content.addEventListener("click", (event) => {
   if (row) openDetail(document, row, metadata.ok ? metadata.byId[id] : undefined, { opener: button });
 });
 
-pickerButton?.addEventListener("click", () => {
+function openRecommendationPicker() {
   openPicker(document, {
     rows,
     metaById: metadata.byId,
@@ -77,7 +79,7 @@ pickerButton?.addEventListener("click", () => {
     available: metadata.ok,
     opener: pickerButton,
   });
-});
+}
 
 async function init() {
   setStatus(menuStatusCopy("loading"));
@@ -100,7 +102,6 @@ async function init() {
     renderMenu();
     syncTopbarHeight();
     setStatus("", "ready");
-    if (pickerButton) pickerButton.disabled = false;
   } catch (error) {
     console.error(error);
     menu.replaceChildren();
