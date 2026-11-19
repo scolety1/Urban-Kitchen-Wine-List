@@ -1,5 +1,9 @@
 import { escapeHtml, makeLocation, priceToDisplay, norm, normLower } from "./utils.js";
 
+let drawerOpener = null;
+let previousOverflow = "";
+let backgroundState = [];
+
 function withDollar(val) {
   const s = norm(val);
   if (!s) return "";
@@ -22,10 +26,26 @@ export function openDrawerHtml({ title, subtitle = "", keyline = "", body = "", 
   const drawer = document.getElementById("drawer");
   if (!backdrop || !drawer) return;
 
+  if (!document.body.classList.contains("drawer-open")) {
+    drawerOpener = document.activeElement;
+    previousOverflow = document.body.style.overflow || "";
+    backgroundState = ["top-bar", "content"]
+      .map((id) => document.getElementById(id))
+      .filter(Boolean)
+      .map((element) => ({ element, inert: element.hasAttribute("inert") }));
+    for (const { element } of backgroundState) element.setAttribute("inert", "");
+  }
+  drawer.removeAttribute("inert");
+  drawer.removeAttribute("aria-hidden");
+  drawer.setAttribute("role", "dialog");
+  drawer.setAttribute("aria-modal", "true");
+  drawer.setAttribute("aria-labelledby", "drawer-title");
+  drawer.setAttribute("tabindex", "-1");
+
   drawer.innerHTML = `
     <div class="drawer-header">
       <div>
-        <div class="drawer-title">${title || ""}</div>
+        <div class="drawer-title" id="drawer-title">${title || ""}</div>
         ${subtitle}
       </div>
       <button class="drawer-close" type="button" aria-label="Close">&times;</button>
@@ -36,15 +56,18 @@ export function openDrawerHtml({ title, subtitle = "", keyline = "", body = "", 
   `;
 
   document.body.classList.add("drawer-open");
+  document.body.style.overflow = "hidden";
 
   const closeBtn = drawer.querySelector(".drawer-close");
   if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
 
   backdrop.addEventListener("click", closeDrawer);
 
-  window.addEventListener("keydown", onEsc, { once: true });
+  window.removeEventListener("keydown", onDrawerKeydown);
+  window.addEventListener("keydown", onDrawerKeydown);
 
   if (typeof onOpen === "function") onOpen(drawer);
+  drawer.focus();
 }
 
 function renderItemSubtitle(item) {
@@ -83,11 +106,47 @@ function renderItemDescription(item) {
 }
 
 export function closeDrawer() {
+  if (!document.body.classList.contains("drawer-open")) return;
   const backdrop = document.getElementById("drawer-backdrop");
   if (backdrop) backdrop.removeEventListener("click", closeDrawer);
+  window.removeEventListener("keydown", onDrawerKeydown);
   document.body.classList.remove("drawer-open");
+  document.body.style.overflow = previousOverflow;
+  const drawer = document.getElementById("drawer");
+  drawer?.setAttribute("inert", "");
+  drawer?.setAttribute("aria-hidden", "true");
+  for (const { element, inert } of backgroundState) {
+    if (!inert) element.removeAttribute("inert");
+  }
+  backgroundState = [];
+  if (drawerOpener && document.documentElement.contains(drawerOpener)) drawerOpener.focus();
+  drawerOpener = null;
 }
 
-function onEsc(e) {
-  if (e.key === "Escape") closeDrawer();
+function onDrawerKeydown(event) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeDrawer();
+    return;
+  }
+  if (event.key !== "Tab") return;
+  const drawer = document.getElementById("drawer");
+  const items = [...drawer.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")]
+    .filter((element) => !element.disabled && element.getAttribute("tabindex") !== "-1" && !element.closest("[hidden]"));
+  const first = items[0];
+  const last = items[items.length - 1];
+  const current = document.activeElement;
+  if (!first) {
+    event.preventDefault();
+    drawer.focus();
+  } else if (!drawer.contains(current) || (current === drawer && !event.shiftKey)) {
+    event.preventDefault();
+    first.focus();
+  } else if (event.shiftKey && (current === first || current === drawer)) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && current === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }

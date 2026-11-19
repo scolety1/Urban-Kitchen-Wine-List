@@ -26,7 +26,7 @@ Open `http://127.0.0.1:8000/`, `wine.html`, or `whiskey.html`. For data maintena
 With Node.js 24:
 
 ```sh
-node --test tests/production-contract.test.mjs tests/public-release-privacy.test.mjs tests/whiskey-metadata.test.mjs tests/whiskey-recommend.test.mjs tests/whiskey-ui.test.mjs
+node --test tests/production-contract.test.mjs tests/public-release-privacy.test.mjs tests/whiskey-metadata.test.mjs tests/whiskey-recommend.test.mjs tests/whiskey-ui.test.mjs tests/wine-drawer.test.mjs
 ```
 
 Verified November 14, 2026: all 94 tests passed against the current public source. These cover contracts, privacy guards, metadata/recommendation behavior and DOM fixtures; they do not prove every accessibility interaction or current beverage availability. The separate rendered Opera harness has a machine-specific executable path and is not part of this portable command.
