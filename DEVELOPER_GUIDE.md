@@ -47,3 +47,8 @@ remain excluded from the Pages build.
 The two-choice guest selector is `/beverages/`. Direct QR destinations remain
 `/wine.html` and `/whiskey.html`; `/wine/` and `/whiskey/` redirect to those pages.
 Wine bin 154, 2021 Marenco Scrapona Moscato d'Asti, is $46 per bottle.
+
+Run `node scripts/build-whiskey-release.mjs` to validate the current Whiskey CSV
+and its metadata before publication. This command is read-only; it no longer
+rebuilds the menu from the historical transcription. Run the portable tests above
+plus `node --test scripts/guest-routes.test.mjs` for the selector and aliases.

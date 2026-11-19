@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { execFileSync } from "node:child_process";
 
 import { parseCSV } from "../js/csv.js";
 
@@ -71,6 +72,16 @@ test("current owner menu publishes all 109 priced items with resolved wrapped li
   })));
   assert.equal(published.filter((row) => row.category === "Whiskey").length, 20);
   assert.ok(published.every((row) => row.name && row.category && Number(row.price) > 0));
+});
+
+test("release validation preserves the current menu and metadata byte for byte", () => {
+  const paths = ["data/whiskey.csv", "data/whiskey-metadata.json"];
+  const before = paths.map(read);
+  const output = execFileSync(process.execPath, ["scripts/build-whiskey-release.mjs"], {
+    cwd: new URL("../", import.meta.url), encoding: "utf8",
+  });
+  assert.match(output, /Validated 109 current Whiskey items/);
+  assert.deepEqual(paths.map(read), before);
 });
 
 test("Whiskey has an isolated list renderer with safe price and empty-state behavior", async () => {
