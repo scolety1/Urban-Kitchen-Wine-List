@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090807">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Beverage Manager | Urban Kitchen</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/manager.css">
+</head>
+<body class="manager-page">
+  <main class="manager-shell">
+    <header class="manager-heading">
+      <p class="masthead-kicker">Urban Kitchen</p>
+      <h1>Beverage Manager</h1>
+      <p>Review the hard-coded Wine and Whiskey snapshot currently used by the guest QR menus.</p>
+      <div class="manager-mode"><strong>Snapshot mode</strong><span>Google Sheets publishing is not connected yet.</span></div>
+    </header>
+
+    <section class="manager-grid" aria-label="Menu pull controls">
+      <article class="manager-card" data-manager-menu="wine">
+        <div><span class="manager-eyebrow">Guest menu</span><h2>Wine</h2></div>
+        <button class="manager-pull" type="button" data-pull="wine">Pull Wine</button>
+        <p class="manager-status" data-status="wine" role="status" aria-live="polite">Ready to load the published Wine snapshot.</p>
+        <div class="manager-results" data-results="wine" hidden></div>
+      </article>
+
+      <article class="manager-card" data-manager-menu="whiskey">
+        <div><span class="manager-eyebrow">Guest menu</span><h2>Whiskey</h2></div>
+        <button class="manager-pull" type="button" data-pull="whiskey">Pull Whiskey</button>
+        <p class="manager-status" data-status="whiskey" role="status" aria-live="polite">Ready to load the published Whiskey snapshot.</p>
+        <div class="manager-results" data-results="whiskey" hidden></div>
+      </article>
+    </section>
+
+    <aside class="manager-note">
+      <strong>Safe review step:</strong> pulling does not change the live QR menus. It loads the exact public snapshot and lets you download a copy for review.
+    </aside>
+  </main>
+  <script type="module" src="../js/manager.js"></script>
+</body>
+</html>

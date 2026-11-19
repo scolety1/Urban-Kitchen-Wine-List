@@ -1,90 +1,51 @@
-# Urban Kitchen Wine List Update Guide
+# Urban Kitchen Beverage Manager Guide
 
-This is the simple version for updating the live wine list.
+## Review the current guest menus
 
-## The one file you edit
+Open the Beverage Manager:
 
-Edit this file only:
+```text
+https://urbankitchenbeverage.com/manager/
+```
+
+Use **Pull Wine** or **Pull Whiskey** to load the exact hard-coded snapshot used by the guest QR menus. Each review shows the published row count, missing required data, a short preview and a CSV download.
+
+Pulling is safe. It does not change the live website.
+
+The manager is currently in **Snapshot mode**. Secure Google Sheets publishing is not connected yet.
+
+## Temporary update process
+
+The two public source files are:
 
 ```text
 data/wines.csv
+data/whiskey.csv
 ```
 
-Do not rename it.
+Keep the filenames and CSV column headers unchanged. Prices must be plain numbers without dollar signs.
 
-Do not upload an Excel file.
-
-The file must stay a CSV file.
-
-## Step 1: Open the wine list file
-
-Open `wines.csv` in Excel or Google Sheets.
-
-Make the wine list changes there.
-
-## Step 2: Save or download as CSV
-
-When finished, save or download the file as:
+After changing Wine data, run:
 
 ```text
-wines.csv
+node scripts/enrich-wines.mjs
 ```
 
-Important:
-
-- The name must be exactly `wines.csv`
-- It must end in `.csv`
-- Do not save it as `.xlsx`
-- Do not make a copy named `wines (1).csv`
-
-## Step 3: Upload it to GitHub
-
-Go to the GitHub project.
-
-Open the `data` folder.
-
-Click `wines.csv`.
-
-Upload the new `wines.csv` file to replace the old one.
-
-## Step 4: Commit the change
-
-GitHub will ask you to commit the file.
-
-Use a simple message like:
+After changing Whiskey data, run:
 
 ```text
-Update wine list
+node scripts/build-whiskey-release.mjs
 ```
 
-Click the green commit button.
+Run the project tests before publishing. Commit the source data and generated Wine files together.
 
-## Step 5: Tell the website manager
+## Future connected workflow
 
-After uploading, tell the website manager:
+The planned secure workflow is:
 
-```text
-The wine CSV has been updated.
-```
+1. Managers update the private inventory workbook.
+2. The manager pulls only approved public menu fields.
+3. The manager reviews published, hidden and incomplete rows.
+4. An authenticated publish action updates the website while preserving its URLs and QR codes.
 
-They will run the final update step that prepares the website data.
-
-## Quick checks before uploading
-
-Before you upload, check these:
-
-- The file is named `wines.csv`
-- The file is a CSV
-- The first row with the column names is still there
-- You did not delete any columns
-- Prices are plain numbers, like `72`, not `$72`
-- Staff picks use `Y` or `N`
-- Show uses `Y` or `N`
-
-## If something goes wrong
-
-Stop and ask for help.
-
-Do not keep uploading different versions.
-
-It is much easier to fix one clean mistake than several guesses.
+Private counts, par levels, costs, distributors and ordering notes must never be included in the public guest files.
