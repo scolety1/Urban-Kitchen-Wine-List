@@ -2,6 +2,7 @@ const CONFIG = {
   wine: { source: "../data/wines.json", file: "wines.csv" },
   whiskey: { source: "../data/whiskey.csv", file: "whiskey.csv" },
 };
+let inventoryEndpoint = "";
 
 const escapeHtml = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 const quote = (value) => {
@@ -49,15 +50,24 @@ async function pull(type) {
   status.textContent = `Pulling ${type} inventory…`;
   results.hidden = true;
   try {
-    const response = await fetch(CONFIG[type].source, { cache: "no-store" });
+    const source = inventoryEndpoint || CONFIG[type].source;
+    const response = await fetch(source, { cache: "no-store", redirect: "follow" });
     if (!response.ok) throw new Error(`Inventory returned ${response.status}.`);
     const body = await response.text();
-    const ready = type === "wine" ? JSON.parse(body) : parseCsv(body);
+    let ready;
+    if (inventoryEndpoint) {
+      const payload = JSON.parse(body);
+      if (payload.error) throw new Error(payload.error);
+      ready = payload[type];
+      if (!Array.isArray(ready)) throw new Error("Inventory payload is invalid.");
+    } else {
+      ready = type === "wine" ? JSON.parse(body) : parseCsv(body);
+    }
     const headers = type === "wine"
       ? ["name","type","varietal","world","country","region_1","region_2","bin","vintage","glass_price","bottle_price","collection","staff_pick","stock","show","description"]
       : ["source_id","category","name","price"];
     const missing = ready.filter((row) => !row.name || (type === "wine" ? !row.bottle_price : !row.price)).length;
-    const csv = type === "whiskey" ? body : toCsv(headers, ready);
+    const csv = toCsv(headers, ready);
     status.textContent = `${ready.length} published ${type} selections loaded. Review is ready.`;
     results.innerHTML = `<div class="manager-stats"><div class="manager-stat"><strong>${ready.length}</strong><span>published rows</span></div><div class="manager-stat"><strong>${missing}</strong><span>missing required data</span></div><div class="manager-stat"><strong>${missing ? "Review" : "Ready"}</strong><span>snapshot status</span></div></div><div class="manager-actions"><button class="manager-download" type="button">Download ${CONFIG[type].file}</button></div><table class="manager-preview"><thead><tr><th>Item</th><th>Category</th><th>Price</th></tr></thead><tbody>${previewRows(type, ready)}</tbody></table>`;
     results.querySelector("button").addEventListener("click", () => download(CONFIG[type].file, csv));
@@ -71,3 +81,23 @@ async function pull(type) {
 }
 
 document.querySelectorAll("[data-pull]").forEach((button) => button.addEventListener("click", () => pull(button.dataset.pull)));
+
+async function configureSource() {
+  try {
+    const response = await fetch("../data/inventory-api.json", { cache: "no-store" });
+    if (!response.ok) return;
+    const config = await response.json();
+    if (!String(config.endpoint || "").startsWith("https://script.google.com/macros/s/")) return;
+    inventoryEndpoint = config.endpoint;
+    document.querySelector("[data-manager-mode]").textContent = "Connected mode";
+    document.querySelector("[data-manager-mode-detail]").textContent = "Pull reads approved public rows from Google Sheets.";
+    document.querySelector("[data-publish-panel]").hidden = false;
+    for (const type of Object.keys(CONFIG)) {
+      document.querySelector(`[data-status="${type}"]`).textContent = `Ready to pull approved ${type} rows from Google Sheets.`;
+    }
+  } catch (error) {
+    console.warn("Inventory endpoint configuration unavailable; using the published snapshot.", error);
+  }
+}
+
+configureSource();
