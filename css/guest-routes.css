@@ -1,0 +1,7 @@
+.guest-menu { max-width: 38rem; margin: auto; padding: 3rem var(--pad); }
+.guest-menu p { color: var(--muted); }
+.guest-menu .masthead-kicker { color: var(--accent); }
+.guest-menu .masthead-title { font-size: clamp(2rem, 8vw, 3rem); }
+.guest-links { list-style: none; padding: 0; display: grid; gap: var(--gap); }
+.guest-links a, .guest-back { display: block; padding: var(--pad); background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); }
+.guest-menu a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

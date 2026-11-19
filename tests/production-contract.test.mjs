@@ -49,71 +49,28 @@ test("empty and failed menu data resolve to explicit menu-specific status copy",
   assert.match(whiskeyHtml, /aria-live="polite"/);
 });
 
-test("authoritative transcription publishes the 91-row audited subset and holds all 18 exclusions", () => {
-  for (const path of [
-    "_audit/whiskey/whiskey-menu-transcription.csv",
-    "_audit/whiskey/whiskey-menu-transcription.txt",
-    "_audit/whiskey/primary-source-audit-release-decision.json",
-    "data/whiskey.csv",
-    "_audit/whiskey/whiskey.withheld.csv",
-  ]) {
-    assert.ok(fs.existsSync(new URL(`../${path}`, import.meta.url)), `${path} must exist`);
-  }
-
+test("current owner menu publishes all 109 priced items with resolved wrapped lines", () => {
   const source = parseCSV(read("_audit/whiskey/whiskey-menu-transcription.csv")).records;
   const published = parseCSV(read("data/whiskey.csv")).records;
-  const withheld = parseCSV(read("_audit/whiskey/whiskey.withheld.csv")).records;
-
-  assert.equal(source.length, 109);
-  assert.equal(published.length, 91);
-  assert.equal(withheld.length, 18);
-  assert.deepEqual(
-    withheld.map((row) => Number(row.source_id)),
-    [2, 3, 13, 20, 22, 39, 40, 56, 57, 59, 60, 61, 74, 75, 87, 90, 95, 97],
-  );
-  assert.equal(published.filter((row) => row.category === "Whiskey").length, 18);
-  assert.equal(published.some((row) => row.category === "Scotch"), false);
-  assert.equal(published.some((row) => !row.name || !row.category || !row.price), false);
-  const heldIds = new Set(withheld.map((row) => row.source_id));
-  assert.deepEqual(
-    published,
-    source
-      .filter(
-        (row) =>
-          !new Set([2, 3, 13, 20, 22, 39, 40, 56, 57, 59, 60, 61, 74, 75, 87, 90, 95, 97]).has(
-            Number(row.id),
-          ),
-      )
-      .map((row) => ({
-        source_id: row.id,
-        category: row.category || "Whiskey",
-        name:
-          Number(row.id) === 21
-            ? "Nikka Coffey Grain"
-            : row.name.replaceAll("&amp;", "&").trim(),
-        price: row.price,
-      })),
-  );
-  assert.equal(published.some((row) => heldIds.has(row.source_id)), false);
-  assert.deepEqual(
-    [...published.map((row) => row.source_id), ...withheld.map((row) => row.source_id)]
-      .map(Number)
-      .sort((a, b) => a - b),
-    Array.from({ length: 109 }, (_, index) => index + 1),
-  );
-  assert.match(
-    read("_audit/whiskey/whiskey-menu-transcription.txt"),
-    /de8c97202129d36e98bb4aa29bfe4125a51c9c80f7b59deba4a3083e1171ee44/i,
-  );
-  const auditDecision = JSON.parse(read("_audit/whiskey/primary-source-audit-release-decision.json"));
-  assert.deepEqual(auditDecision.counts, {
-    source_rows: 109,
-    publish_verified: 55,
-    publish_identity_only: 36,
-    hold: 18,
-    public_rows: 91,
-  });
-  assert.equal(published.find((row) => row.source_id === "21").name, "Nikka Coffey Grain");
+  const corrections = {
+    2: { price: "12" },
+    21: { name: "Nikka Coffey Grain" },
+    39: { price: "60" },
+    57: { name: "Ezra Brooks Cask Strength" },
+    61: { name: "Eagle Rare 10 yr" },
+    74: { price: "35" },
+  };
+  assert.equal(published.length, 109);
+  assert.equal(new Set(published.map((row) => row.source_id)).size, 109);
+  assert.deepEqual(published, source.map((row) => ({
+    source_id: row.id,
+    category: row.category || "Whiskey",
+    name: row.name.replaceAll("&amp;", "&").trim(),
+    price: row.price,
+    ...corrections[Number(row.id)],
+  })));
+  assert.equal(published.filter((row) => row.category === "Whiskey").length, 20);
+  assert.ok(published.every((row) => row.name && row.category && Number(row.price) > 0));
 });
 
 test("Whiskey has an isolated list renderer with safe price and empty-state behavior", async () => {

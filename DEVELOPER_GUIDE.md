@@ -32,3 +32,18 @@ node --test tests/production-contract.test.mjs tests/public-release-privacy.test
 Verified November 14, 2026: all 94 tests passed against the current public source. These cover contracts, privacy guards, metadata/recommendation behavior and DOM fixtures; they do not prove every accessibility interaction or current beverage availability. The separate rendered Opera harness has a machine-specific executable path and is not part of this portable command.
 
 This developer guide preserves the existing operator README and does not adopt newer local manager candidates.
+
+## Guest menu update — November 18, 2026
+
+The owner confirmed the current whiskey list with `IMG_0346 (1).HEIC`
+(SHA-256 `fa979de8edc6f9092d9cf11c9ffb3246b26f3867f17ed854e66834465950cb96`).
+The guest CSV now includes all 109 printed names and prices. Wrapped lines resolve
+High West Double Rye ($12), Orphan Barrel Muckety Muck ($60), Ezra Brooks Cask
+Strength ($16), Eagle Rare 10 yr ($18), and Orphan Barrel Fanged Pursuit ($35).
+The 18 additions have no unverified tasting, producer, or age claims; existing
+verified metadata stays intact. The older `_audit` decisions are historical and
+remain excluded from the Pages build.
+
+The two-choice guest selector is `/beverages/`. Direct QR destinations remain
+`/wine.html` and `/whiskey.html`; `/wine/` and `/whiskey/` redirect to those pages.
+Wine bin 154, 2021 Marenco Scrapona Moscato d'Asti, is $46 per bottle.

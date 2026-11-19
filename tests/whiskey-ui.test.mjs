@@ -66,7 +66,7 @@ function syntheticSet() {
 
 // ---------------------------------------------------------------- detail view
 
-test("every one of the 91 public rows builds and renders a detail view", () => {
+test("every one of the 109 public rows builds and renders a detail view", () => {
   for (const row of publicRows) {
     const model = buildDetailModel(row, real.byId[row.sourceId]);
     const html = renderDetailHtml(model, "t");
@@ -281,7 +281,7 @@ test("picker form: four fieldsets with legends, radio groups, No preference firs
   assert.doesNotMatch(dialog.textContent, /intensity|adventur/i);
   const note = dialog.textContent.match(/(\d+) of (\d+) bottles/);
   assert.ok(note, "derived verified-bottle count is shown");
-  assert.equal(Number(note[2]), 91);
+  assert.equal(Number(note[2]), 109);
   assert.equal(
     Number(note[1]),
     publicMetadata.rows.filter((r) => r.status !== "unresolved").length,
@@ -466,7 +466,7 @@ test("Bourbon is the default category; All and existing categories remain", () =
 
 test("every category lists rows A-Z by menu name (base sensitivity, stable by id)", () => {
   const sorted = sortRowsAz(publicRows);
-  assert.equal(sorted.length, 91);
+  assert.equal(sorted.length, 109);
   const collator = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }) || a.sourceId - b.sourceId;
   for (const category of new Set(publicRows.map((r) => r.category))) {
     const list = sorted.filter((r) => r.category === category);
@@ -490,10 +490,10 @@ function document_free_count(html) {
   return (html.match(/class="whiskey-name-btn"/g) || []).length;
 }
 
-test("menu name cell is a real button for all 91 rows, with price from the CSV", () => {
+test("menu name cell is a real button for all 109 rows, with price from the CSV", () => {
   const html = renderMenuHtml(publicRows, "All", real.byId);
-  assert.equal(document_free_count(html), 91);
-  assert.equal((html.match(/<button type="button" class="whiskey-name-btn"/g) || []).length, 91);
+  assert.equal(document_free_count(html), 109);
+  assert.equal((html.match(/<button type="button" class="whiskey-name-btn"/g) || []).length, 109);
   for (const row of publicRows) assert.ok(html.includes(`data-detail-id="${row.sourceId}"`));
   assert.ok(html.includes("aria-haspopup=\"dialog\""));
 });

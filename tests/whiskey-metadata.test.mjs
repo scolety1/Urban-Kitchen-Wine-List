@@ -28,12 +28,12 @@ const validCritic = {
   verified_on: "2026-10-06",
 };
 
-test("public boundary is exactly the 91 rows of data/whiskey.csv", () => {
-  assert.equal(publicRows.length, 91);
-  assert.equal(new Set(publicIds).size, 91);
+test("public boundary is exactly the 109 rows of data/whiskey.csv", () => {
+  assert.equal(publicRows.length, 109);
+  assert.equal(new Set(publicIds).size, 109);
 });
 
-test("metadata id set equals the 91 CSV ids and validates against the menu", () => {
+test("metadata id set equals the 109 CSV ids and validates against the menu", () => {
   const metaIds = publicMetadata.rows.map((r) => r.source_id).sort((a, b) => a - b);
   assert.deepEqual(metaIds, [...publicIds].sort((a, b) => a - b));
 
@@ -258,13 +258,13 @@ test("public metadata preserves the verified, partial and unresolved boundaries"
   const count = (status) => publicMetadata.rows.filter((m) => m.status === status).length;
   assert.equal(count("verified"), 42);
   assert.equal(count("partial"), 4);
-  assert.equal(count("unresolved"), 45);
+  assert.equal(count("unresolved"), 63);
   assert.equal(publicMetadata.rows.filter((m) => m.critic).length, 0);
 });
 
 test("unresolved rows carry only a short family-level description and no release-specific facts", () => {
   const unresolved = publicMetadata.rows.filter((m) => m.status === "unresolved");
-  assert.equal(unresolved.length, 45);
+  assert.equal(unresolved.length, 63);
   for (const m of unresolved) {
     const label = m.menu_name;
     assert.ok(m.description.length > 40 && m.description.length < 260, label);

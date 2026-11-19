@@ -65,7 +65,7 @@ test("eligible pool is the verified/partial rows; unresolved rows are never reco
   assert.equal(result.matches.some((m) => m.row.name === "Foxtrot"), false);
 });
 
-test("real public data: eligibility count is derived from metadata for exactly the 91 CSV rows", () => {
+test("real public data: eligibility count is derived from metadata for exactly the 109 CSV rows", () => {
   const { byId, ok } = validateWhiskeyMetadata(publicMetadata, publicRows);
   assert.equal(ok, true);
   const eligible = eligibleRows(publicRows, byId);
