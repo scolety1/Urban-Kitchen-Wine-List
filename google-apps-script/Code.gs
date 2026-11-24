@@ -3,7 +3,7 @@
  * Deploy as a Web app that executes as the owner. This code exposes only the
  * allowlisted guest fields below and never accepts writes.
  */
-const HEADER_ROWS = { Wine: 2, Whiskey: 4 };
+const HEADER_ROWS = { Wine: 2, Whiskey: 4, 'Other Beverages': 4 };
 const SPREADSHEET_ID = '1jPxMuvXcsvm1pu8np46FPl_MsnuplZYf9_RCqzrMAH0';
 
 function doGet() {
@@ -13,6 +13,7 @@ function doGet() {
       generatedAt: new Date().toISOString(),
       wine: publicWine_('Wine'),
       whiskey: publicWhiskey_('Whiskey'),
+      spirits: publicSpirits_('Other Beverages'),
     };
     return json_(payload);
   } catch (error) {
@@ -22,7 +23,7 @@ function doGet() {
 }
 
 function publicWine_(sheetName) {
-  return publicRows_(sheetName).map(function(row) {
+  return publicRows_(sheetName).filter(function(row) { return row['Out'] !== true; }).map(function(row) {
     return {
       name: text_(row['Menu Name']),
       type: text_(row['Type']),
@@ -45,7 +46,7 @@ function publicWine_(sheetName) {
 }
 
 function publicWhiskey_(sheetName) {
-  return publicRows_(sheetName).map(function(row) {
+  return publicRows_(sheetName).filter(function(row) { return row['Out'] !== true; }).map(function(row) {
     return {
       category: text_(row['Category']) || 'Whiskey',
       name: text_(row['Menu Name']),
@@ -54,6 +55,27 @@ function publicWhiskey_(sheetName) {
       double_price: numberOrBlank_(row['Double (2.5 oz)']),
       description: text_(row['Description']),
       flavor_tags: text_(row['Flavor Tags']),
+    };
+  });
+}
+
+function publicSpirits_(sheetName) {
+  return publicRows_(sheetName).filter(function(row) {
+    return row['Out'] !== true;
+  }).map(function(row) {
+    return {
+      id: text_(row['Product']),
+      name: text_(row['Guest Name']) || text_(row['Product']),
+      family: text_(row['Spirit Family']),
+      style: text_(row['Style / Expression']),
+      region: text_(row['Country / Region']),
+      pour_size: text_(row['Standard Pour Size']),
+      price: numberOrBlank_(row['Standard Pour Price']),
+      double_price: numberOrBlank_(row['Double Price']),
+      description: text_(row['Description']),
+      featured_shot: row['Featured Shot'] === true,
+      shot_price: numberOrBlank_(row['Shot Price']),
+      shot_note: text_(row['Shot Note']),
     };
   });
 }

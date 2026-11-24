@@ -1,0 +1,50 @@
+body[data-menu="spirits"] {
+  --accent: #68b9a7;
+  --accent-soft: rgba(104, 185, 167, .16);
+  --accent-border: rgba(104, 185, 167, .46);
+  --accent-focus: rgba(132, 218, 198, .9);
+  --accent-glow: rgba(48, 131, 113, .22);
+  --border: rgba(104, 185, 167, .2);
+  --panel: #0d1513;
+  --panel-2: #11201c;
+}
+
+#spirits-tabs {
+  display: flex;
+  gap: 8px;
+  min-height: var(--tabs-row-h);
+  padding: 8px var(--pad) 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+#spirits-tabs::-webkit-scrollbar { height: 0; }
+#spirits-tabs .tab-btn { flex: 0 0 auto; }
+.spirits-content { display: grid; gap: 18px; }
+.spirits-status,
+.spirits-empty { padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); color: var(--muted); }
+.spirits-section-heading p { margin: 0 0 3px; color: var(--accent); font-size: 11px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+.spirits-section-heading h1 { margin: 0 0 12px; font: 500 25px/1.15 var(--serif); }
+.shot-picks { padding: 16px; border: 1px solid var(--accent-border); border-radius: var(--radius); background: linear-gradient(145deg, var(--accent-soft), var(--panel)); }
+.shot-picks-grid { display: grid; gap: 9px; }
+.shot-card,
+.spirit-card { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+.shot-card { background: rgba(9, 8, 7, .45); }
+.shot-card h2,
+.spirit-card h2 { margin: 0; font: 500 18px/1.2 var(--serif); }
+.shot-card p,
+.spirit-meta,
+.spirit-description { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.shot-card strong,
+.spirit-price { flex: 0 0 auto; color: var(--text); font-size: 16px; }
+#spirits-menu { display: grid; gap: 9px; }
+
+@media (min-width: 700px) {
+  .shot-picks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-height: 480px) {
+  body[data-menu="spirits"] #top-bar { position: static; }
+  body[data-menu="spirits"] #content { padding-top: var(--pad); }
+}

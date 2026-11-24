@@ -1,4 +1,9 @@
 var SPIRIT_FAMILIES_ = ['Tequila & Mezcal', 'Gin', 'Vodka', 'Rum', 'Brandy & Cognac', 'Other Spirits'];
+var EXCLUDED_SPIRIT_CATEGORIES_ = ['beer', 'bitters', 'liqueur / aperitif', 'non-alcoholic'];
+
+function excludedSpiritCategory_(value) {
+  return EXCLUDED_SPIRIT_CATEGORIES_.indexOf(managerText_(value).toLowerCase()) >= 0;
+}
 
 function suggestSpiritFamily_(name, inventoryCategory) {
   var category = managerText_(inventoryCategory).toLowerCase();
@@ -21,6 +26,7 @@ function validNonnegativePrice_(value) {
 function validateSpiritRow_(row) {
   var errors = [];
   if (!row || !managerText_(row.name)) errors.push('Guest Name is required.');
+  if (row && (row.showOnQr === true || row.featuredShot === true) && excludedSpiritCategory_(row.inventoryCategory)) errors.push('This inventory category is not eligible for the Spirits menu.');
   if (row && row.showOnQr === true) {
     if (SPIRIT_FAMILIES_.indexOf(managerText_(row.spiritFamily)) < 0) errors.push('Spirit Family must be confirmed.');
     if (!managerText_(row.pourSize)) errors.push('Standard Pour Size is required.');
@@ -28,7 +34,7 @@ function validateSpiritRow_(row) {
   }
   if (row && row.featuredShot === true) {
     if (row.showOnQr !== true) errors.push('A Featured Shot must also be shown on QR.');
-    if (row.shotPrice !== '' && row.shotPrice !== null && row.shotPrice !== undefined && !validNonnegativePrice_(row.shotPrice)) errors.push('Shot Price must be zero or greater.');
+    if (!validNonnegativePrice_(row.shotPrice)) errors.push('Shot Price is required and must be zero or greater.');
     if (managerText_(row.shotNote).length > 120) errors.push('Shot Note must be 120 characters or fewer.');
   }
   return errors;

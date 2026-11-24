@@ -11,7 +11,7 @@ const response = await fetch(endpoint, { redirect: "follow" });
 if (!response.ok) throw new Error(`Inventory endpoint returned ${response.status}.`);
 const payload = await response.json();
 if (payload.error) throw new Error(payload.error);
-if (payload.schemaVersion !== 1 || !Array.isArray(payload.wine) || !Array.isArray(payload.whiskey)) {
+if (payload.schemaVersion !== 1 || !Array.isArray(payload.wine) || !Array.isArray(payload.whiskey) || !Array.isArray(payload.spirits)) {
   throw new Error("Inventory endpoint returned an unsupported payload.");
 }
 
@@ -23,6 +23,13 @@ const csvCell = (value) => {
 };
 const toCsv = (headers, rows) => [headers, ...rows.map((row) => headers.map((header) => row[header] ?? ""))]
   .map((row) => row.map(csvCell).join(",")).join("\r\n") + "\r\n";
+const SPIRIT_FAMILIES = new Set(["Tequila & Mezcal", "Gin", "Vodka", "Rum", "Brandy & Cognac", "Other Spirits"]);
+const optionalPrice = (value, label, name) => {
+  if (value === "" || value === null || value === undefined) return "";
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) throw new Error(`${name}: ${label} must be zero or greater.`);
+  return number;
+};
 
 const wineHeaders = ["name","type","varietal","world","country","region_1","region_2","bin","vintage","glass_price","bottle_price","collection","staff_pick","stock","show","description"];
 for (const row of payload.wine) {
@@ -40,6 +47,29 @@ const whiskey = payload.whiskey.map((row) => {
   return { source_id: prior.source_id, category: row.category, name: row.name, price: row.price };
 }).sort((a, b) => Number(a.source_id) - Number(b.source_id));
 
+const spirits = payload.spirits.map((row) => {
+  if (!clean(row.name) || !SPIRIT_FAMILIES.has(clean(row.family)) || !clean(row.pour_size) || row.price === "" || row.price === null || row.price === undefined || !Number.isFinite(Number(row.price)) || Number(row.price) < 0) {
+    throw new Error(`Spirit is missing a family, pour size, or price: ${clean(row.name) || "unnamed"}`);
+  }
+  const shotPrice = optionalPrice(row.shot_price, "Shot Price", clean(row.name));
+  if (row.featured_shot === true && shotPrice === "") throw new Error(`${clean(row.name)}: Shot Price is required for a Shot Pick.`);
+  return {
+    id: clean(row.id) || `${key(row.family)}-${key(row.name)}`,
+    name: clean(row.name),
+    family: clean(row.family),
+    style: clean(row.style),
+    region: clean(row.region),
+    pour_size: clean(row.pour_size),
+    price: Number(row.price),
+    double_price: optionalPrice(row.double_price, "Double Price", clean(row.name)),
+    description: clean(row.description),
+    featured_shot: row.featured_shot === true,
+    shot_price: shotPrice,
+    shot_note: clean(row.shot_note),
+  };
+});
+
 await fs.writeFile("data/wines.csv", toCsv(wineHeaders, payload.wine), "utf8");
 await fs.writeFile("data/whiskey.csv", toCsv(["source_id","category","name","price"], whiskey), "utf8");
-console.log(`Pulled ${payload.wine.length} wines and ${whiskey.length} whiskeys from Google Sheets.`);
+await fs.writeFile("data/spirits.json", JSON.stringify(spirits, null, 2) + "\n", "utf8");
+console.log(`Pulled ${payload.wine.length} wines, ${whiskey.length} whiskeys, and ${spirits.length} spirits from Google Sheets.`);

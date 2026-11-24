@@ -28,12 +28,12 @@ jobs:
         run: |
           node scripts/enrich-wines.mjs
           node scripts/build-whiskey-release.mjs
-          node --test tests/production-contract.test.mjs tests/public-release-privacy.test.mjs tests/whiskey-metadata.test.mjs tests/whiskey-recommend.test.mjs tests/whiskey-ui.test.mjs tests/wine-drawer.test.mjs scripts/guest-routes.test.mjs
+          node --test tests/production-contract.test.mjs tests/public-release-privacy.test.mjs tests/spirits-ui.test.mjs tests/whiskey-metadata.test.mjs tests/whiskey-recommend.test.mjs tests/whiskey-ui.test.mjs tests/wine-drawer.test.mjs scripts/guest-routes.test.mjs
       - name: Commit published menu snapshot
         run: |
           git config user.name "Urban Kitchen Menu Publisher"
           git config user.email "actions@users.noreply.github.com"
-          git add data/wines.csv data/wines.cleaned.csv data/wines.json data/whiskey.csv
+          git add data/wines.csv data/wines.cleaned.csv data/wines.json data/whiskey.csv data/spirits.json
           git diff --cached --quiet && exit 0
           git commit -m "Publish approved beverage inventory"
           git push

@@ -4,27 +4,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090807">
-  <title>Other Beverages | Urban Kitchen</title>
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/guest-routes.css">
+  <meta name="format-detection" content="telephone=no">
+  <title>Spirits &amp; Drinks | Urban Kitchen</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/spirits.css">
 </head>
-<body>
-  <header id="top-bar" class="other-top-bar">
-    <div class="masthead" aria-label="Urban Kitchen Other Beverages">
+<body data-menu="spirits">
+  <header id="top-bar">
+    <div class="masthead" aria-label="Urban Kitchen Spirits and Drinks">
       <nav class="menu-loop" aria-label="Switch beverage menu">
-        <a class="menu-loop-link menu-loop-previous" href="/whiskey.html" aria-label="View Whiskey List"><span aria-hidden="true">←</span><span>Whiskey</span></a>
-        <a class="menu-loop-link menu-loop-next" href="/wine.html" aria-label="View Wine List"><span>Wine</span><span aria-hidden="true">→</span></a>
+        <a class="menu-loop-link menu-loop-previous" href="../whiskey.html" aria-label="View Whiskey List"><span aria-hidden="true">←</span><span>Whiskey</span></a>
+        <a class="menu-loop-link menu-loop-next" href="../wine.html" aria-label="View Wine List"><span>Wine</span><span aria-hidden="true">→</span></a>
       </nav>
       <div class="masthead-kicker">Urban Kitchen</div>
-      <div class="masthead-title">Other Beverages</div>
+      <div class="masthead-title">Spirits &amp; Drinks</div>
     </div>
+    <div id="spirits-tabs" aria-label="Spirit families"></div>
   </header>
-  <main class="guest-menu other-menu">
-    <section class="development-notice" aria-labelledby="development-title">
-      <p class="development-label">Coming soon</p>
-      <h1 id="development-title">Other Beverages is still in development</h1>
-      <p>We’re still building this list. For now, please ask your server about Fernet, liqueurs, tequila, vodka, and seasonal bar selections.</p>
+
+  <main id="content" class="spirits-content">
+    <div id="spirits-status" class="spirits-status" role="status" aria-live="polite">Loading Spirits &amp; Drinks.</div>
+    <section id="shot-picks" class="shot-picks" aria-labelledby="shot-picks-title" hidden>
+      <div class="spirits-section-heading">
+        <p>Quick pours</p>
+        <h1 id="shot-picks-title">Shot Picks</h1>
+      </div>
+      <div data-shot-picks-list class="shot-picks-grid"></div>
     </section>
+    <div id="spirits-menu"></div>
   </main>
+
+  <script type="module" src="../js/spirits.js"></script>
 </body>
 </html>

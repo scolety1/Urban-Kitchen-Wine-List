@@ -22,10 +22,13 @@ test("manager client protects dirty drafts and pulls all three Sheet menus", () 
   const client = read("google-apps-script-manager/Manager.html");
   assert.match(client, /runServer\("pullMenus",\s*menuNames\)/);
   assert.match(client, /pull\(\["wine",\s*"whiskey",\s*"spirits"\]/);
-  assert.match(client, /state\.dirty/);
+  assert.match(client, /dirtyMenus:\s*new Set/);
+  assert.match(client, /dirtyMenus\.has\(menu\)/);
+  assert.match(client, /dirtyMenus\.delete\(menu\)/);
   assert.match(client, /confirm\([^)]*discard/i);
   assert.match(client, /Google Sheets changed|Pull again/i);
   assert.match(client, /aria-live/);
+  assert.match(client, /beforeunload/);
 });
 
 test("table edits commit on change without rebuilding rows on every keystroke", () => {
@@ -52,6 +55,8 @@ test("Spirits editor excludes beer and liqueurs and supports curated Shot Picks"
   assert.match(client, /data-field="shotPrice"/);
   assert.match(client, /data-field="shotNote"/);
   assert.match(client, /Needs Review/);
+  assert.match(client, /row\.out/);
+  assert.match(client, /Out — hidden from guests/);
   assert.match(client, /inventoryCategory.*Beer|Beer.*inventoryCategory/s);
   assert.match(client, /Liqueur \/ aperitif/);
 });

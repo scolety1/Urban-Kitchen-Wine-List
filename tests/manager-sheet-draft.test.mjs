@@ -132,6 +132,14 @@ test("Spirit publication requires confirmed family and price and validates Shot 
   })), []);
   assert.match(core.validateSpiritRow_({ name: "Mystery", showOnQr: true }).join(" "), /Spirit Family.*Pour Price/i);
   assert.match(core.validateSpiritRow_({
+    name: "Titos", inventoryCategory: "Other bar", spiritFamily: "Vodka", pourSize: "1.5 oz", pourPrice: 12,
+    showOnQr: true, featuredShot: true, shotPrice: "",
+  }).join(" "), /Shot Price.*required/i);
+  assert.match(core.validateSpiritRow_({
+    name: "Fernet", inventoryCategory: "Liqueur \/ aperitif", spiritFamily: "Other Spirits", pourSize: "1.5 oz", pourPrice: 12,
+    showOnQr: true,
+  }).join(" "), /not eligible/i);
+  assert.match(core.validateSpiritRow_({
     name: "Titos", spiritFamily: "Vodka", pourSize: "1.5 oz", pourPrice: 12,
     showOnQr: true, featuredShot: true, shotPrice: -1,
   }).join(" "), /Shot Price/i);

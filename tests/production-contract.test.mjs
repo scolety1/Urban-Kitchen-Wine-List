@@ -161,7 +161,7 @@ test("Wine, Whiskey and Other Beverages form an accessible menu loop", () => {
   assert.match(wine, /href="liqueur\/"/);
   assert.match(whiskey, /href="wine\.html"/);
   assert.match(whiskey, /href="liqueur\/"/);
-  assert.match(other, /href="\/wine\.html"/);
-  assert.match(other, /href="\/whiskey\.html"/);
+  assert.match(other, /href="\.\.\/wine\.html"/);
+  assert.match(other, /href="\.\.\/whiskey\.html"/);
   assert.match(read("css/base.css"), /\.menu-loop/);
 });

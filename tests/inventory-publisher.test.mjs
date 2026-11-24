@@ -22,6 +22,15 @@ test("Apps Script public projection excludes operational and purchasing fields",
   }
 });
 
+test("Apps Script publishes an allowlisted Spirits and Shot Picks projection", () => {
+  const source = read("google-apps-script/Code.gs");
+  assert.match(source, /spirits:\s*publicSpirits_\('Other Beverages'\)/);
+  for (const field of ["Spirit Family", "Guest Name", "Standard Pour Size", "Standard Pour Price", "Featured Shot", "Shot Price", "Shot Note"]) {
+    assert.ok(source.includes(`row['${field}']`), field);
+  }
+  assert.doesNotMatch(source, /row\['Unit Cost'\]|row\['Par \(source\)'\]|row\['Bin \/ location'\]/);
+});
+
 test("public manager is only a sign-in landing and stores no publishing credential", () => {
   const manager = read("js/manager.js");
   const page = read("manager/index.html");
