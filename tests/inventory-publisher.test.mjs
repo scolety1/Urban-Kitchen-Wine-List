@@ -22,11 +22,14 @@ test("Apps Script public projection excludes operational and purchasing fields",
   }
 });
 
-test("publishing uses GitHub authentication and stores no credential in the public manager", () => {
+test("public manager is only a sign-in landing and stores no publishing credential", () => {
   const manager = read("js/manager.js");
   const page = read("manager/index.html");
   const workflow = read(".github/workflows/publish-inventory.yml");
-  assert.match(page, /actions\/workflows\/publish-inventory\.yml/);
+  assert.match(page, /Continue with Google/);
+  assert.doesNotMatch(page, /data-pull=|Publish approved menus|actions\/workflows/);
+  assert.match(manager, /manager-app\.json/);
+  assert.match(manager, /script\\\.google\\\.com\\\/macros\\\/s\\\//);
   assert.match(workflow, /workflow_dispatch/);
   assert.match(workflow, /contents: write/);
   assert.match(workflow, /vars\.INVENTORY_API_URL/);

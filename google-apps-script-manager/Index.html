@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <?!= includeManager_('Styles'); ?>
+</head>
+<body>
+  <main class="manager-app">
+    <header class="app-header">
+      <div><p class="kicker">Urban Kitchen</p><h1>Beverage Manager</h1><p>Google Sheets is the source of truth. Pull first, make the guest-facing changes, then publish.</p></div>
+      <div class="manager-identity" data-manager-email>Checking sign-in…</div>
+    </header>
+    <section class="pull-bar" aria-label="Google Sheets pull controls">
+      <button class="primary" type="button" data-pull-all>Pull all from Google Sheets</button>
+      <button type="button" data-pull-menu="wine">Pull Wine</button><button type="button" data-pull-menu="whiskey">Pull Whiskey</button><button type="button" data-pull-menu="spirits">Pull Spirits</button>
+    </section>
+    <p class="global-status" data-global-status role="status" aria-live="polite">Sign-in verified. Ready to pull.</p>
+    <nav class="workspace-tabs" aria-label="Beverage workspaces">
+      <button type="button" class="is-active" data-workspace-tab="wine">Wine</button><button type="button" data-workspace-tab="whiskey">Whiskey</button><button type="button" data-workspace-tab="spirits">Spirits</button>
+    </nav>
+    <section class="workspace" data-workspace="wine">
+      <div class="workspace-heading"><div><p class="eyebrow">Guest menu</p><h2>Wine</h2></div><button type="button" class="publish" data-publish-menu="wine" disabled>Publish Wine</button></div>
+      <div class="workspace-tools"><label>Search Wine<input type="search" data-search="wine" placeholder="Name or bin"></label><label class="csv-control">Optional Wine CSV<input type="file" accept=".csv,text/csv" data-wine-csv></label></div>
+      <div class="summary" data-summary="wine">Pull Wine to begin.</div><div class="review" data-csv-review hidden></div>
+      <div class="table-wrap"><table><thead><tr><th>Show</th><th>Bin</th><th>Guest name</th><th>Bottle price</th></tr></thead><tbody data-rows="wine"></tbody></table></div>
+      <p class="publish-status" data-publish-status="wine" role="status" aria-live="polite"></p>
+    </section>
+    <section class="workspace" data-workspace="whiskey" hidden>
+      <div class="workspace-heading"><div><p class="eyebrow">Guest menu</p><h2>Whiskey</h2></div><button type="button" class="publish" data-publish-menu="whiskey" disabled>Publish Whiskey</button></div>
+      <div class="workspace-tools"><label>Search Whiskey<input type="search" data-search="whiskey" placeholder="Name or category"></label></div><div class="summary" data-summary="whiskey">Pull Whiskey to begin.</div>
+      <div class="table-wrap"><table><thead><tr><th>Show</th><th>Guest name</th><th>Category</th><th>Price</th></tr></thead><tbody data-rows="whiskey"></tbody></table></div>
+      <p class="publish-status" data-publish-status="whiskey" role="status" aria-live="polite"></p>
+    </section>
+    <section class="workspace" data-workspace="spirits" hidden>
+      <div class="workspace-heading"><div><p class="eyebrow">Future guest menu</p><h2>Spirits</h2></div><button type="button" class="publish" data-publish-menu="spirits" disabled>Publish Spirits</button></div>
+      <p class="workspace-note">Beer, bitters, liqueurs, aperitifs, amari, mixers, and non-alcoholic items stay off this guest menu. Cocktails come later.</p>
+      <div class="workspace-tools"><label>Search Spirits<input type="search" data-search="spirits" placeholder="Bottle or spirit family"></label><label>Filter<select data-spirit-filter><option value="all">All hard spirits</option><option value="review">Needs Review</option><option value="shots">Shot Picks</option></select></label></div>
+      <div class="summary" data-summary="spirits">Pull Spirits to begin.</div>
+      <div class="table-wrap"><table><thead><tr><th>Show</th><th>Shot Pick</th><th>Guest name</th><th>Spirit family</th><th>Pour</th><th>Price</th><th>Shot price / note</th></tr></thead><tbody data-rows="spirits"></tbody></table></div>
+      <p class="publish-status" data-publish-status="spirits" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <?!= includeManager_('Manager'); ?>
+</body>
+</html>

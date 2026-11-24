@@ -70,7 +70,7 @@ function reviewCsv(menuName, csvText, draftRevision) {
   assertManager_();
   if (menuName !== 'wine') throw new Error('CSV import is currently supported for Wine.');
   var current = pullCurrentDraft_();
-  if (current.revision !== draftRevision) throw new Error('Google Sheets changed. Pull again before reviewing this CSV.');
+  if (current.menuRevisions.wine !== draftRevision && current.revision !== draftRevision) throw new Error('Google Sheets changed. Pull again before reviewing this CSV.');
   return reviewWineCsv_(csvText, current.wine);
 }
 
@@ -123,7 +123,7 @@ function whiskeyWritePlan_(rows) {
   return (rows || []).map(function(row) {
     var values = {};
     Object.keys(allowed).forEach(function(key) { if (Object.prototype.hasOwnProperty.call(row, key)) values[allowed[key]] = row[key]; });
-    if (!managerText_(row.key) || !managerText_(row.name) || !Number.isFinite(Number(row.price)) || Number(row.price) < 0) throw new Error('Whiskey rows require a stable ID, name, and valid price.');
+    if (!managerText_(row.key) || !managerText_(row.name) || (row.showOnQr === true && !validNonnegativePrice_(row.price))) throw new Error('Whiskey rows require a stable ID, name, and valid price.');
     return { key: String(row.key), values: values };
   });
 }
@@ -163,7 +163,8 @@ function publishMenus(menuNames, draftRevision, changes, confirmation) {
   try {
     var selected = Array.isArray(menuNames) ? menuNames : [];
     var current = selected.length ? pullDraftForMenus_(selected) : { revision: draftRevision };
-    if (selected.length && current.revision !== draftRevision) throw new Error('Google Sheets changed. Pull again before publishing.');
+    var currentRevision = selected.length === 1 ? current.menuRevisions[selected[0]] : current.revision;
+    if (selected.length && currentRevision !== draftRevision) throw new Error('Google Sheets changed. Pull again before publishing.');
     var changed = changes || {};
     if (selected.indexOf('wine') >= 0) {
       var wineReview = { rows: changed.wine || [], hiddenKeys: changed.wineHiddenKeys || [], canPublish: true };
@@ -172,9 +173,10 @@ function publishMenus(menuNames, draftRevision, changes, confirmation) {
     }
     if (selected.indexOf('whiskey') >= 0) writePlanToSheet_('whiskey', whiskeyWritePlan_(changed.whiskey || []));
     if (selected.indexOf('spirits') >= 0) writePlanToSheet_('spirits', buildSpiritWritePlan_(changed.spirits || []));
+    var postWriteDraft = pullCurrentDraft_();
     var receipt = dispatchPublishWorkflow_();
     receipt.managerEmail = email;
-    receipt.sheetRevision = current.revision;
+    receipt.sheetRevision = postWriteDraft.revision;
     return receipt;
   } finally {
     lock.releaseLock();

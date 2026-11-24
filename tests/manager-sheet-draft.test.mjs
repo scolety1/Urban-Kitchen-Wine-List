@@ -96,6 +96,17 @@ test("Wine write plans address only approved guest columns", () => {
   }
 });
 
+test("Wine publication rejects missing identity and blank prices", () => {
+  const core = loadCore();
+  for (const row of [
+    { key: "", name: "Estate Red", bottlePrice: 72, showOnQr: true },
+    { key: "101", name: "", bottlePrice: 72, showOnQr: true },
+    { key: "101", name: "Estate Red", bottlePrice: "", showOnQr: true },
+  ]) {
+    assert.throws(() => core.buildWineWritePlan_({ rows: [row], hiddenKeys: [], canPublish: true }), /required|valid/i);
+  }
+});
+
 test("Spirit suggestions include hard liquor and exclude beer, liqueurs, and mixers", () => {
   const core = loadCore();
   assert.equal(typeof core.suggestSpiritFamily_, "function");

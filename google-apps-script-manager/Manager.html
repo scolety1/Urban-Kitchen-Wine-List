@@ -1,0 +1,150 @@
+<script>
+(() => {
+  const FAMILIES = ["Tequila & Mezcal", "Gin", "Vodka", "Rum", "Brandy & Cognac", "Other Spirits"];
+  const EXCLUDED_CATEGORIES = new Set(["Beer", "Bitters", "Liqueur / aperitif", "Non-alcoholic"]);
+  const state = { active: "wine", draft: null, dirty: false, wineHiddenKeys: [], searches: { wine: "", whiskey: "", spirits: "" }, spiritFilter: "all" };
+  const q = (selector) => document.querySelector(selector);
+  const qa = (selector) => [...document.querySelectorAll(selector)];
+  const esc = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  const status = (message) => { q("[data-global-status]").textContent = message; q('[aria-live]'); };
+
+  function runServer(method, ...args) {
+    return new Promise((resolve, reject) => {
+      const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler((error) => reject(new Error(error?.message || String(error))));
+      runner[method](...args);
+    });
+  }
+
+  function mayDiscardDraft() { return !state.dirty || confirm("Discard the unsaved manager draft and pull fresh Google Sheets data?"); }
+
+  async function pull(menuNames, label) {
+    if (!mayDiscardDraft()) return;
+    status(`Pulling ${label} from Google Sheets…`);
+    try {
+      const pulled = await runServer("pullMenus", menuNames);
+      if (state.draft && menuNames.length === 1) {
+        const menu = menuNames[0];
+        state.draft[menu] = pulled[menu];
+        state.draft.menuRevisions[menu] = pulled.menuRevisions[menu];
+        state.draft.pulledMenus = [...new Set([...(state.draft.pulledMenus || []), menu])];
+      } else state.draft = pulled;
+      state.dirty = false; state.wineHiddenKeys = [];
+      q("[data-manager-email]").textContent = pulled.manager.email;
+      renderAll();
+      status(`${label} pulled from Google Sheets. Nothing live changed.`);
+    } catch (error) { status(error.message.includes("Google Sheets changed") ? "Google Sheets changed. Pull again." : error.message); }
+  }
+
+  const familyOptions = (selected, suggested) => `<option value="">${suggested ? `Suggested: ${esc(suggested)} — choose to confirm` : "Needs Review"}</option>${FAMILIES.map((family) => `<option value="${esc(family)}"${selected === family ? " selected" : ""}>${esc(family)}</option>`).join("")}`;
+  const rowMatches = (row, menu) => JSON.stringify(row).toLowerCase().includes(state.searches[menu].toLowerCase());
+  const spiritEligible = (row) => !EXCLUDED_CATEGORIES.has(row.inventoryCategory) && row.inventoryCategory !== "Beer";
+
+  function renderWine(rows) {
+    return rows.filter((row) => rowMatches(row, "wine")).map((row) => {
+      const index = rows.indexOf(row);
+      return `<tr data-index="${index}"><td><input type="checkbox" data-field="showOnQr" ${row.showOnQr ? "checked" : ""} aria-label="Show ${esc(row.name)} on QR"></td><td>${esc(row.key)}</td><td><input data-field="name" value="${esc(row.name)}" aria-label="Guest name"></td><td><input data-field="bottlePrice" type="number" min="0" step="0.01" value="${esc(row.bottlePrice)}" aria-label="Bottle price"></td></tr>`;
+    }).join("");
+  }
+
+  function renderWhiskey(rows) {
+    return rows.filter((row) => rowMatches(row, "whiskey")).map((row) => {
+      const index = rows.indexOf(row);
+      return `<tr data-index="${index}"><td><input type="checkbox" data-field="showOnQr" ${row.showOnQr ? "checked" : ""} aria-label="Show ${esc(row.name)} on QR"></td><td><input data-field="name" value="${esc(row.name)}" aria-label="Guest name"></td><td><input data-field="category" value="${esc(row.category)}" aria-label="Category"></td><td><input data-field="price" type="number" min="0" step="0.01" value="${esc(row.price)}" aria-label="Price"></td></tr>`;
+    }).join("");
+  }
+
+  function renderSpirits(rows) {
+    const eligible = rows.filter(spiritEligible).filter((row) => rowMatches(row, "spirits")).filter((row) => state.spiritFilter === "review" ? !row.spiritFamily : state.spiritFilter === "shots" ? row.featuredShot : true);
+    return eligible.map((row) => {
+      const index = rows.indexOf(row);
+      return `<tr data-index="${index}" class="${row.spiritFamily ? "" : "needs-review"}"><td><input type="checkbox" data-field="showOnQr" ${row.showOnQr ? "checked" : ""} aria-label="Show ${esc(row.name)} on QR"></td><td><input type="checkbox" data-field="featuredShot" ${row.featuredShot ? "checked" : ""} aria-label="Feature ${esc(row.name)} as a Shot Pick"></td><td><input data-field="name" value="${esc(row.name)}" aria-label="Guest name"></td><td><select data-field="spiritFamily" aria-label="Spirit family">${familyOptions(row.spiritFamily, row.suggestedFamily)}</select>${row.suggestedFamily && !row.spiritFamily ? `<span class="suggestion">Suggested from inventory: ${esc(row.suggestedFamily)}</span>` : ""}</td><td><input data-field="pourSize" value="${esc(row.pourSize)}" placeholder="e.g. 1.5 oz" aria-label="Pour size"></td><td><input data-field="pourPrice" type="number" min="0" step="0.01" value="${esc(row.pourPrice)}" aria-label="Pour price"></td><td><input data-field="shotPrice" type="number" min="0" step="0.01" value="${esc(row.shotPrice)}" placeholder="Shot price"><input data-field="shotNote" value="${esc(row.shotNote)}" maxlength="120" placeholder="Shot note"></td></tr>`;
+    }).join("");
+  }
+
+  function renderMenu(menu) {
+    const rows = state.draft?.[menu] || [];
+    q(`[data-rows="${menu}"]`).innerHTML = menu === "wine" ? renderWine(rows) : menu === "whiskey" ? renderWhiskey(rows) : renderSpirits(rows);
+    const visible = menu === "spirits" ? rows.filter(spiritEligible).length : rows.length;
+    const shown = rows.filter((row) => row.showOnQr).length;
+    const review = menu === "spirits" ? rows.filter(spiritEligible).filter((row) => !row.spiritFamily).length : rows.filter((row) => !row.name).length;
+    q(`[data-summary="${menu}"]`).textContent = `${visible} rows pulled · ${shown} set to show on QR${review ? ` · ${review} Needs Review` : " · Ready for review"}`;
+    q(`[data-publish-menu="${menu}"]`).disabled = !state.draft?.pulledMenus?.includes(menu);
+  }
+  function renderAll() { for (const menu of ["wine", "whiskey", "spirits"]) renderMenu(menu); }
+
+  function updateRow(event) {
+    const field = event.target.dataset.field;
+    if (!field || !state.draft) return;
+    const tr = event.target.closest("tr");
+    const menu = event.target.closest("[data-workspace]").dataset.workspace;
+    const row = state.draft[menu][Number(tr.dataset.index)];
+    row[field] = event.target.type === "checkbox" ? event.target.checked : event.target.type === "number" ? (event.target.value === "" ? "" : Number(event.target.value)) : event.target.value;
+    state.dirty = true; renderMenu(menu); status("Draft changed in this browser. Review and publish when ready.");
+  }
+
+  function validate(menu, rows) {
+    const errors = [];
+    const validPrice = (value) => value !== "" && value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) >= 0;
+    rows.forEach((row) => {
+      if (!row.name) errors.push("Every guest row needs a name.");
+      if (menu === "wine" && row.showOnQr && !validPrice(row.bottlePrice)) errors.push(`${row.name}: bottle price is required.`);
+      if (menu === "whiskey" && row.showOnQr && !validPrice(row.price)) errors.push(`${row.name}: price is required.`);
+      if (menu === "spirits" && row.showOnQr && (!FAMILIES.includes(row.spiritFamily) || !validPrice(row.pourPrice) || !row.pourSize)) errors.push(`${row.name}: confirm family, pour size, and price.`);
+      if (menu === "spirits" && row.featuredShot && !row.showOnQr) errors.push(`${row.name}: a Shot Pick must also show on QR.`);
+    });
+    return [...new Set(errors)];
+  }
+
+  async function retryWebsitePublish(receipt, target) {
+    target.textContent = "Retrying the website publishing workflow.";
+    try {
+      const retried = await runServer("retryPublishWorkflow", receipt.sheetRevision);
+      target.innerHTML = `${esc(retried.message)}${retried.workflowUrl ? ` <a href="${esc(retried.workflowUrl)}" target="_blank" rel="noopener noreferrer">View publishing status</a>` : ""}`;
+      status(retried.state === "published" ? "Publish started. The guest page updates after automated checks pass." : "Website workflow still needs attention.");
+    } catch (error) { target.textContent = error.message.includes("Google Sheets changed") ? "Google Sheets changed. Pull again before retrying." : error.message; }
+  }
+
+  async function publish(menu) {
+    if (!state.draft) return;
+    const rows = menu === "spirits" ? state.draft.spirits.filter((row) => spiritEligible(row) && (row.showOnQr || row.spiritFamily || row.featuredShot)) : state.draft[menu];
+    const errors = validate(menu, rows);
+    const target = q(`[data-publish-status="${menu}"]`);
+    if (errors.length) { target.textContent = errors.slice(0, 5).join(" "); return; }
+    if (!confirm(`Publish the reviewed ${menu} guest menu?`)) return;
+    target.textContent = "Saving approved guest fields and starting the website workflow…";
+    try {
+      const revision = state.draft.menuRevisions[menu];
+      const changes = { [menu]: rows, wineHiddenKeys: menu === "wine" ? state.wineHiddenKeys : [] };
+      const receipt = await runServer("publishMenus", [menu], revision, changes, "PUBLISH");
+      state.dirty = false;
+      target.innerHTML = `${esc(receipt.message)}${receipt.workflowUrl ? ` <a href="${esc(receipt.workflowUrl)}" target="_blank" rel="noopener noreferrer">View publishing status</a>` : ""}${receipt.state === "sheet-updated-workflow-not-started" ? ' <button type="button" data-retry-publish>Retry website publish</button>' : ""}`;
+      if (receipt.state === "sheet-updated-workflow-not-started") {
+        target.querySelector("[data-retry-publish]").addEventListener("click", () => retryWebsitePublish(receipt, target));
+        status("Sheet saved; website workflow needs a retry.");
+      }
+      else status("Publish started. The guest page updates after automated checks pass.");
+    } catch (error) { target.textContent = error.message.includes("Google Sheets changed") ? "Google Sheets changed. Pull again before publishing." : error.message; }
+  }
+
+  async function importWine(file) {
+    if (!state.draft?.pulledMenus?.includes("wine")) { status("Pull Wine before importing a CSV."); return; }
+    status("Reviewing Wine CSV against the pulled Sheet…");
+    try {
+      const review = await runServer("reviewCsv", "wine", await file.text(), state.draft.menuRevisions.wine);
+      const box = q("[data-csv-review]"); box.hidden = false; box.textContent = `${review.counts.uploaded} uploaded · ${review.counts.added} added · ${review.counts.changed} changed · ${review.counts.hidden} hidden · ${review.counts.invalid} invalid`;
+      if (!review.canPublish) { status(review.errors.join(" ")); return; }
+      state.draft.wine = review.rows; state.wineHiddenKeys = review.hiddenKeys; state.dirty = true; renderMenu("wine"); status("CSV applied to the browser draft. Review before publishing.");
+    } catch (error) { status(error.message); }
+  }
+
+  qa("[data-workspace-tab]").forEach((button) => button.addEventListener("click", () => { state.active = button.dataset.workspaceTab; qa("[data-workspace-tab]").forEach((item) => item.classList.toggle("is-active", item === button)); qa("[data-workspace]").forEach((panel) => { panel.hidden = panel.dataset.workspace !== state.active; }); }));
+  q("[data-pull-all]").addEventListener("click", () => pull(["wine", "whiskey", "spirits"], "Wine, Whiskey, and Spirits"));
+  qa("[data-pull-menu]").forEach((button) => button.addEventListener("click", () => pull([button.dataset.pullMenu], button.textContent.replace("Pull ", ""))));
+  qa("[data-publish-menu]").forEach((button) => button.addEventListener("click", () => publish(button.dataset.publishMenu)));
+  qa("[data-workspace]").forEach((panel) => panel.addEventListener("change", updateRow));
+  qa("[data-search]").forEach((input) => input.addEventListener("input", () => { state.searches[input.dataset.search] = input.value; renderMenu(input.dataset.search); }));
+  q("[data-spirit-filter]").addEventListener("change", (event) => { state.spiritFilter = event.target.value; renderMenu("spirits"); });
+  q("[data-wine-csv]").addEventListener("change", (event) => { if (event.target.files[0]) importWine(event.target.files[0]); });
+  runServer("getManagerBootstrap").then((bootstrap) => { q("[data-manager-email]").textContent = bootstrap.manager.email; }).catch((error) => status(error.message));
+})();
+</script>

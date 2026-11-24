@@ -109,6 +109,9 @@ function buildWineWritePlan_(review) {
   if (!review || !review.canPublish) throw new Error('Wine review is not publishable.');
   return {
     upserts: review.rows.map(function(row) {
+      if (!managerText_(row.key)) throw new Error('Wine Bin is required.');
+      if (!managerText_(row.name)) throw new Error('Wine Menu Name is required.');
+      if (row.showOnQr === true && !validNonnegativePrice_(row.bottlePrice)) throw new Error(row.name + ': a valid Bottle Price is required.');
       var values = {};
       Object.keys(WINE_WRITE_FIELDS_).forEach(function(key) {
         if (Object.prototype.hasOwnProperty.call(row, key)) values[WINE_WRITE_FIELDS_[key]] = row[key];

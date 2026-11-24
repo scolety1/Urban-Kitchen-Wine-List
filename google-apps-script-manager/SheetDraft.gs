@@ -98,6 +98,11 @@ function projectManagerDraft_(sources) {
     whiskey: projectWhiskeyRows_(sources.whiskey || { headers: [], rows: [] }),
     spirits: projectSpiritRows_(sources.spirits || { headers: [], rows: [] }),
   };
+  draft.menuRevisions = {
+    wine: stableHash_(draft.wine),
+    whiskey: stableHash_(draft.whiskey),
+    spirits: stableHash_(draft.spirits),
+  };
   draft.revision = stableHash_(draft);
   return draft;
 }

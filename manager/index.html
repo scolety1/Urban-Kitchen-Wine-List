@@ -5,45 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090807">
   <meta name="robots" content="noindex,nofollow">
-  <title>Beverage Manager | Urban Kitchen</title>
+  <title>Sign in | Urban Kitchen Beverage Manager</title>
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/manager.css">
 </head>
 <body class="manager-page">
-  <main class="manager-shell">
-    <header class="manager-heading">
+  <main class="manager-signin-shell">
+    <section class="manager-signin-card" aria-labelledby="manager-title">
       <p class="masthead-kicker">Urban Kitchen</p>
-      <h1>Beverage Manager</h1>
-      <p>Review the hard-coded Wine and Whiskey snapshot currently used by the guest QR menus.</p>
-      <div class="manager-mode"><strong data-manager-mode>Snapshot mode</strong><span data-manager-mode-detail>Google Sheets publishing is not connected yet.</span></div>
-    </header>
-
-    <section class="manager-grid" aria-label="Menu pull controls">
-      <article class="manager-card" data-manager-menu="wine">
-        <div><span class="manager-eyebrow">Guest menu</span><h2>Wine</h2></div>
-        <button class="manager-pull" type="button" data-pull="wine">Pull Wine</button>
-        <p class="manager-status" data-status="wine" role="status" aria-live="polite">Ready to load the published Wine snapshot.</p>
-        <div class="manager-results" data-results="wine" hidden></div>
-      </article>
-
-      <article class="manager-card" data-manager-menu="whiskey">
-        <div><span class="manager-eyebrow">Guest menu</span><h2>Whiskey</h2></div>
-        <button class="manager-pull" type="button" data-pull="whiskey">Pull Whiskey</button>
-        <p class="manager-status" data-status="whiskey" role="status" aria-live="polite">Ready to load the published Whiskey snapshot.</p>
-        <div class="manager-results" data-results="whiskey" hidden></div>
-      </article>
-    </section>
-
-    <aside class="manager-note">
-      <strong>Safe review step:</strong> pulling does not change the live QR menus. It loads the exact public snapshot and lets you download a copy for review.
-    </aside>
-    <section class="manager-publish" data-publish-panel hidden>
-      <div>
-        <span class="manager-eyebrow">Authenticated action</span>
-        <h2>Publish approved menus</h2>
-        <p>Publishing opens GitHub Actions and requires an authorized GitHub account. No publishing credential is stored on this website.</p>
-      </div>
-      <a class="manager-download" href="https://github.com/scolety1/Urban-Kitchen-Wine-List/actions/workflows/publish-inventory.yml" target="_blank" rel="noopener noreferrer">Open Publish Workflow</a>
+      <h1 id="manager-title">Beverage Manager</h1>
+      <p class="manager-signin-copy">Private access for approved managers. Sign in to pull Wine, Whiskey, and Spirits from Google Sheets, review changes, and publish the guest menus.</p>
+      <div class="manager-security-note"><span aria-hidden="true">●</span><span>Google sign-in required. Publishing credentials stay on the private server.</span></div>
+      <a class="manager-signin-button" data-manager-sign-in aria-disabled="true">Continue with Google</a>
+      <p class="manager-signin-status" data-manager-sign-in-status role="status" aria-live="polite">Checking the secure manager connection.</p>
+      <a class="manager-back-link" href="../beverages/">Back to guest beverage menus</a>
     </section>
   </main>
   <script type="module" src="../js/manager.js"></script>

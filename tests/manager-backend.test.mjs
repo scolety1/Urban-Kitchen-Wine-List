@@ -109,6 +109,38 @@ test("authorized no-change publication dispatches the workflow without exposing 
   assert.equal(calls.releases, 1);
 });
 
+test("a menu pulled with Pull All can publish independently using its menu revision", () => {
+  const { context, calls } = loadBackend({ properties: configured });
+  const pulled = context.pullMenus(["wine", "whiskey", "spirits"]);
+  assert.match(pulled.menuRevisions.wine, /^[a-f0-9]{8}$/);
+  const receipt = context.publishMenus(["wine"], pulled.menuRevisions.wine, { wine: pulled.wine }, "PUBLISH");
+  assert.equal(receipt.state, "published");
+  assert.ok(calls.batches.length > 0);
+  assert.equal(calls.fetches.length, 1);
+});
+
+test("Whiskey publication rejects a blank guest price", () => {
+  const { context, calls } = loadBackend({ properties: configured });
+  const pulled = context.pullMenus(["whiskey"]);
+  const invalid = { ...pulled.whiskey[0], price: "" };
+  assert.throws(
+    () => context.publishMenus(["whiskey"], pulled.menuRevisions.whiskey, { whiskey: [invalid] }, "PUBLISH"),
+    /valid price/i,
+  );
+  assert.equal(calls.batches.length, 0);
+  assert.equal(calls.fetches.length, 0);
+});
+
+test("publish receipts carry the post-write Sheet revision for safe workflow retry", () => {
+  const withoutToken = { ...configured };
+  delete withoutToken.GITHUB_TOKEN;
+  const { context } = loadBackend({ properties: withoutToken });
+  const pulled = context.pullMenus(["wine"]);
+  const receipt = context.publishMenus(["wine"], pulled.menuRevisions.wine, { wine: pulled.wine }, "PUBLISH");
+  assert.equal(receipt.sheetRevision, context.pullCurrentDraft_().revision);
+  assert.match(source("google-apps-script-manager/Code.gs"), /postWriteDraft[\s\S]*receipt\.sheetRevision\s*=\s*postWriteDraft\.revision/);
+});
+
 test("missing GitHub configuration reports Sheet-only partial success", () => {
   const withoutToken = { ...configured };
   delete withoutToken.GITHUB_TOKEN;

@@ -1,103 +1,26 @@
-const CONFIG = {
-  wine: { source: "../data/wines.json", file: "wines.csv" },
-  whiskey: { source: "../data/whiskey.csv", file: "whiskey.csv" },
-};
-let inventoryEndpoint = "";
+const signIn = document.querySelector("[data-manager-sign-in]");
+const status = document.querySelector("[data-manager-sign-in-status]");
 
-const escapeHtml = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-const quote = (value) => {
-  const text = String(value ?? "");
-  return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
-};
-const toCsv = (headers, rows) => [headers, ...rows.map((row) => headers.map((key) => row[key] ?? ""))]
-  .map((row) => row.map(quote).join(",")).join("\r\n");
-
-function download(filename, contents) {
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(new Blob([contents], { type: "text/csv;charset=utf-8" }));
-  link.download = filename;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 0);
-}
-
-function parseCsv(text) {
-  const rows = [];
-  let row = [], field = "", quoted = false;
-  for (let index = 0; index < text.length; index += 1) {
-    const char = text[index];
-    if (quoted && char === '"' && text[index + 1] === '"') { field += '"'; index += 1; }
-    else if (char === '"') quoted = !quoted;
-    else if (!quoted && char === ",") { row.push(field); field = ""; }
-    else if (!quoted && (char === "\n" || char === "\r")) {
-      if (char === "\r" && text[index + 1] === "\n") index += 1;
-      row.push(field); field = ""; if (row.some(Boolean)) rows.push(row); row = [];
-    } else field += char;
-  }
-  if (field || row.length) { row.push(field); rows.push(row); }
-  const headers = rows.shift() || [];
-  return rows.map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
-}
-
-function previewRows(type, rows) {
-  return rows.slice(0, 5).map((row) => `<tr><td>${escapeHtml(row.name)}</td><td>${escapeHtml(type === "wine" ? row.varietal || row.type : row.category)}</td><td>${escapeHtml(type === "wine" ? row.bottle_price : row.price)}</td></tr>`).join("");
-}
-
-async function pull(type) {
-  const button = document.querySelector(`[data-pull="${type}"]`);
-  const status = document.querySelector(`[data-status="${type}"]`);
-  const results = document.querySelector(`[data-results="${type}"]`);
-  button.disabled = true;
-  status.textContent = `Pulling ${type} inventory…`;
-  results.hidden = true;
+async function configurePrivateManager() {
   try {
-    const source = inventoryEndpoint || CONFIG[type].source;
-    const response = await fetch(source, { cache: "no-store", redirect: "follow" });
-    if (!response.ok) throw new Error(`Inventory returned ${response.status}.`);
-    const body = await response.text();
-    let ready;
-    if (inventoryEndpoint) {
-      const payload = JSON.parse(body);
-      if (payload.error) throw new Error(payload.error);
-      ready = payload[type];
-      if (!Array.isArray(ready)) throw new Error("Inventory payload is invalid.");
-    } else {
-      ready = type === "wine" ? JSON.parse(body) : parseCsv(body);
-    }
-    const headers = type === "wine"
-      ? ["name","type","varietal","world","country","region_1","region_2","bin","vintage","glass_price","bottle_price","collection","staff_pick","stock","show","description"]
-      : ["source_id","category","name","price"];
-    const missing = ready.filter((row) => !row.name || (type === "wine" ? !row.bottle_price : !row.price)).length;
-    const csv = toCsv(headers, ready);
-    status.textContent = `${ready.length} published ${type} selections loaded. Review is ready.`;
-    results.innerHTML = `<div class="manager-stats"><div class="manager-stat"><strong>${ready.length}</strong><span>published rows</span></div><div class="manager-stat"><strong>${missing}</strong><span>missing required data</span></div><div class="manager-stat"><strong>${missing ? "Review" : "Ready"}</strong><span>snapshot status</span></div></div><div class="manager-actions"><button class="manager-download" type="button">Download ${CONFIG[type].file}</button></div><table class="manager-preview"><thead><tr><th>Item</th><th>Category</th><th>Price</th></tr></thead><tbody>${previewRows(type, ready)}</tbody></table>`;
-    results.querySelector("button").addEventListener("click", () => download(CONFIG[type].file, csv));
-    results.hidden = false;
-  } catch (error) {
-    console.error(error);
-    status.textContent = "The published snapshot could not be loaded. Refresh the page and try again.";
-  } finally {
-    button.disabled = false;
-  }
-}
-
-document.querySelectorAll("[data-pull]").forEach((button) => button.addEventListener("click", () => pull(button.dataset.pull)));
-
-async function configureSource() {
-  try {
-    const response = await fetch("../data/inventory-api.json", { cache: "no-store" });
-    if (!response.ok) return;
+    const response = await fetch("../data/manager-app.json", { cache: "no-store" });
+    if (!response.ok) throw new Error("Manager configuration is unavailable.");
     const config = await response.json();
-    if (!String(config.endpoint || "").startsWith("https://script.google.com/macros/s/")) return;
-    inventoryEndpoint = config.endpoint;
-    document.querySelector("[data-manager-mode]").textContent = "Connected mode";
-    document.querySelector("[data-manager-mode-detail]").textContent = "Pull reads approved public rows from Google Sheets.";
-    document.querySelector("[data-publish-panel]").hidden = false;
-    for (const type of Object.keys(CONFIG)) {
-      document.querySelector(`[data-status="${type}"]`).textContent = `Ready to pull approved ${type} rows from Google Sheets.`;
-    }
+    const url = String(config.url || "");
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)) throw new Error("Secure manager deployment is not configured yet.");
+    signIn.href = url;
+    signIn.removeAttribute("aria-disabled");
+    status.textContent = "Secure manager is ready.";
   } catch (error) {
-    console.warn("Inventory endpoint configuration unavailable; using the published snapshot.", error);
+    console.warn(error);
+    signIn.removeAttribute("href");
+    signIn.setAttribute("aria-disabled", "true");
+    status.textContent = "Manager sign-in is being configured. The guest Wine and Whiskey menus are unaffected.";
   }
 }
 
-configureSource();
+signIn.addEventListener("click", (event) => {
+  if (signIn.getAttribute("aria-disabled") === "true") event.preventDefault();
+});
+
+configurePrivateManager();
