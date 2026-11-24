@@ -1,0 +1,4 @@
+Bin,Menu Name,Bottle Price,Show on QR
+,Missing Bin,50,TRUE
+101,First Duplicate,45,TRUE
+101,Second Duplicate,48,TRUE
