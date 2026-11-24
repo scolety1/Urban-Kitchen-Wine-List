@@ -559,13 +559,18 @@ test("a recommender result card is never labelled as a critic rating", () => {
 
 // ----------------------------------------------------------- static contracts
 
-test("Whiskey creates the picker opener in the same filter row as Wine", () => {
+test("Whiskey keeps its red picker action outside the scrolling category row", () => {
   const html = read("whiskey.html");
   const script = read("js/whiskey.js");
-  assert.match(html, /<div id="tabs"><\/div>/);
-  assert.match(script, /id="help-me-decide"/);
-  assert.match(script, /class="tab-btn choose-btn"/);
-  assert.match(script, /aria-haspopup="dialog"/);
+  const css = read("css/whiskey.css");
+  assert.match(html, /id="whiskey-picker-action"[^>]*>[\s\S]*id="help-me-decide"[^>]*class="wh-picker-open"/);
+  assert.ok(html.indexOf('id="whiskey-picker-action"') < html.indexOf('id="tabs"'));
+  assert.match(html, /id="help-me-decide"[^>]*aria-haspopup="dialog"/);
+  assert.doesNotMatch(script, /choose-btn/);
+  assert.doesNotMatch(script, /tabs\.innerHTML\s*=\s*`<button/);
+  assert.match(cssBlock(css, ".wh-picker-action"), /flex:\s*0 0 auto|overflow:\s*visible/);
+  assert.match(cssBlock(css, ".wh-picker-open"), /background:\s*var\(--accent-soft\)/);
+  assert.match(cssBlock(css, ".wh-picker-open"), /border[^;]*var\(--accent-border\)/);
   assert.match(script, /openRecommendationPicker/);
   assert.doesNotMatch(html, /Critic Picks|\bbest\b/i);
 });

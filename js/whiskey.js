@@ -15,7 +15,7 @@ const status = document.getElementById("status");
 const topbar = document.getElementById("top-bar");
 const content = document.getElementById("content");
 const picks = document.getElementById("picks");
-let pickerButton = null;
+const pickerButton = document.getElementById("help-me-decide");
 let rows = [];
 let activeCategory = "All";
 let metadata = { ok: false, errors: [], byId: {} };
@@ -42,9 +42,7 @@ function updateFilterButtons() {
 
 function renderTabs() {
   tabs.setAttribute("aria-label", "Whiskey categories");
-  tabs.innerHTML = `<button type="button" id="help-me-decide" class="tab-btn choose-btn" aria-haspopup="dialog">Help Me Decide</button>${renderTabsHtml(rows, activeCategory)}`;
-  pickerButton = document.getElementById("help-me-decide");
-  pickerButton?.addEventListener("click", openRecommendationPicker);
+  tabs.innerHTML = renderTabsHtml(rows, activeCategory);
 
   tabs.querySelectorAll("[data-whiskey-category]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -54,6 +52,8 @@ function renderTabs() {
     });
   });
 }
+
+pickerButton?.addEventListener("click", openRecommendationPicker);
 
 function renderMenu() {
   menu.innerHTML = renderMenuHtml(rows, activeCategory);

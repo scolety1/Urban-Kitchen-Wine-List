@@ -1,5 +1,13 @@
 /* Whiskey-only styles: detail/picker dialogs, name buttons, picks. Loaded after the shared CSS. */
 
+.wh-picker-action {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  padding: 8px var(--pad) 0;
+  overflow: visible;
+}
+
 /* At 400% zoom the viewport is only a few hundred CSS pixels tall: a fixed header would cover
    the whole page. Let it scroll away with the page instead of hiding the menu. */
 @media (max-height: 480px) {
